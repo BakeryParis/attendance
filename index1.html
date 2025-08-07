@@ -107,6 +107,8 @@
   let currentEmployee = null;
   let selfieDataUrl = null;
   let webcamStream = null;
+  let currentLocation = null;
+
   const loginSection = document.getElementById('login-section');
   const dashboardSection = document.getElementById('dashboard-section');
   const loginForm = document.getElementById('loginForm');
@@ -127,6 +129,19 @@
   const cameraPermissionModal = new bootstrap.Modal(cameraPermissionModalElem);
   const cameraPermissionMsg = document.getElementById('cameraPermissionMsg');
   const attendanceRecords = document.getElementById('attendanceRecords');
+
+  // Haversine formula to calculate distance between two lat/lng points (in meters)
+  function haversineDistance(lat1, lon1, lat2, lon2) {
+    function toRad(x) { return x * Math.PI / 180; }
+    const R = 6371000; // Earth radius in meters
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  }
 
   // Login logic
   loginForm.onsubmit = async function(e) {
@@ -152,56 +167,88 @@
     // Success
     currentEmployee = data;
     employeeName.textContent = data.name;
-    employeeLocation.textContent = data.location;
+    employeeLocation.textContent = `${data.location || ''} (${data.latitude}, ${data.longitude})`;
     loginSection.classList.add('d-none');
     dashboardSection.classList.remove('d-none');
     loadAttendance();
   };
 
-  // Mark Attendance
+  // Mark Attendance with location check
   markAttendanceBtn.onclick = async function() {
     selfiePreviewSection.classList.add('d-none');
     selfiePreview.src = '';
-    try {
-      if (webcamStream) {
-        webcamStream.getTracks().forEach(track => track.stop());
-        webcam.srcObject = null;
-      }
-      webcamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-      webcam.srcObject = webcamStream;
-      webcam.onloadedmetadata = function() { webcam.play(); };
-      selfieModal.show();
-    } catch (err) {
-      let msg = '';
-      if (err.name === 'NotAllowedError') {
-        msg = `<strong>Camera access was blocked.</strong><br>
-          Please allow camera access in your browser.<br>
-          <ul>
-            <li>Click the camera icon or lock in your address bar and set permission to "Allow".</li>
-            <li>Reload this page after allowing.</li>
-            <li>If on mobile, check browser settings or use Chrome/Safari.</li>
-          </ul>`;
-      } else if (err.name === 'NotFoundError' || err.name === 'OverconstrainedError') {
-        msg = `<strong>No camera detected.</strong><br>
-          Please ensure your device has a camera and it is not being used by another app.<br>
-          <ul>
-            <li>Try plugging in a webcam (for desktops).</li>
-            <li>Allow necessary permissions.</li>
-            <li>Reload the page after fixing.</li>
-          </ul>`;
-      } else if (err.name === 'NotReadableError') {
-        msg = `<strong>Camera is already in use.</strong><br>
-          Please close other apps that may be using the camera and try again.<br>
-          <ul>
-            <li>Close Zoom, Teams, or other video meeting tools.</li>
-            <li>Reload the page.</li>
-          </ul>`;
-      } else {
-        msg = `<strong>Could not access camera.</strong><br>Error: ${err.message || err.name}`;
-      }
-      cameraPermissionMsg.innerHTML = msg;
-      cameraPermissionModal.show();
+    // Step 1: Get user's current location
+    if (!navigator.geolocation) {
+      showAttendanceStatus("Geolocation is not supported by your browser.", "danger");
+      return;
     }
+    showAttendanceStatus("Checking your location...", "info");
+
+    navigator.geolocation.getCurrentPosition(async function(position) {
+      const userLat = position.coords.latitude;
+      const userLng = position.coords.longitude;
+      currentLocation = { latitude: userLat, longitude: userLng };
+
+      // Step 2: Compare with registered location
+      const registeredLat = parseFloat(currentEmployee.latitude);
+      const registeredLng = parseFloat(currentEmployee.longitude);
+
+      if (isNaN(registeredLat) || isNaN(registeredLng)) {
+        showAttendanceStatus("Registered location not set. Contact admin.", "danger");
+        return;
+      }
+
+      const dist = haversineDistance(userLat, userLng, registeredLat, registeredLng);
+
+      if (dist > 10) {
+        showAttendanceStatus(`You are too far from your registered location (${dist.toFixed(1)} m). Attendance cannot be marked.`, "danger");
+        return;
+      }
+
+      // Step 3: Proceed to open camera if location is valid
+      try {
+        if (webcamStream) {
+          webcamStream.getTracks().forEach(track => track.stop());
+          webcam.srcObject = null;
+        }
+        webcamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+        webcam.srcObject = webcamStream;
+        webcam.onloadedmetadata = function() { webcam.play(); };
+        selfieModal.show();
+      } catch (err) {
+        let msg = '';
+        if (err.name === 'NotAllowedError') {
+          msg = `<strong>Camera access was blocked.</strong><br>
+            Please allow camera access in your browser.<br>
+            <ul>
+              <li>Click the camera icon or lock in your address bar and set permission to "Allow".</li>
+              <li>Reload this page after allowing.</li>
+              <li>If on mobile, check browser settings or use Chrome/Safari.</li>
+            </ul>`;
+        } else if (err.name === 'NotFoundError' || err.name === 'OverconstrainedError') {
+          msg = `<strong>No camera detected.</strong><br>
+            Please ensure your device has a camera and it is not being used by another app.<br>
+            <ul>
+              <li>Try plugging in a webcam (for desktops).</li>
+              <li>Allow necessary permissions.</li>
+              <li>Reload the page after fixing.</li>
+            </ul>`;
+        } else if (err.name === 'NotReadableError') {
+          msg = `<strong>Camera is already in use.</strong><br>
+            Please close other apps that may be using the camera and try again.<br>
+            <ul>
+              <li>Close Zoom, Teams, or other video meeting tools.</li>
+              <li>Reload the page.</li>
+            </ul>`;
+        } else {
+          msg = `<strong>Could not access camera.</strong><br>Error: ${err.message || err.name}`;
+        }
+        cameraPermissionMsg.innerHTML = msg;
+        cameraPermissionModal.show();
+      }
+    }, function(error) {
+      showAttendanceStatus("Unable to get your location: " + error.message, "danger");
+    }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
   };
 
   captureBtn.onclick = function() {
@@ -226,12 +273,16 @@
   };
 
   submitAttendanceBtn.onclick = async function() {
-    if (!currentEmployee || !selfieDataUrl) return;
+    if (!currentEmployee || !selfieDataUrl || !currentLocation) return;
     showAttendanceStatus('Uploading...', 'info');
     const { error } = await supabase.from('attendance').insert([{
       username: currentEmployee.username,
       name: currentEmployee.name,
       location: currentEmployee.location,
+      registered_latitude: currentEmployee.latitude,
+      registered_longitude: currentEmployee.longitude,
+      marked_latitude: currentLocation.latitude,
+      marked_longitude: currentLocation.longitude,
       image: selfieDataUrl,
       timestamp: new Date().toISOString()
     }]);
@@ -244,6 +295,7 @@
     selfiePreviewSection.classList.add('d-none');
     selfiePreview.src = '';
     selfieDataUrl = null;
+    currentLocation = null;
   };
 
   function showAttendanceStatus(msg, type) {
@@ -274,6 +326,8 @@
         <img src="${r.image}" class="attendance-img me-2" alt="Selfie" />
         <div>
           <div>${new Date(r.timestamp).toLocaleString()}</div>
+          <div class="small text-muted">Registered: (${r.registered_latitude}, ${r.registered_longitude})<br>
+            Marked: (${r.marked_latitude}, ${r.marked_longitude})</div>
           <div class="small text-muted">${r.location}</div>
         </div>
       </div>`
