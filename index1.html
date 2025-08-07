@@ -201,7 +201,7 @@
 
       const dist = haversineDistance(userLat, userLng, registeredLat, registeredLng);
 
-      if (dist > 10) {
+      if (dist > 50) {
         showAttendanceStatus(`You are too far from your registered location (${dist.toFixed(1)} m). Attendance cannot be marked.`, "danger");
         return;
       }
