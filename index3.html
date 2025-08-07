@@ -10,17 +10,18 @@
     body {
       background: #f7f9fc;
       min-height: 100vh;
-      font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+      font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;      
     }
+    
     .container {
       max-width: 420px;
       margin: 0 auto;
       padding-top: 56px;
-      padding-bottom: 40px;
+      padding-bottom: 40px; /* Some space for bottom elements */
     }
     .logo-box {
       text-align: center;
-      margin-bottom: 36px;
+      margin-bottom: 1px;
       margin-top: 0;
       padding-top: 0;
     }
@@ -206,46 +207,45 @@
       margin-bottom: 0;
       line-height: 1.1;
     }
-    /* Selfie preview styling fix */
-    .selfie-preview {
-      width: 100%;
-      max-width: 180px;
-      height: auto;
-      object-fit: cover;
-      border-radius: 8px;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-      background: #f7f9fc;
-      border: 2px solid #d0e0ef;
-    }
-    .webcam-box video {
-      width: 100%;
-      max-width: 220px;
-      height: auto;
-      object-fit: cover;
-      border-radius: 8px;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-      background: #f7f9fc;
-      border: 2px solid #d0e0ef;
-    }
-    /* Marquee text at bottom, no background */
+    /* Marquee text - login page only, no background */
     .marquee-support {
       width: 100%;
-      position: fixed;
-      left: 0;
-      bottom: 0;
-      background: transparent !important;
+      margin: 0.5em 0 1.2em 0;
       color: #24477a;
       font-size: 1rem;
       font-weight: 500;
       letter-spacing: 0.02em;
-      z-index: 100;
+      border-radius: 0;
+      background: transparent !important;
     }
     .marquee-support marquee {
       background: transparent !important;
+    }
+    /* CAMERA PREVIEW FIX */
+    .webcam-box {
+      width: 100%;
+      min-height: 120px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f7f9fc;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    #webcam {
+      width: 100%;
+      max-width: 320px;
+      max-height: 220px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: #e5f0fa;
+      display: block;
+    }
+    /* Modal Dialog Responsive */
+    #selfieModal .modal-dialog {
+      max-width: 370px;
+      width: 97vw;
     }
     @media (max-width: 600px) {
       .container { max-width: 98vw; }
@@ -257,8 +257,17 @@
       .slot-label { font-size: 0.9rem; }
       .slots-headline { font-size: 1rem; }
       .marquee-support { font-size: 0.95rem; }
-      .selfie-preview { max-width: 120px; }
-      .webcam-box video { max-width: 140px; }
+      #webcam {
+        max-width: 98vw;
+        max-height: 160px;
+      }
+      #selfieModal .modal-dialog {
+        max-width: 99vw;
+        width: 99vw;
+      }
+      .webcam-box {
+        min-height: 80px;
+      }
     }
     @media (max-width: 400px) {
       .logo-img { max-width: 110px; }
@@ -271,8 +280,13 @@
       .summary-row { gap: 6px; }
       .slots-grid { gap: 5px; }
       .marquee-support { font-size: 0.9rem; }
-      .selfie-preview { max-width: 80px; }
-      .webcam-box video { max-width: 100px; }
+      #webcam {
+        max-width: 98vw;
+        max-height: 90px;
+      }
+      .webcam-box {
+        min-height: 50px;
+      }
     }
   </style>
 </head>
@@ -386,13 +400,6 @@
   </div>
 </div>
 
-<!-- Marquee support text at bottom of page, fixed, no background -->
-<div class="marquee-support" id="loginSupportMarquee">
-  <marquee behavior="scroll" direction="left" scrollamount="5">
-    For support, contact Samir Singhsamanta: +91 76069 36790
-  </marquee>
-</div>
-
 <!-- Camera Permission Modal -->
 <div class="modal fade" id="cameraPermissionModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
@@ -462,32 +469,39 @@
 
   // Indian Standard Time offset
   function toIST(date) {
+    // date must be a JS Date object in UTC
     let utc = date.getTime() + (date.getTimezoneOffset() * 60000);
+    // IST offset is +5:30 = 19800000 ms
     return new Date(utc + 19800000);
   }
 
   // Attendance Summary for TODAY (on login page)
   async function loadTodayAttendanceSummary() {
+    // Get all users
     const { data: userList, error: userError } = await supabase
       .from('users')
       .select('username');
     const totalEmp = userList && userList.length ? userList.length : 0;
     summaryTotalEmp.textContent = totalEmp;
 
+    // Get today's attendance
     const now = new Date();
+    // Get IST start and end of day
     let todayIST = toIST(now);
     let istYear = todayIST.getFullYear();
     let istMonth = todayIST.getMonth();
     let istDate = todayIST.getDate();
-    let startIST = new Date(Date.UTC(istYear, istMonth, istDate, 2, 0, 0));
-    let endIST = new Date(Date.UTC(istYear, istMonth, istDate, 18, 30, 0));
+    let startIST = new Date(Date.UTC(istYear, istMonth, istDate, 2, 0, 0)); // IST 00:00 = UTC 18:30 prev day, so UTC 2:00 is IST 7:30
+    let endIST = new Date(Date.UTC(istYear, istMonth, istDate, 18, 30, 0)); // UTC 18:30 is IST 00:00 next day
 
+    // For attendance records, we want today's IST 0:00 to 23:59
     const { data: attendanceToday, error: attError } = await supabase
       .from('attendance')
       .select('username, timestamp')
       .gte('timestamp', startIST.toISOString())
       .lte('timestamp', endIST.toISOString());
 
+    // Mark counts by slot
     let slot1 = 0, slot2 = 0, slot3 = 0, slot4 = 0;
     let presentUsernames = new Set();
 
@@ -497,6 +511,7 @@
         let istTs = toIST(ts);
         let h = istTs.getHours(), m = istTs.getMinutes();
         let timeMinutes = h * 60 + m;
+        // Slots in IST Time
         if (timeMinutes >= 450 && timeMinutes < 540) { // 7:30 to 9:00
           slot1++;
         } else if (timeMinutes >= 540 && timeMinutes < 780) { // 9:00 to 13:00
@@ -530,6 +545,7 @@
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('userPassword').value;
 
+    // Query Supabase users table for matching username and password
     const { data, error } = await supabase
       .from('users')
       .select('*')
@@ -582,8 +598,8 @@
     let istYear = todayIST.getFullYear();
     let istMonth = todayIST.getMonth();
     let istDate = todayIST.getDate();
-    let startIST = new Date(Date.UTC(istYear, istMonth, istDate, 2, 0, 0));
-    let endIST = new Date(Date.UTC(istYear, istMonth, istDate, 18, 30, 0));
+    let startIST = new Date(Date.UTC(istYear, istMonth, istDate, 2, 0, 0)); // IST 7:30
+    let endIST = new Date(Date.UTC(istYear, istMonth, istDate, 18, 30, 0)); // IST 00:00 next day
 
     const { data, error } = await supabase
       .from('attendance')
@@ -764,6 +780,7 @@
           <div class="small text-muted">${r.location}</div>
         </div>
       </div>`
+      
     ).join("");
   }
 
@@ -772,8 +789,8 @@
     let todayIST = toIST(now);
     let istYear = todayIST.getFullYear();
     let istMonth = todayIST.getMonth();
-    let firstDayIST = new Date(Date.UTC(istYear, istMonth, 1, 2, 0, 0));
-    let lastDayIST = new Date(Date.UTC(istYear, istMonth + 1, 0, 18, 30, 0));
+    let firstDayIST = new Date(Date.UTC(istYear, istMonth, 1, 2, 0, 0)); // IST 00:00
+    let lastDayIST = new Date(Date.UTC(istYear, istMonth + 1, 0, 18, 30, 0)); // IST 23:59
 
     const { data, error } = await supabase
       .from('attendance')
@@ -845,5 +862,11 @@
     return R * c;
   }
 </script>
+  <!-- Marquee support text in login page only, no background -->
+  <div class="marquee-support" id="loginSupportMarquee">
+    <marquee behavior="scroll" direction="left" scrollamount="5">
+      For support, contact Samir Singhsamanta: +91 76069 36790
+    </marquee>
+  </div>
 </body>
 </html>
