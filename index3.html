@@ -221,10 +221,10 @@
     .marquee-support marquee {
       background: transparent !important;
     }
-    /* CAMERA PREVIEW FIX */
+    /* CAMERA PREVIEW FIX FOR 240x320px */
     .webcam-box {
       width: 100%;
-      min-height: 120px;
+      min-height: 160px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -234,9 +234,10 @@
       margin-bottom: 8px;
     }
     #webcam {
-      width: 100%;
-      max-width: 320px;
-      max-height: 220px;
+      width: 240px;
+      height: 320px;
+      max-width: 98vw;
+      max-height: 90vh;
       border-radius: 8px;
       object-fit: cover;
       background: #e5f0fa;
@@ -258,15 +259,17 @@
       .slots-headline { font-size: 1rem; }
       .marquee-support { font-size: 0.95rem; }
       #webcam {
+        width: 180px;
+        height: 240px;
         max-width: 98vw;
-        max-height: 160px;
+        max-height: 80vh;
       }
       #selfieModal .modal-dialog {
         max-width: 99vw;
         width: 99vw;
       }
       .webcam-box {
-        min-height: 80px;
+        min-height: 120px;
       }
     }
     @media (max-width: 400px) {
@@ -281,11 +284,13 @@
       .slots-grid { gap: 5px; }
       .marquee-support { font-size: 0.9rem; }
       #webcam {
-        max-width: 98vw;
-        max-height: 90px;
+        width: 120px;
+        height: 160px;
+        max-width: 95vw;
+        max-height: 60vh;
       }
       .webcam-box {
-        min-height: 50px;
+        min-height: 80px;
       }
     }
   </style>
@@ -655,7 +660,7 @@
           webcamStream.getTracks().forEach(track => track.stop());
           webcam.srcObject = null;
         }
-        webcamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+        webcamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: {exact: 240}, height: {exact: 320} } });
         webcam.srcObject = webcamStream;
         webcam.onloadedmetadata = function() { webcam.play(); };
         selfieModal.show();
@@ -696,10 +701,21 @@
   };
 
   captureBtn.onclick = function() {
+    // Always capture at 240x320 for best fit
     const canvas = document.createElement('canvas');
-    canvas.width = webcam.videoWidth;
-    canvas.height = webcam.videoHeight;
-    canvas.getContext('2d').drawImage(webcam, 0, 0);
+    canvas.width = 240;
+    canvas.height = 320;
+    // draw the center-cropped area if video aspect ratio is not 3:4
+    let sx = 0, sy = 0, sw = webcam.videoWidth, sh = webcam.videoHeight;
+    // If video is wider than 3:4, crop horizontally
+    if (sw / sh > 240/320) {
+      sw = sh * (240/320);
+      sx = (webcam.videoWidth - sw) / 2;
+    } else if (sw / sh < 240/320) {
+      sh = sw * (320/240);
+      sy = (webcam.videoHeight - sh) / 2;
+    }
+    canvas.getContext('2d').drawImage(webcam, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
     selfieDataUrl = canvas.toDataURL('image/jpeg');
     selfiePreview.src = selfieDataUrl;
     selfiePreviewSection.classList.remove('d-none');
