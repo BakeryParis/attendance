@@ -85,8 +85,8 @@
             <!-- Top row: Logo and title -->
             <div class="flex justify-between items-center mb-4">
                 <div class="flex items-center space-x-4">
-                    <!-- Logo: Place your round logo file (e.g., logo1.png) in the root directory. -->
-                    <img src="./logo1.png" alt="Company Logo" onerror="this.onerror=null; this.src='https://placehold.co/40x40/E5E7EB/1F2937?text=Logo';" class="w-10 h-10 rounded-full">
+                    <!-- Logo: Place your round logo file (e.g., logo.png) in the root directory. -->
+                    <img src="./logo.png" alt="Company Logo" onerror="this.onerror=null; this.src='https://placehold.co/40x40/E5E7EB/1F2937?text=Logo';" class="w-10 h-10 rounded-full">
                     <h1 class="text-3xl font-bold">HR Dashboard</h1>
                 </div>
                 <button id="logout-btn" class="btn btn-secondary">Logout</button>
@@ -109,7 +109,7 @@
         <div id="login-page" class="w-full max-w-md mx-auto my-auto p-8 card transition-opacity duration-500">
             <div class="flex items-center justify-center mb-6">
                 <!-- Logo for login page -->
-                <img src="./logo1.png" alt="Company Logo" onerror="this.onerror=null; this.src='https://placehold.co/40x40/E5E7EB/1F2937?text=Logo';" class="w-10 h-10 rounded-full mr-2">
+                <img src="./logo.png" alt="Company Logo" onerror="this.onerror=null; this.src='https://placehold.co/40x40/E5E7EB/1F2937?text=Logo';" class="w-10 h-10 rounded-full mr-2">
                 <h1 class="text-3xl font-bold">HR Login</h1>
             </div>
             <form id="login-form">
@@ -260,8 +260,8 @@
         </div>
     </main>
 
-    <!-- Modal for Manual Attendance Success/Error -->
-    <div id="manual-modal" class="modal fixed inset-0 flex items-center justify-center p-4 hidden">
+    <!-- Generic Modal for Success/Error -->
+    <div id="app-modal" class="modal fixed inset-0 flex items-center justify-center p-4 hidden">
         <div class="modal-content card p-8 w-full max-w-sm text-center">
             <h3 id="modal-title" class="text-2xl font-bold mb-4"></h3>
             <p id="modal-message" class="mb-6"></p>
@@ -279,7 +279,7 @@
     <script>
         // Supabase configuration
         // IMPORTANT: Replace the placeholders below with your actual Supabase keys.
-const SUPABASE_URL = 'https://dfepjaivpgomxsjbxnhz.supabase.co';
+ const SUPABASE_URL = 'https://dfepjaivpgomxsjbxnhz.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmZXBqYWl2cGdvbXhzamJ4bmh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk4MjY0NTMsImV4cCI6MjA2NTQwMjQ1M30.5ASDRBIH0CQ-4d2_1g8hfsZlotOp1EbU9v9nZXZdRIM';
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -313,6 +313,10 @@ const SUPABASE_URL = 'https://dfepjaivpgomxsjbxnhz.supabase.co';
         const startDateFilter = document.getElementById('start-date-filter');
         const endDateFilter = document.getElementById('end-date-filter');
         const storeFilterSelect = document.getElementById('store-filter-select');
+        const appModal = document.getElementById('app-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+        const modalCloseBtn = document.getElementById('modal-close');
 
         // State variables
         let allUsers = [];
@@ -328,6 +332,13 @@ const SUPABASE_URL = 'https://dfepjaivpgomxsjbxnhz.supabase.co';
 
             document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
             document.querySelector(`.tab-button[data-tab="${tabName}"]`).classList.add('active');
+        }
+
+        // Generic modal function
+        function showModal(title, message) {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            appModal.classList.remove('hidden');
         }
 
         // --- PDF Generation ---
@@ -438,74 +449,86 @@ const SUPABASE_URL = 'https://dfepjaivpgomxsjbxnhz.supabase.co';
         }
         
         async function generateAttendanceSheet(format = 'excel') {
-            const start = startDateFilter.value;
-            const end = endDateFilter.value;
-            const store = storeFilterSelect.value;
-            if (!start || !end) {
-                // This alert should be replaced with a custom modal for better UX.
-                alert('Please select a date range.');
-                return;
-            }
-
-            // Convert local date strings to UTC for the Supabase query to ensure all attendance for the local date range is captured.
-            const startOfLocalDayUTC = dayjs(start).startOf('day').toISOString();
-            const endOfLocalDayUTC = dayjs(end).endOf('day').toISOString();
-
-            // Fetch data
-            let { data: users, error: userError } = await supabase
-                .from('users')
-                .select('username, name, location');
-            if (userError) {
-                console.error('Error fetching users:', userError);
-                return;
-            }
-            if (store !== 'all') {
-                users = users.filter(user => user.location === store);
-            }
-
-            const { data: attendanceData, error: attendanceError } = await supabase
-                .from('attendance')
-                .select('username, timestamp')
-                .gte('timestamp', startOfLocalDayUTC)
-                .lte('timestamp', endOfLocalDayUTC);
-            if (attendanceError) {
-                console.error('Error fetching attendance:', attendanceError);
-                return;
-            }
-
-            const datesInRange = [];
-            let currentDate = dayjs(start);
-            while (currentDate.isBefore(dayjs(end).add(1, 'day'))) {
-                datesInRange.push(currentDate.format('YYYY-MM-DD'));
-                currentDate = currentDate.add(1, 'day');
-            }
-
-            const attendanceMap = new Map();
-            attendanceData.forEach(att => {
-                // Convert timestamp to the local date for accurate reporting.
-                const date = dayjs(att.timestamp).local().format('YYYY-MM-DD');
-                if (!attendanceMap.has(att.username)) {
-                    attendanceMap.set(att.username, new Set());
+            try {
+                if (typeof XLSX === 'undefined') {
+                    showModal('Error', 'Excel library not loaded. Please refresh the page.');
+                    return;
                 }
-                attendanceMap.get(att.username).add(date);
-            });
 
-            // Generate data for report
-            const headers = ['Name', 'Store', ...datesInRange];
-            const data = users.map(user => {
-                const row = [user.name, user.location];
-                const userAttendance = attendanceMap.get(user.username) || new Set();
-                datesInRange.forEach(date => {
-                    row.push(userAttendance.has(date) ? 'P' : 'A');
+                const start = startDateFilter.value;
+                const end = endDateFilter.value;
+                const store = storeFilterSelect.value;
+                if (!start || !end) {
+                    showModal('Error', 'Please select a date range.');
+                    return;
+                }
+
+                // Convert local date strings to UTC for the Supabase query to ensure all attendance for the local date range is captured.
+                const startOfLocalDayUTC = dayjs(start).startOf('day').toISOString();
+                const endOfLocalDayUTC = dayjs(end).endOf('day').toISOString();
+
+                // Fetch data
+                let { data: users, error: userError } = await supabase
+                    .from('users')
+                    .select('username, name, location');
+                if (userError) {
+                    console.error('Error fetching users:', userError);
+                    showModal('Error', `Failed to fetch user data: ${userError.message}`);
+                    return;
+                }
+                if (store !== 'all') {
+                    users = users.filter(user => user.location === store);
+                }
+
+                const { data: attendanceData, error: attendanceError } = await supabase
+                    .from('attendance')
+                    .select('username, timestamp')
+                    .gte('timestamp', startOfLocalDayUTC)
+                    .lte('timestamp', endOfLocalDayUTC);
+                if (attendanceError) {
+                    console.error('Error fetching attendance:', attendanceError);
+                    showModal('Error', `Failed to fetch attendance data: ${attendanceError.message}`);
+                    return;
+                }
+
+                const datesInRange = [];
+                let currentDate = dayjs(start);
+                while (currentDate.isBefore(dayjs(end).add(1, 'day'))) {
+                    datesInRange.push(currentDate.format('YYYY-MM-DD'));
+                    currentDate = currentDate.add('1', 'day');
+                }
+
+                const attendanceMap = new Map();
+                attendanceData.forEach(att => {
+                    // Convert timestamp to the local date for accurate reporting.
+                    const date = dayjs(att.timestamp).local().format('YYYY-MM-DD');
+                    if (!attendanceMap.has(att.username)) {
+                        attendanceMap.set(att.username, new Set());
+                    }
+                    attendanceMap.get(att.username).add(date);
                 });
-                return row;
-            });
-            
-            if (format === 'excel') {
-                const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, "Attendance Sheet");
-                XLSX.writeFile(wb, `attendance-sheet-${start}-to-${end}.xlsx`);
+
+                // Generate data for report
+                const headers = ['Name', 'Store', ...datesInRange];
+                const data = users.map(user => {
+                    const row = [user.name, user.location];
+                    const userAttendance = attendanceMap.get(user.username) || new Set();
+                    datesInRange.forEach(date => {
+                        row.push(userAttendance.has(date) ? 'P' : 'A');
+                    });
+                    return row;
+                });
+                
+                if (format === 'excel') {
+                    const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, "Attendance Sheet");
+                    XLSX.writeFile(wb, `attendance-sheet-${start}-to-${end}.xlsx`);
+                }
+
+            } catch (e) {
+                console.error('An unexpected error occurred during report generation:', e);
+                showModal('Error', `An unexpected error occurred: ${e.message}`);
             }
         }
         
@@ -661,9 +684,7 @@ const SUPABASE_URL = 'https://dfepjaivpgomxsjbxnhz.supabase.co';
             event.preventDefault();
             const username = employeeSelect.value;
             if (!username) {
-                manualMessage.textContent = 'Please select an employee.';
-                manualMessage.classList.remove('hidden');
-                manualMessage.classList.add('text-red-500');
+                showModal('Error', 'Please select an employee.');
                 return;
             }
 
@@ -679,7 +700,7 @@ const SUPABASE_URL = 'https://dfepjaivpgomxsjbxnhz.supabase.co';
                 .gte('timestamp', todayStart)
                 .lte('timestamp', todayEnd);
             if (existingAttendance && existingAttendance.length > 0) {
-                showManualModal('Error', 'Attendance for this employee has already been marked today.');
+                showModal('Error', 'Attendance for this employee has already been marked today.');
                 return;
             }
 
@@ -701,21 +722,15 @@ const SUPABASE_URL = 'https://dfepjaivpgomxsjbxnhz.supabase.co';
             
             if (error) {
                 console.error('Error adding manual attendance:', error);
-                showManualModal('Error', `Failed to add manual attendance. Supabase Error: ${error.message}`);
+                showModal('Error', `Failed to add manual attendance: ${error.message}`);
             } else {
-                showManualModal('Success', `${employee.name}'s attendance has been marked successfully.`);
+                showModal('Success', `${employee.name}'s attendance has been marked successfully.`);
                 // Reload data to reflect the change
                 await loadDashboardData(selectedDate);
                 manualAttendanceForm.reset();
             }
         }
         
-        function showManualModal(title, message) {
-            document.getElementById('modal-title').textContent = title;
-            document.getElementById('modal-message').textContent = message;
-            document.getElementById('manual-modal').classList.remove('hidden');
-        }
-
         // --- Event Listeners ---
         loginForm.addEventListener('submit', handleLogin);
         logoutBtn.addEventListener('click', () => {
@@ -735,8 +750,8 @@ const SUPABASE_URL = 'https://dfepjaivpgomxsjbxnhz.supabase.co';
         });
 
         manualAttendanceForm.addEventListener('submit', handleManualAttendance);
-        document.getElementById('modal-close').addEventListener('click', () => {
-            document.getElementById('manual-modal').classList.add('hidden');
+        modalCloseBtn.addEventListener('click', () => {
+            appModal.classList.add('hidden');
         });
 
         document.getElementById('download-summary-pdf').addEventListener('click', generateSummaryPDF);
