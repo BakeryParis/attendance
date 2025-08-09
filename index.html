@@ -497,8 +497,23 @@
     let istYear = todayIST.getFullYear();
     let istMonth = todayIST.getMonth();
     let istDate = todayIST.getDate();
-    let startIST = new Date(Date.UTC(istYear, istMonth, istDate, 2, 0, 0)); // IST 00:00 = UTC 18:30 prev day, so UTC 2:00 is IST 7:30
-    let endIST = new Date(Date.UTC(istYear, istMonth, istDate, 18, 30, 0)); // UTC 18:30 is IST 00:00 next day
+// Get IST start and end of day
+let todayIST = toIST(now);
+let istYear = todayIST.getFullYear();
+let istMonth = todayIST.getMonth();
+let istDate = todayIST.getDate();
+
+// IST 00:00:00 of the current day is UTC 18:30:00 of the previous day
+let startIST = new Date(Date.UTC(istYear, istMonth, istDate));
+startIST.setUTCHours(18, 30, 0, 0);
+if (startIST > todayIST) {
+  startIST.setUTCDate(startIST.getUTCDate() - 1);
+}
+
+// IST 23:59:59 of the current day is UTC 18:29:59 of the next day
+let endIST = new Date(startIST);
+endIST.setUTCDate(endIST.getUTCDate() + 1);
+endIST.setUTCHours(18, 29, 59, 999);
 
     // For attendance records, we want today's IST 0:00 to 23:59
     const { data: attendanceToday, error: attError } = await supabase
