@@ -352,6 +352,9 @@
       <div class="slot-count" id="slot4Count">0</div>
     </div>
   </div>
+  <div class="text-center mt-3" id="hrLoginSection">
+    <a href="https://bakeryparis.github.io/attendance/index1.html" class="btn btn-primary w-100">HR Login</a>
+  </div>
   <div class="text-center mt-3">
   
   <div class="dashboard-container d-none" id="dashboard-section">
@@ -418,9 +421,9 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
   // Supabase config
-        const SUPABASE_URL = 'https://dfepjaivpgomxsjbxnhz.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmZXBqYWl2cGdvbXhzamJ4bmh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk4MjY0NTMsImV4cCI6MjA2NTQwMjQ1M30.5ASDRBIH0CQ-4d2_1g8hfsZlotOp1EbU9v9nZXZdRIM';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const SUPABASE_URL = 'https://dfepjaivpgomxsjbxnhz.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmZXBqYWl2cGdvbXhzamJ4bmh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk4MjY0NTMsImV4cCI6MjA2NTQwMjQ1M30.5ASDRBIH0CQ-4d2_1g8hfsZlotOp1EbU9v9nZXZdRIM';
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   let currentEmployee = null;
   let selfieDataUrl = null;
@@ -459,6 +462,8 @@
   const attendanceRecords = document.getElementById('attendanceRecords');
   const attendanceCalendar = document.getElementById('attendanceCalendar');
   const logoutBtn = document.getElementById('logoutBtn');
+  const hrLoginSection = document.getElementById('hrLoginSection');
+
 
   // Indian Standard Time offset
   function toIST(date) {
@@ -567,6 +572,7 @@
     document.getElementById('attendanceSummaryRow').style.display = "none";
     document.getElementById('attendanceSlotsRow').style.display = "none";
     document.getElementById('attendanceSlotsHeadline').style.display = "none";
+    hrLoginSection.classList.add('d-none');
     
     loadAttendance();
     loadAttendanceCalendar();
@@ -585,6 +591,7 @@
     document.getElementById('attendanceSummaryRow').style.display = "";
     document.getElementById('attendanceSlotsRow').style.display = "";
     document.getElementById('attendanceSlotsHeadline').style.display = "";
+    hrLoginSection.classList.remove('d-none');
     
     loginForm.reset();
     attendanceRecords.innerHTML = '';
