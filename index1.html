@@ -85,8 +85,8 @@
             <!-- Top row: Logo and title -->
             <div class="flex justify-between items-center mb-4">
                 <div class="flex items-center space-x-4">
-                    <!-- Logo: Place your round logo file (e.g., logo1.png) in the root directory. -->
-                    <img src="./logo.png" alt="Company Logo" onerror="this.onerror=null; this.src='https://placehold.co/40x40/E5E7EB/1F2937?text=Logo';" class="w-10 h-10 rounded-full">
+                    <!-- Logo: Place your round logo file (e.g., logo.png) in the root directory. -->
+                    <img src="./logo1.png" alt="Company Logo" onerror="this.onerror=null; this.src='https://placehold.co/40x40/E5E7EB/1F2937?text=Logo';" class="w-10 h-10 rounded-full">
                     <h1 class="text-3xl font-bold">HR Dashboard</h1>
                 </div>
                 <button id="logout-btn" class="btn btn-secondary">Logout</button>
@@ -282,7 +282,6 @@
         const SUPABASE_URL = 'https://dfepjaivpgomxsjbxnhz.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmZXBqYWl2cGdvbXhzamJ4bmh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk4MjY0NTMsImV4cCI6MjA2NTQwMjQ1M30.5ASDRBIH0CQ-4d2_1g8hfsZlotOp1EbU9v9nZXZdRIM';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
         // DOM elements
         const loginPage = document.getElementById('login-page');
         const dashboardPage = document.getElementById('dashboard-page');
@@ -684,8 +683,8 @@
                 location: 'Relocated', // Manual entry as requested
                 registered_latitude: 20.3406645,
                 registered_longitude: 85.8079595,
-                marked_latitude: null, // Manual entry, no GPS
-                marked_longitude: null, // Manual entry, no GPS
+                marked_latitude: 20.3406645, // Now providing a non-null value
+                marked_longitude: 85.8079595, // Now providing a non-null value
                 image: 'Manual Entry', // Placeholder for manual entry
                 timestamp: dayjs().toISOString()
             };
