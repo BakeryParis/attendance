@@ -1,337 +1,747 @@
-<!-- Only the employeeLocation line is changed. The rest is as before. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Supabase Attendance System</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Bootstrap 5 CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body { background: #f6f8fb; }
-    .container { max-width: 420px; margin: 60px auto; }
-    .card { border-radius: 1.2rem; box-shadow: 0 3px 20px rgba(0,0,0,0.07); }
-    .webcam-box { aspect-ratio: 1; width: 100%; background: #e5e9f2; display: flex; align-items: center; justify-content: center; border-radius: 1rem; overflow: hidden; }
-    .webcam-box video { width: 100%; }
-    .selfie-preview { width: 100%; border-radius: 1rem; }
-    .attendance-img { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .card {
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background-color: #1c64f2;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #1e40af;
+        }
+        .btn-secondary {
+            background-color: #e5e7eb;
+            color: #1f2937;
+        }
+        .btn-secondary:hover {
+            background-color: #d1d5db;
+        }
+        .tab-button.active {
+            border-color: #1c64f2;
+            color: #1c64f2;
+        }
+        .modal {
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+        .thumbnail-img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+        }
+        @media (min-width: 768px) {
+            .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+            .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        .marquee-container {
+            overflow: hidden;
+            white-space: nowrap;
+            width: 100%;
+        }
+        .marquee-text {
+            display: inline-block;
+            animation: marquee 15s linear infinite;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+    </style>
 </head>
-<body>
-<div class="container">
-  <!-- Login Form -->
-  <div class="login-container" id="login-section">
-    <div class="card p-4">
-      <h3 class="mb-3 text-center">Employee Login</h3>
-      <form id="loginForm">
-        <div class="mb-3">
-          <label for="username" class="form-label">User Name</label>
-          <input type="text" class="form-control" id="username" required>
-        </div>
-        <div class="mb-3">
-          <label for="userPassword" class="form-label">Password</label>
-          <input type="password" class="form-control" id="userPassword" required>
-        </div>
-        <button type="submit" class="btn btn-primary w-100">Login</button>
-      </form>
-      <div id="loginError" class="text-danger mt-2 d-none"></div>
-    </div>
-  </div>
+<body class="bg-gray-100 flex flex-col min-h-screen">
 
-  <!-- Dashboard -->
-  <div class="dashboard-container d-none" id="dashboard-section">
-    <div class="card p-4">
-      <div class="mb-3 text-center">
-        <h4 id="employeeName"></h4>
-        <div class="text-muted" id="employeeLocation"></div>
-      </div>
-      <button class="btn btn-success w-100 mb-3" id="markAttendanceBtn">Mark Attendance</button>
-      <div id="attendanceStatus" class="alert d-none"></div>
-      <!-- Webcam & Selfie Modal -->
-      <div id="selfieModal" class="modal fade" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content p-3">
-            <h5 class="modal-title mb-2">Take a Selfie</h5>
-            <div class="webcam-box mb-2" id="webcamContainer">
-              <video id="webcam" autoplay playsinline></video>
+    <!-- Sticky Header -->
+    <header id="main-header" class="sticky top-0 z-50 bg-white p-4 shadow-md hidden">
+        <div class="flex flex-col max-w-6xl mx-auto">
+            <!-- Top row: Logo and title -->
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center space-x-4">
+                    <!-- Logo: Place your round logo file (e.g., logo1.png) in the root directory. -->
+                    <img src="./logo.png" alt="Company Logo" onerror="this.onerror=null; this.src='https://placehold.co/40x40/E5E7EB/1F2937?text=Logo';" class="w-10 h-10 rounded-full">
+                    <h1 class="text-3xl font-bold">HR Dashboard</h1>
+                </div>
+                <button id="logout-btn" class="btn btn-secondary">Logout</button>
             </div>
-            <div class="d-flex gap-2">
-              <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-              <button class="btn btn-primary ms-auto" id="captureBtn">Capture</button>
+            
+            <!-- Bottom row: Tab Navigation -->
+            <div class="flex border-b border-gray-300">
+                <button class="py-2 px-4 tab-button border-b-2 border-transparent active" data-tab="dashboard">Dashboard</button>
+                <button class="py-2 px-4 tab-button border-b-2 border-transparent" data-tab="details">Details</button>
+                <button class="py-2 px-4 tab-button border-b-2 border-transparent" data-tab="report">Reports</button>
+                <button class="py-2 px-4 tab-button border-b-2 border-transparent" data-tab="manual-attendance">Manual Attendance</button>
             </div>
-          </div>
         </div>
-      </div>
-      <!-- Selfie Preview -->
-      <div class="d-none" id="selfiePreviewSection">
-        <img id="selfiePreview" class="selfie-preview mb-2" alt="Selfie Preview">
-        <button class="btn btn-primary w-100 mb-2" id="submitAttendanceBtn">Submit Attendance</button>
-        <button class="btn btn-outline-secondary w-100" id="retakeSelfieBtn">Retake</button>
-      </div>
+    </header>
 
-      <hr class="my-3">
-      <h5>Recent Attendance</h5>
-      <div id="attendanceRecords"></div>
-    </div>
-  </div>
-</div>
+    <!-- Main Content Area -->
+    <main class="flex-grow flex flex-col p-4">
 
-<!-- Camera Permission Modal -->
-<div class="modal fade" id="cameraPermissionModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content p-4">
-      <h5 class="modal-title mb-2">Camera Access Needed</h5>
-      <div class="mb-2" id="cameraPermissionMsg">
-        This app needs access to your camera to mark attendance.<br>
-        <em>Please click "Allow" when prompted by your browser.</em><br>
-        <ul>
-          <li>If you see a blocked camera icon in your address bar, click it and allow camera access.</li>
-          <li>If you previously blocked access, go to browser settings and enable camera for this site.</li>
-          <li>Reload the page after allowing access.</li>
-        </ul>
-      </div>
-      <button class="btn btn-primary w-100" data-bs-dismiss="modal">OK</button>
-    </div>
-  </div>
-</div>
-
-<!-- Supabase JS -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-  // Replace with your actual Supabase project URL and anon key!
-  const SUPABASE_URL = 'https://dfepjaivpgomxsjbxnhz.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmZXBqYWl2cGdvbXhzamJ4bmh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk4MjY0NTMsImV4cCI6MjA2NTQwMjQ1M30.5ASDRBIH0CQ-4d2_1g8hfsZlotOp1EbU9v9nZXZdRIM';
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  let currentEmployee = null;
-  let selfieDataUrl = null;
-  let webcamStream = null;
-  let currentLocation = null;
-
-  const loginSection = document.getElementById('login-section');
-  const dashboardSection = document.getElementById('dashboard-section');
-  const loginForm = document.getElementById('loginForm');
-  const loginError = document.getElementById('loginError');
-  const employeeName = document.getElementById('employeeName');
-  const employeeLocation = document.getElementById('employeeLocation');
-  const markAttendanceBtn = document.getElementById('markAttendanceBtn');
-  const attendanceStatus = document.getElementById('attendanceStatus');
-  const selfieModalElem = document.getElementById('selfieModal');
-  const selfieModal = new bootstrap.Modal(selfieModalElem);
-  const webcam = document.getElementById('webcam');
-  const captureBtn = document.getElementById('captureBtn');
-  const selfiePreviewSection = document.getElementById('selfiePreviewSection');
-  const selfiePreview = document.getElementById('selfiePreview');
-  const submitAttendanceBtn = document.getElementById('submitAttendanceBtn');
-  const retakeSelfieBtn = document.getElementById('retakeSelfieBtn');
-  const cameraPermissionModalElem = document.getElementById('cameraPermissionModal');
-  const cameraPermissionModal = new bootstrap.Modal(cameraPermissionModalElem);
-  const cameraPermissionMsg = document.getElementById('cameraPermissionMsg');
-  const attendanceRecords = document.getElementById('attendanceRecords');
-
-  // Haversine formula to calculate distance between two lat/lng points (in meters)
-  function haversineDistance(lat1, lon1, lat2, lon2) {
-    function toRad(x) { return x * Math.PI / 180; }
-    const R = 6371000; // Earth radius in meters
-    const dLat = toRad(lat2 - lat1);
-    const dLon = toRad(lon2 - lon1);
-    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-              Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-              Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
-  }
-
-  // Login logic
-  loginForm.onsubmit = async function(e) {
-    e.preventDefault();
-    loginError.classList.add('d-none');
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('userPassword').value;
-
-    // Query Supabase users table for matching username and password
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('username', username)
-      .eq('password', password) // For demo only. Use hash for production.
-      .single();
-
-    if (error || !data) {
-      loginError.textContent = "Invalid username or password.";
-      loginError.classList.remove('d-none');
-      return;
-    }
-
-    // Success
-    currentEmployee = data;
-    employeeName.textContent = data.name;
-    employeeLocation.textContent = data.location || '';
-    loginSection.classList.add('d-none');
-    dashboardSection.classList.remove('d-none');
-    loadAttendance();
-  };
-
-  // Mark Attendance with location check
-  markAttendanceBtn.onclick = async function() {
-    selfiePreviewSection.classList.add('d-none');
-    selfiePreview.src = '';
-    // Step 1: Get user's current location
-    if (!navigator.geolocation) {
-      showAttendanceStatus("Geolocation is not supported by your browser.", "danger");
-      return;
-    }
-    showAttendanceStatus("Checking your location...", "info");
-
-    navigator.geolocation.getCurrentPosition(async function(position) {
-      const userLat = position.coords.latitude;
-      const userLng = position.coords.longitude;
-      currentLocation = { latitude: userLat, longitude: userLng };
-
-      // Step 2: Compare with registered location
-      const registeredLat = parseFloat(currentEmployee.latitude);
-      const registeredLng = parseFloat(currentEmployee.longitude);
-
-      if (isNaN(registeredLat) || isNaN(registeredLng)) {
-        showAttendanceStatus("Registered location not set. Contact admin.", "danger");
-        return;
-      }
-
-      const dist = haversineDistance(userLat, userLng, registeredLat, registeredLng);
-
-      if (dist > 50) {
-        showAttendanceStatus(`You are too far from your registered location (${dist.toFixed(1)} m). Attendance cannot be marked.`, "danger");
-        return;
-      }
-
-      // Step 3: Proceed to open camera if location is valid
-      try {
-        if (webcamStream) {
-          webcamStream.getTracks().forEach(track => track.stop());
-          webcam.srcObject = null;
-        }
-        webcamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-        webcam.srcObject = webcamStream;
-        webcam.onloadedmetadata = function() { webcam.play(); };
-        selfieModal.show();
-      } catch (err) {
-        let msg = '';
-        if (err.name === 'NotAllowedError') {
-          msg = `<strong>Camera access was blocked.</strong><br>
-            Please allow camera access in your browser.<br>
-            <ul>
-              <li>Click the camera icon or lock in your address bar and set permission to "Allow".</li>
-              <li>Reload this page after allowing.</li>
-              <li>If on mobile, check browser settings or use Chrome/Safari.</li>
-            </ul>`;
-        } else if (err.name === 'NotFoundError' || err.name === 'OverconstrainedError') {
-          msg = `<strong>No camera detected.</strong><br>
-            Please ensure your device has a camera and it is not being used by another app.<br>
-            <ul>
-              <li>Try plugging in a webcam (for desktops).</li>
-              <li>Allow necessary permissions.</li>
-              <li>Reload the page after fixing.</li>
-            </ul>`;
-        } else if (err.name === 'NotReadableError') {
-          msg = `<strong>Camera is already in use.</strong><br>
-            Please close other apps that may be using the camera and try again.<br>
-            <ul>
-              <li>Close Zoom, Teams, or other video meeting tools.</li>
-              <li>Reload the page.</li>
-            </ul>`;
-        } else {
-          msg = `<strong>Could not access camera.</strong><br>Error: ${err.message || err.name}`;
-        }
-        cameraPermissionMsg.innerHTML = msg;
-        cameraPermissionModal.show();
-      }
-    }, function(error) {
-      showAttendanceStatus("Unable to get your location: " + error.message, "danger");
-    }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
-  };
-
-  captureBtn.onclick = function() {
-    const canvas = document.createElement('canvas');
-    canvas.width = webcam.videoWidth;
-    canvas.height = webcam.videoHeight;
-    canvas.getContext('2d').drawImage(webcam, 0, 0);
-    selfieDataUrl = canvas.toDataURL('image/jpeg');
-    selfiePreview.src = selfieDataUrl;
-    selfiePreviewSection.classList.remove('d-none');
-    selfieModal.hide();
-    if (webcamStream) {
-      webcamStream.getTracks().forEach(track => track.stop());
-      webcam.srcObject = null;
-    }
-  };
-
-  retakeSelfieBtn.onclick = function() {
-    selfiePreviewSection.classList.add('d-none');
-    selfiePreview.src = '';
-    markAttendanceBtn.click();
-  };
-
-  submitAttendanceBtn.onclick = async function() {
-    if (!currentEmployee || !selfieDataUrl || !currentLocation) return;
-    showAttendanceStatus('Uploading...', 'info');
-    const { error } = await supabase.from('attendance').insert([{
-      username: currentEmployee.username,
-      name: currentEmployee.name,
-      location: currentEmployee.location,
-      registered_latitude: currentEmployee.latitude,
-      registered_longitude: currentEmployee.longitude,
-      marked_latitude: currentLocation.latitude,
-      marked_longitude: currentLocation.longitude,
-      image: selfieDataUrl,
-      timestamp: new Date().toISOString()
-    }]);
-    if (error) {
-      showAttendanceStatus("Failed to record attendance.", 'danger');
-    } else {
-      showAttendanceStatus("Attendance marked successfully!", 'success');
-      loadAttendance();
-    }
-    selfiePreviewSection.classList.add('d-none');
-    selfiePreview.src = '';
-    selfieDataUrl = null;
-    currentLocation = null;
-  };
-
-  function showAttendanceStatus(msg, type) {
-    attendanceStatus.innerHTML = msg;
-    attendanceStatus.className = `alert alert-${type}`;
-    attendanceStatus.classList.remove('d-none');
-    setTimeout(() => attendanceStatus.classList.add('d-none'), 3500);
-  }
-
-  async function loadAttendance() {
-    attendanceRecords.innerHTML = "Loading...";
-    const { data, error } = await supabase
-      .from('attendance')
-      .select('*')
-      .eq('username', currentEmployee.username)
-      .order('timestamp', { ascending: false })
-      .limit(5);
-    if (error) {
-      attendanceRecords.innerHTML = "Could not load records.";
-      return;
-    }
-    if (!data || !data.length) {
-      attendanceRecords.innerHTML = "<em>No attendance marked yet.</em>";
-      return;
-    }
-    attendanceRecords.innerHTML = data.map(r => 
-      `<div class="d-flex align-items-center mb-2">
-        <img src="${r.image}" class="attendance-img me-2" alt="Selfie" />
-        <div>
-          <div>${new Date(r.timestamp).toLocaleString()}</div>
-          <div class="small text-muted">${r.location}</div>
+        <!-- Login Page -->
+        <div id="login-page" class="w-full max-w-md mx-auto my-auto p-8 card transition-opacity duration-500">
+            <div class="flex items-center justify-center mb-6">
+                <!-- Logo for login page -->
+                <img src="./logo.png" alt="Company Logo" onerror="this.onerror=null; this.src='https://placehold.co/40x40/E5E7EB/1F2937?text=Logo';" class="w-10 h-10 rounded-full mr-2">
+                <h1 class="text-3xl font-bold">HR Login</h1>
+            </div>
+            <form id="login-form">
+                <div class="mb-4">
+                    <label for="hr-username" class="block text-gray-700 font-bold mb-2">Username</label>
+                    <input type="text" id="hr-username" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div class="mb-6">
+                    <label for="hr-password" class="block text-gray-700 font-bold mb-2">Password</label>
+                    <input type="password" id="hr-password" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <button type="submit" class="w-full btn btn-primary">Login</button>
+                <p id="login-error" class="mt-4 text-center text-red-500 font-medium hidden">Invalid username or password.</p>
+            </form>
         </div>
-      </div>`
-    ).join("");
-  }
-</script>
+
+        <!-- HR Dashboard -->
+        <div id="dashboard-page" class="hidden w-full h-full max-w-6xl mx-auto p-4 md:p-8">
+            
+            <!-- Manual Attendance Content (moved to top) -->
+            <div id="manual-attendance-content" class="tab-content hidden mb-6">
+                <h2 class="text-2xl font-bold mb-4">Add Manual Attendance</h2>
+                <div class="card p-6">
+                    <form id="manual-attendance-form">
+                        <div class="mb-4">
+                            <label for="employee-select" class="block text-gray-700 font-bold mb-2">Select Employee</label>
+                            <select id="employee-select" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                <option value="">-- Select an employee --</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full btn btn-primary">Mark as Present</button>
+                        <p id="manual-attendance-message" class="mt-4 text-center font-medium hidden"></p>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div id="dashboard-content" class="tab-content">
+                <div class="flex items-center space-x-2 w-full md:w-auto mb-4">
+                    <label for="date-filter" class="text-gray-700 font-bold">Date:</label>
+                    <input type="date" id="date-filter" class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="card p-6 text-center">
+                        <h2 class="text-xl font-semibold text-gray-500">Total Employees</h2>
+                        <p id="total-employees" class="text-4xl font-bold mt-2">0</p>
+                    </div>
+                    <div class="card p-6 text-center">
+                        <h2 class="text-xl font-semibold text-gray-500">Today's Present</h2>
+                        <p id="present-count" class="text-4xl font-bold mt-2 text-green-600">0</p>
+                    </div>
+                    <div class="card p-6 text-center">
+                        <h2 class="text-xl font-semibold text-gray-500">Today's Absent</h2>
+                        <p id="absent-count" class="text-4xl font-bold mt-2 text-red-600">0</p>
+                    </div>
+                </div>
+
+                <!-- Present Percentage and Store-wise Attendance -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="card p-6">
+                        <h2 class="text-xl font-semibold text-gray-500 mb-4">Present Percentage</h2>
+                        <div class="flex items-center justify-center">
+                            <div class="relative w-32 h-32">
+                                <svg class="w-full h-full" viewBox="0 0 100 100">
+                                    <circle class="text-gray-200" stroke-width="10" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50"/>
+                                    <circle id="present-circle" class="text-blue-500" stroke-width="10" stroke-dasharray="0" stroke-dashoffset="0" stroke-linecap="round" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50" transform="rotate(-90 50 50)"/>
+                                </svg>
+                                <span id="present-percent" class="absolute inset-0 flex items-center justify-center text-3xl font-bold">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card p-6">
+                        <h2 class="text-xl font-semibold text-gray-500 mb-4">Store-wise Attendance</h2>
+                        <div id="store-attendance-list">
+                            <!-- Store data will be injected here -->
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-center mt-6">
+                    <button id="download-summary-pdf" class="btn btn-secondary flex items-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                        <span>Download Summary PDF</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Details Content -->
+            <div id="details-content" class="tab-content hidden">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-700 mb-4">Today's Present Employees</h2>
+                    <div class="card p-4">
+                        <div id="present-employees-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <!-- Present employee cards will be injected here -->
+                        </div>
+                    </div>
+                    <div class="flex justify-center mt-6">
+                        <button id="download-present-pdf" class="btn btn-secondary flex items-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                            <span>Download Present PDF</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-700 mb-4">Today's Absent Employees</h2>
+                    <div class="card p-4">
+                        <ul id="absent-employees-list" class="divide-y divide-gray-200">
+                            <!-- Absent employee list items will be injected here -->
+                        </ul>
+                    </div>
+                    <div class="flex justify-center mt-6">
+                        <button id="download-absent-pdf" class="btn btn-secondary flex items-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                            <span>Download Absent PDF</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Download Content -->
+            <div id="report-content" class="tab-content hidden">
+                <h2 class="text-2xl font-bold mb-4">Download Reports</h2>
+                <div class="card p-6">
+                    <div class="flex flex-col md:flex-row items-center gap-4 mb-4">
+                        <div>
+                            <label for="start-date-filter" class="block text-gray-700 font-bold mb-1">Start Date:</label>
+                            <input type="date" id="start-date-filter" class="px-3 py-2 border rounded-lg">
+                        </div>
+                        <div>
+                            <label for="end-date-filter" class="block text-gray-700 font-bold mb-1">End Date:</label>
+                            <input type="date" id="end-date-filter" class="px-3 py-2 border rounded-lg">
+                        </div>
+                        <div>
+                            <label for="store-filter-select" class="block text-gray-700 font-bold mb-1">Store:</label>
+                            <select id="store-filter-select" class="px-3 py-2 border rounded-lg">
+                                <option value="all">All Stores</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4 mt-4">
+                        <button id="download-attendance-sheet-excel" class="btn btn-primary">Download Attendance Sheet (Excel)</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Modal for Manual Attendance Success/Error -->
+    <div id="manual-modal" class="modal fixed inset-0 flex items-center justify-center p-4 hidden">
+        <div class="modal-content card p-8 w-full max-w-sm text-center">
+            <h3 id="modal-title" class="text-2xl font-bold mb-4"></h3>
+            <p id="modal-message" class="mb-6"></p>
+            <button id="modal-close" class="btn btn-primary w-full">Close</button>
+        </div>
+    </div>
+    
+    <!-- Footer with Marquee -->
+    <footer class="bg-white text-gray-700 p-2 mt-auto border-t border-gray-300">
+        <div class="marquee-container">
+            <p class="marquee-text">For support, contact Samir Singhsamanta: +91 76069 36790</p>
+        </div>
+    </footer>
+
+    <script>
+        // Supabase configuration
+        // IMPORTANT: Replace the placeholders below with your actual Supabase keys.
+        const SUPABASE_URL = 'https://dfepjaivpgomxsjbxnhz.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmZXBqYWl2cGdvbXhzamJ4bmh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk4MjY0NTMsImV4cCI6MjA2NTQwMjQ1M30.5ASDRBIH0CQ-4d2_1g8hfsZlotOp1EbU9v9nZXZdRIM';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // DOM elements
+        const loginPage = document.getElementById('login-page');
+        const dashboardPage = document.getElementById('dashboard-page');
+        const loginForm = document.getElementById('login-form');
+        const loginError = document.getElementById('login-error');
+        const logoutBtn = document.getElementById('logout-btn');
+        const dateFilterInput = document.getElementById('date-filter');
+        const mainHeader = document.getElementById('main-header');
+        
+        const dashboardContent = document.getElementById('dashboard-content');
+        const detailsContent = document.getElementById('details-content');
+        const reportContent = document.getElementById('report-content');
+        const manualAttendanceContent = document.getElementById('manual-attendance-content');
+        
+        const totalEmployeesEl = document.getElementById('total-employees');
+        const presentCountEl = document.getElementById('present-count');
+        const absentCountEl = document.getElementById('absent-count');
+        const presentPercentEl = document.getElementById('present-percent');
+        const presentCircleEl = document.getElementById('present-circle');
+        const storeAttendanceList = document.getElementById('store-attendance-list');
+        const presentEmployeesList = document.getElementById('present-employees-list');
+        const absentEmployeesList = document.getElementById('absent-employees-list');
+        
+        const employeeSelect = document.getElementById('employee-select');
+        const manualAttendanceForm = document.getElementById('manual-attendance-form');
+        const manualMessage = document.getElementById('manual-attendance-message');
+
+        const startDateFilter = document.getElementById('start-date-filter');
+        const endDateFilter = document.getElementById('end-date-filter');
+        const storeFilterSelect = document.getElementById('store-filter-select');
+
+        // State variables
+        let allUsers = [];
+        let allStores = [];
+        let selectedDate = dayjs().format('YYYY-MM-DD');
+
+        // --- Utility Functions ---
+
+        // Function to show a tab content
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.getElementById(`${tabName}-content`).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.tab-button[data-tab="${tabName}"]`).classList.add('active');
+        }
+
+        // --- PDF Generation ---
+        async function generateSummaryPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const date = dayjs(selectedDate).format('MMMM D, YYYY');
+            
+            doc.setFontSize(18);
+            doc.text(`Attendance Summary for ${date}`, 14, 22);
+
+            doc.setFontSize(12);
+            doc.text(`Total Employees: ${totalEmployeesEl.textContent}`, 14, 35);
+            doc.text(`Present: ${presentCountEl.textContent}`, 14, 45);
+            doc.text(`Absent: ${absentCountEl.textContent}`, 14, 55);
+            doc.text(`Present Percentage: ${presentPercentEl.textContent}`, 14, 65);
+
+            doc.text('Store-wise Attendance:', 14, 80);
+            const stores = Array.from(storeAttendanceList.querySelectorAll('div'));
+            let y = 90;
+            stores.forEach(store => {
+                const name = store.querySelector('.font-semibold').textContent;
+                const present = store.querySelector('.text-green-600').textContent;
+                const absent = store.querySelector('.text-red-600').textContent;
+                doc.text(`- ${name}: Present ${present}, Absent ${absent}`, 18, y);
+                y += 10;
+            });
+            
+            doc.save(`attendance-summary-${selectedDate}.pdf`);
+        }
+
+        async function generatePresentListPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const date = dayjs(selectedDate).format('MMMM D, YYYY');
+
+            doc.setFontSize(18);
+            doc.text(`Present Employees for ${date}`, 14, 22);
+            
+            const presentEmployees = Array.from(presentEmployeesList.querySelectorAll('.card'));
+            let y = 35;
+            let page = 1;
+
+            for (const emp of presentEmployees) {
+                if (y > 280) { // Check for new page
+                    doc.addPage();
+                    y = 22;
+                    page++;
+                    doc.setFontSize(18);
+                    doc.text(`Present Employees for ${date} (Cont. - Page ${page})`, 14, 22);
+                    y = 35;
+                }
+
+                const name = emp.querySelector('.font-bold').textContent;
+                const store = emp.querySelector('p:nth-child(2)').textContent.replace('Store Name: ', '');
+                const time = emp.querySelector('p:nth-child(3)').textContent.replace('Time: ', '');
+                const img = emp.querySelector('img');
+
+                doc.setFontSize(12);
+                doc.text(`Name: ${name}`, 14, y);
+                doc.text(`${store}`, 14, y + 6);
+                doc.text(`Time: ${time}`, 14, y + 12);
+                
+                if (img && img.src.startsWith('data:')) {
+                    try {
+                        const imgData = img.src;
+                        doc.addImage(imgData, 'JPEG', 150, y, 30, 30);
+                    } catch (e) {
+                        console.error('Error adding image to PDF:', e);
+                    }
+                }
+                
+                y += 40;
+            }
+
+            doc.save(`present-employees-${selectedDate}.pdf`);
+        }
+        
+        async function generateAbsentListPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const date = dayjs(selectedDate).format('MMMM D, YYYY');
+
+            doc.setFontSize(18);
+            doc.text(`Absent Employees for ${date}`, 14, 22);
+
+            const absentEmployees = Array.from(absentEmployeesList.querySelectorAll('li'));
+            let y = 35;
+            let page = 1;
+
+            absentEmployees.forEach(emp => {
+                if (y > 280) {
+                    doc.addPage();
+                    y = 22;
+                    page++;
+                    doc.setFontSize(18);
+                    doc.text(`Absent Employees for ${date} (Cont. - Page ${page})`, 14, 22);
+                    y = 35;
+                }
+                const name = emp.querySelector('span:nth-child(1)').textContent;
+                const store = emp.querySelector('span:nth-child(2)').textContent;
+                doc.setFontSize(12);
+                doc.text(`Name: ${name}`, 14, y);
+                doc.text(`Store: ${store}`, 14, y + 6);
+                y += 15;
+            });
+            doc.save(`absent-employees-${selectedDate}.pdf`);
+        }
+        
+        async function generateAttendanceSheet(format = 'pdf') {
+            const start = startDateFilter.value;
+            const end = endDateFilter.value;
+            const store = storeFilterSelect.value;
+            if (!start || !end) {
+                // This alert should be replaced with a custom modal for better UX.
+                alert('Please select a date range.');
+                return;
+            }
+
+            // Fetch data
+            let { data: users, error: userError } = await supabase
+                .from('users')
+                .select('username, name, location');
+            if (userError) {
+                console.error('Error fetching users:', userError);
+                return;
+            }
+            if (store !== 'all') {
+                users = users.filter(user => user.location === store);
+            }
+
+            const { data: attendanceData, error: attendanceError } = await supabase
+                .from('attendance')
+                .select('username, timestamp')
+                .gte('timestamp', start)
+                .lte('timestamp', dayjs(end).add(1, 'day').format('YYYY-MM-DD')); // Include end day
+            if (attendanceError) {
+                console.error('Error fetching attendance:', attendanceError);
+                return;
+            }
+
+            const datesInRange = [];
+            let currentDate = dayjs(start);
+            while (currentDate.isBefore(dayjs(end).add(1, 'day'))) {
+                datesInRange.push(currentDate.format('YYYY-MM-DD'));
+                currentDate = currentDate.add(1, 'day');
+            }
+
+            const attendanceMap = new Map();
+            attendanceData.forEach(att => {
+                const date = dayjs(att.timestamp).format('YYYY-MM-DD');
+                if (!attendanceMap.has(att.username)) {
+                    attendanceMap.set(att.username, new Set());
+                }
+                attendanceMap.get(att.username).add(date);
+            });
+
+            // Generate data for report
+            const headers = ['Name', 'Store', ...datesInRange];
+            const data = users.map(user => {
+                const row = [user.name, user.location];
+                const userAttendance = attendanceMap.get(user.username) || new Set();
+                datesInRange.forEach(date => {
+                    row.push(userAttendance.has(date) ? 'P' : 'A');
+                });
+                return row;
+            });
+            
+            if (format === 'excel') {
+                const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Attendance Sheet");
+                XLSX.writeFile(wb, `attendance-sheet-${start}-to-${end}.xlsx`);
+            }
+        }
+        
+        // --- Core Application Logic ---
+
+        // HR Login
+        async function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('hr-username').value;
+            const password = document.getElementById('hr-password').value;
+            
+            try {
+                // Query the hr_users table
+                const { data, error } = await supabase
+                    .from('hr_users')
+                    .select('*')
+                    .eq('username', username)
+                    .eq('password', password)
+                    .single();
+
+                if (error || !data) {
+                    loginError.classList.remove('hidden');
+                    return;
+                }
+                
+                // Login successful
+                loginPage.classList.add('hidden');
+                dashboardPage.classList.remove('hidden');
+                loginError.classList.add('hidden');
+                mainHeader.classList.remove('hidden');
+                
+                // Load data for today by default
+                await loadDashboardData(dayjs().format('YYYY-MM-DD'));
+                await loadStoreFilters();
+                
+            } catch (err) {
+                console.error('Login error:', err);
+                loginError.classList.remove('hidden');
+            }
+        }
+
+        async function loadStoreFilters() {
+             const { data, error } = await supabase
+                .from('users')
+                .select('location');
+            if (error) {
+                console.error('Error fetching store locations:', error);
+                return;
+            }
+
+            allStores = [...new Set(data.map(user => user.location))];
+            storeFilterSelect.innerHTML = `<option value="all">All Stores</option>` + allStores.map(store => `<option value="${store}">${store}</option>`).join('');
+        }
+
+        async function loadDashboardData(date) {
+            selectedDate = date;
+            dateFilterInput.value = selectedDate; // Set the date filter for the dashboard
+            const todayStart = dayjs(date).startOf('day').toISOString();
+            const todayEnd = dayjs(date).endOf('day').toISOString();
+            
+            // Fetch all users to get total count and names
+            const { data: users, error: userError } = await supabase.from('users').select('*');
+            if (userError) {
+                console.error('Error fetching users:', userError);
+                return;
+            }
+            allUsers = users;
+            
+            // Fetch today's attendance
+            const { data: attendance, error: attendanceError } = await supabase
+                .from('attendance')
+                .select('*')
+                .gte('timestamp', todayStart)
+                .lte('timestamp', todayEnd);
+
+            if (attendanceError) {
+                console.error('Error fetching attendance:', attendanceError);
+                return;
+            }
+
+            const presentUsernames = new Set(attendance.map(att => att.username));
+            const presentUsers = allUsers.filter(user => presentUsernames.has(user.username));
+            const absentUsers = allUsers.filter(user => !presentUsernames.has(user.username));
+            
+            const totalCount = allUsers.length;
+            const presentCount = presentUsers.length;
+            const absentCount = absentUsers.length;
+            const presentPercentage = totalCount > 0 ? (presentCount / totalCount) * 100 : 0;
+            const circumference = 2 * Math.PI * 40;
+            const offset = circumference - (presentPercentage / 100) * circumference;
+
+            // Update Dashboard UI
+            totalEmployeesEl.textContent = totalCount;
+            presentCountEl.textContent = presentCount;
+            absentCountEl.textContent = absentCount;
+            presentPercentEl.textContent = `${Math.round(presentPercentage)}%`;
+            presentCircleEl.style.strokeDasharray = `${circumference}`;
+            presentCircleEl.style.strokeDashoffset = `${offset}`;
+
+            // Update Store-wise Attendance
+            const storeData = {};
+            allUsers.forEach(user => {
+                if (!storeData[user.location]) {
+                    storeData[user.location] = { total: 0, present: 0, absent: 0 };
+                }
+                storeData[user.location].total++;
+            });
+            presentUsers.forEach(user => {
+                if (storeData[user.location]) {
+                    storeData[user.location].present++;
+                }
+            });
+            Object.keys(storeData).forEach(storeName => {
+                storeData[storeName].absent = storeData[storeName].total - storeData[storeName].present;
+            });
+
+            storeAttendanceList.innerHTML = Object.entries(storeData).map(([store, data]) => `
+                <div class="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
+                    <span class="font-semibold">${store}</span>
+                    <div class="flex space-x-4 text-sm">
+                        <span>Present: <span class="font-bold text-green-600">${data.present}</span></span>
+                        <span>Absent: <span class="font-bold text-red-600">${data.absent}</span></span>
+                    </div>
+                </div>
+            `).join('');
+
+            // Update Details UI
+            presentEmployeesList.innerHTML = attendance.map(att => `
+                <div class="card p-4 flex items-center space-x-4">
+                    <img src="${att.image}" alt="Employee Selfie" class="thumbnail-img">
+                    <div>
+                        <p class="font-bold">${att.name}</p>
+                        <p class="text-sm text-gray-600">Store: ${att.location}</p>
+                        <p class="text-sm text-gray-600">Time: ${dayjs(att.timestamp).format('hh:mm:ss A')}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            absentEmployeesList.innerHTML = absentUsers.map(user => `
+                <li class="py-2 flex justify-between items-center">
+                    <span class="font-medium">${user.name}</span>
+                    <span class="text-sm text-gray-500">${user.location}</span>
+                </li>
+            `).join('');
+
+            // Update Manual Attendance Dropdown
+            employeeSelect.innerHTML = `<option value="">-- Select an employee --</option>` + allUsers.map(user => `
+                <option value="${user.username}">${user.name} (${user.location})</option>
+            `).join('');
+        }
+        
+        async function handleManualAttendance(event) {
+            event.preventDefault();
+            const username = employeeSelect.value;
+            if (!username) {
+                manualMessage.textContent = 'Please select an employee.';
+                manualMessage.classList.remove('hidden');
+                manualMessage.classList.add('text-red-500');
+                return;
+            }
+
+            const employee = allUsers.find(user => user.username === username);
+            const todayStart = dayjs().startOf('day').toISOString();
+            const todayEnd = dayjs().endOf('day').toISOString();
+            
+            // Check if already present today
+            const { data: existingAttendance, error: checkError } = await supabase
+                .from('attendance')
+                .select('*')
+                .eq('username', username)
+                .gte('timestamp', todayStart)
+                .lte('timestamp', todayEnd);
+            if (existingAttendance && existingAttendance.length > 0) {
+                showManualModal('Error', 'Attendance for this employee has already been marked today.');
+                return;
+            }
+
+            const attendanceRecord = {
+                username: employee.username,
+                name: employee.name,
+                location: 'Relocated', // Manual entry as requested
+                registered_latitude: 20.3406645,
+                registered_longitude: 85.8079595,
+                marked_latitude: null, // Manual entry, no GPS
+                marked_longitude: null, // Manual entry, no GPS
+                image: 'Manual Entry', // Placeholder for manual entry
+                timestamp: dayjs().toISOString()
+            };
+
+            const { data, error } = await supabase
+                .from('attendance')
+                .insert([attendanceRecord]);
+            
+            if (error) {
+                console.error('Error adding manual attendance:', error);
+                showManualModal('Error', `Failed to add manual attendance. Supabase Error: ${error.message}`);
+            } else {
+                showManualModal('Success', `${employee.name}'s attendance has been marked successfully.`);
+                // Reload data to reflect the change
+                await loadDashboardData(selectedDate);
+                manualAttendanceForm.reset();
+            }
+        }
+        
+        function showManualModal(title, message) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = message;
+            document.getElementById('manual-modal').classList.remove('hidden');
+        }
+
+        // --- Event Listeners ---
+        loginForm.addEventListener('submit', handleLogin);
+        logoutBtn.addEventListener('click', () => {
+            loginPage.classList.remove('hidden');
+            dashboardPage.classList.add('hidden');
+            mainHeader.classList.add('hidden');
+        });
+        
+        dateFilterInput.addEventListener('change', async (event) => {
+            await loadDashboardData(event.target.value);
+        });
+
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                showTab(button.dataset.tab);
+            });
+        });
+
+        manualAttendanceForm.addEventListener('submit', handleManualAttendance);
+        document.getElementById('modal-close').addEventListener('click', () => {
+            document.getElementById('manual-modal').classList.add('hidden');
+        });
+
+        document.getElementById('download-summary-pdf').addEventListener('click', generateSummaryPDF);
+        document.getElementById('download-present-pdf').addEventListener('click', generatePresentListPDF);
+        document.getElementById('download-absent-pdf').addEventListener('click', generateAbsentListPDF);
+        document.getElementById('download-attendance-sheet-excel').addEventListener('click', () => generateAttendanceSheet('excel'));
+
+        // Initial setup on page load
+        // Set date filter to today
+        dateFilterInput.value = dayjs().format('YYYY-MM-DD');
+    </script>
 </body>
 </html>
