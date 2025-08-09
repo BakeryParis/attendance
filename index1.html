@@ -279,10 +279,9 @@
     <script>
         // Supabase configuration
         // IMPORTANT: Replace the placeholders below with your actual Supabase keys.
- const SUPABASE_URL = 'https://dfepjaivpgomxsjbxnhz.supabase.co';
+       const SUPABASE_URL = 'https://dfepjaivpgomxsjbxnhz.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmZXBqYWl2cGdvbXhzamJ4bmh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk4MjY0NTMsImV4cCI6MjA2NTQwMjQ1M30.5ASDRBIH0CQ-4d2_1g8hfsZlotOp1EbU9v9nZXZdRIM';
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
         // DOM elements
         const loginPage = document.getElementById('login-page');
         const dashboardPage = document.getElementById('dashboard-page');
@@ -501,7 +500,7 @@
                 const attendanceMap = new Map();
                 attendanceData.forEach(att => {
                     // Convert timestamp to the local date for accurate reporting.
-                    const date = dayjs(att.timestamp).local().format('YYYY-MM-DD');
+                    const date = dayjs(att.timestamp).format('YYYY-MM-DD');
                     if (!attendanceMap.has(att.username)) {
                         attendanceMap.set(att.username, new Set());
                     }
