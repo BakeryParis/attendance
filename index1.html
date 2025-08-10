@@ -9,6 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="icon" type="image/png" href="favicon.png">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -86,7 +87,7 @@
             <div class="flex justify-between items-center mb-4">
                 <div class="flex items-center space-x-4">
                     <!-- Logo: Place your round logo file (e.g., logo.png) in the root directory. -->
-                    <img src="./logo.png" alt="Company Logo" onerror="this.onerror=null; this.src='https://placehold.co/40x40/E5E7EB/1F2937?text=Logo';" class="w-10 h-10 rounded-full">
+                    <img src="./logo1.png" alt="Company Logo" onerror="this.onerror=null; this.src='https://placehold.co/40x40/E5E7EB/1F2937?text=Logo';" class="w-10 h-10 rounded-full">
                     <h1 class="text-3xl font-bold">HR Dashboard</h1>
                 </div>
                 <button id="logout-btn" class="btn btn-secondary">Logout</button>
@@ -109,7 +110,7 @@
         <div id="login-page" class="w-full max-w-md mx-auto mt-10 p-8 card transition-opacity duration-500">
             <div class="flex items-center justify-center mb-6">
                 <!-- Logo for login page -->
-                <img src="./logo.png" alt="Company Logo" onerror="this.onerror=null; this.src='https://placehold.co/40x40/E5E7EB/1F2937?text=Logo';" class="w-10 h-10 rounded-full mr-2">
+                <img src="./logo1.png" alt="Company Logo" onerror="this.onerror=null; this.src='https://placehold.co/40x40/E5E7EB/1F2937?text=Logo';" class="w-10 h-10 rounded-full mr-2">
                 <h1 class="text-3xl font-bold">HR Login</h1>
             </div>
             <form id="login-form">
@@ -282,6 +283,7 @@
         const SUPABASE_URL = 'https://dfepjaivpgomxsjbxnhz.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmZXBqYWl2cGdvbXhzamJ4bmh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk4MjY0NTMsImV4cCI6MjA2NTQwMjQ1M30.5ASDRBIH0CQ-4d2_1g8hfsZlotOp1EbU9v9nZXZdRIM';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         // DOM elements
         const loginPage = document.getElementById('login-page');
         const dashboardPage = document.getElementById('dashboard-page');
@@ -321,6 +323,7 @@
         let allUsers = [];
         let allStores = [];
         let selectedDate = dayjs().format('YYYY-MM-DD');
+        let storeData = {}; // Added to hold the store-wise data
 
         // --- Utility Functions ---
 
@@ -349,6 +352,17 @@
                     return;
                 }
 
+                // Use the data from the state variables instead of the DOM
+                if (!allUsers || allUsers.length === 0) {
+                    showModal('Error', 'No data available to generate a summary. Please wait for the dashboard to load.');
+                    return;
+                }
+                
+                const totalCount = allUsers.length;
+                const presentCount = presentEmployeesList.querySelectorAll('.card').length;
+                const absentCount = absentEmployeesList.querySelectorAll('li').length;
+                const presentPercentage = totalCount > 0 ? (presentCount / totalCount) * 100 : 0;
+                
                 const doc = new jsPDF();
                 const date = dayjs(selectedDate).format('MMMM D, YYYY');
                 
@@ -356,19 +370,15 @@
                 doc.text(`Attendance Summary for ${date}`, 14, 22);
 
                 doc.setFontSize(12);
-                doc.text(`Total Employees: ${totalEmployeesEl.textContent}`, 14, 35);
-                doc.text(`Present: ${presentCountEl.textContent}`, 14, 45);
-                doc.text(`Absent: ${absentCountEl.textContent}`, 14, 55);
-                doc.text(`Present Percentage: ${presentPercentEl.textContent}`, 14, 65);
+                doc.text(`Total Employees: ${totalCount}`, 14, 35);
+                doc.text(`Present: ${presentCount}`, 14, 45);
+                doc.text(`Absent: ${absentCount}`, 14, 55);
+                doc.text(`Present Percentage: ${Math.round(presentPercentage)}%`, 14, 65);
 
                 doc.text('Store-wise Attendance:', 14, 80);
-                const stores = Array.from(storeAttendanceList.querySelectorAll('div'));
                 let y = 90;
-                stores.forEach(store => {
-                    const name = store.querySelector('.font-semibold').textContent;
-                    const present = store.querySelector('.text-green-600').textContent;
-                    const absent = store.querySelector('.text-red-600').textContent;
-                    doc.text(`- ${name}: Present ${present}, Absent ${absent}`, 18, y);
+                Object.entries(storeData).forEach(([storeName, data]) => {
+                    doc.text(`- ${storeName}: Present ${data.present}, Absent ${data.absent}`, 18, y);
                     y += 10;
                 });
                 
@@ -638,7 +648,7 @@
             presentCircleEl.style.strokeDashoffset = `${offset}`;
 
             // Update Store-wise Attendance
-            const storeData = {};
+            storeData = {}; // Clear existing data
             allUsers.forEach(user => {
                 if (!storeData[user.location]) {
                     storeData[user.location] = { total: 0, present: 0, absent: 0 };
