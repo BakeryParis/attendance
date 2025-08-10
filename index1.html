@@ -93,18 +93,19 @@
                 <button id="logout-btn" class="btn btn-secondary">Logout</button>
             </div>
             
-            <!-- Bottom row: Tab Navigation -->
-            <div class="flex border-b border-gray-300">
+            <!-- Bottom row: Tab Navigation - Now horizontally scrollable -->
+            <div class="flex border-b border-gray-300 overflow-x-auto whitespace-nowrap">
                 <button class="py-2 px-4 tab-button border-b-2 border-transparent active" data-tab="dashboard">Dashboard</button>
                 <button class="py-2 px-4 tab-button border-b-2 border-transparent" data-tab="details">Details</button>
                 <button class="py-2 px-4 tab-button border-b-2 border-transparent" data-tab="report">Reports</button>
+                <button class="py-2 px-4 tab-button border-b-2 border-transparent" data-tab="employee-history">Employee History</button>
                 <button class="py-2 px-4 tab-button border-b-2 border-transparent" data-tab="manual-attendance">Manual Attendance</button>
             </div>
         </div>
     </header>
 
-    <!-- Main Content Area -->
-    <main class="flex-grow flex flex-col p-4">
+    <!-- Main Content Area - Now with flex and overflow for better mobile support -->
+    <main class="flex-grow flex flex-col p-4 overflow-y-auto">
 
         <!-- Login Page (Updated styling to place it at the top) -->
         <div id="login-page" class="w-full max-w-md mx-auto mt-10 p-8 card transition-opacity duration-500">
@@ -149,7 +150,7 @@
 
             <!-- Dashboard Content -->
             <div id="dashboard-content" class="tab-content">
-                <div class="flex items-center space-x-2 w-full md:w-auto mb-4">
+                <div class="flex flex-wrap items-center space-x-2 w-full md:w-auto mb-4">
                     <label for="date-filter" class="text-gray-700 font-bold">Date:</label>
                     <input type="date" id="date-filter" class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
@@ -257,6 +258,34 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Employee History Content -->
+            <div id="employee-history-content" class="tab-content hidden">
+                <h2 class="text-2xl font-bold mb-4">Employee Attendance History</h2>
+                <div class="card p-6 mb-6">
+                    <div class="flex flex-col md:flex-row items-center gap-4 mb-4">
+                        <div>
+                            <label for="month-filter" class="block text-gray-700 font-bold mb-1">Select Month:</label>
+                            <input type="month" id="month-filter" class="px-3 py-2 border rounded-lg">
+                        </div>
+                        <div>
+                            <label for="employee-name-filter" class="block text-gray-700 font-bold mb-1">Select Employee:</label>
+                            <select id="employee-name-filter" class="px-3 py-2 border rounded-lg">
+                                <option value="all">All Employees</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex justify-center mt-4">
+                        <button id="export-history-excel" class="btn btn-primary">Export to Excel</button>
+                    </div>
+                </div>
+                <div class="card p-4">
+                    <div id="attendance-history-list" class="divide-y divide-gray-200">
+                        <!-- Attendance history will be injected here -->
+                    </div>
+                    <p id="history-loading-message" class="text-center text-gray-500 mt-4 hidden">Loading...</p>
+                </div>
+            </div>
 
         </div>
     </main>
@@ -297,6 +326,7 @@
         const detailsContent = document.getElementById('details-content');
         const reportContent = document.getElementById('report-content');
         const manualAttendanceContent = document.getElementById('manual-attendance-content');
+        const employeeHistoryContent = document.getElementById('employee-history-content');
         
         const totalEmployeesEl = document.getElementById('total-employees');
         const presentCountEl = document.getElementById('present-count');
@@ -314,6 +344,14 @@
         const startDateFilter = document.getElementById('start-date-filter');
         const endDateFilter = document.getElementById('end-date-filter');
         const storeFilterSelect = document.getElementById('store-filter-select');
+        
+        // Employee History DOM elements
+        const monthFilterInput = document.getElementById('month-filter');
+        const employeeNameFilter = document.getElementById('employee-name-filter');
+        const attendanceHistoryList = document.getElementById('attendance-history-list');
+        const exportHistoryExcelBtn = document.getElementById('export-history-excel');
+        const historyLoadingMessage = document.getElementById('history-loading-message');
+
         const appModal = document.getElementById('app-modal');
         const modalTitle = document.getElementById('modal-title');
         const modalMessage = document.getElementById('modal-message');
@@ -323,7 +361,10 @@
         let allUsers = [];
         let allStores = [];
         let selectedDate = dayjs().format('YYYY-MM-DD');
-        let storeData = {}; // Added to hold the store-wise data
+        let storeData = {};
+        let selectedMonth = dayjs().format('YYYY-MM');
+        let selectedEmployeeUsername = 'all';
+        let monthlyAttendanceData = [];
 
         // --- Utility Functions ---
 
@@ -418,7 +459,7 @@
 
                 doc.setFontSize(12);
                 doc.text(`Name: ${name}`, 14, y);
-                doc.text(`${store}`, 14, y + 6);
+                doc.text(`Store: ${store}`, 14, y + 6);
                 doc.text(`Time: ${time}`, 14, y + 12);
                 
                 if (img && img.src.startsWith('data:')) {
@@ -551,6 +592,39 @@
             }
         }
         
+        async function exportAttendanceHistoryToExcel() {
+            try {
+                if (typeof XLSX === 'undefined') {
+                    showModal('Error', 'Excel library not loaded. Please refresh the page.');
+                    return;
+                }
+
+                if (!monthlyAttendanceData || monthlyAttendanceData.length === 0) {
+                    showModal('Error', 'No data available to export.');
+                    return;
+                }
+
+                const headers = ["Date", "Name", "Store", "Check-in Time"];
+                const data = monthlyAttendanceData.map(record => [
+                    dayjs(record.timestamp).format('YYYY-MM-DD'),
+                    record.name,
+                    record.location,
+                    dayjs(record.timestamp).format('hh:mm:ss A')
+                ]);
+
+                const employeeName = selectedEmployeeUsername === 'all' ? 'All' : allUsers.find(u => u.username === selectedEmployeeUsername).name;
+                const fileName = `attendance-history-${employeeName}-${selectedMonth}.xlsx`;
+
+                const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Monthly Attendance");
+                XLSX.writeFile(wb, fileName);
+            } catch (e) {
+                console.error('An unexpected error occurred during Excel export:', e);
+                showModal('Error', `An unexpected error occurred: ${e.message}`);
+            }
+        }
+
         // --- Core Application Logic ---
 
         // HR Login
@@ -580,6 +654,7 @@
                 mainHeader.classList.remove('hidden');
                 
                 // Load data for today by default
+                await loadAllUsers();
                 await loadDashboardData(dayjs().format('YYYY-MM-DD'));
                 await loadStoreFilters();
                 
@@ -587,6 +662,24 @@
                 console.error('Login error:', err);
                 loginError.classList.remove('hidden');
             }
+        }
+
+        async function loadAllUsers() {
+             const { data: users, error: userError } = await supabase.from('users').select('*');
+             if (userError) {
+                console.error('Error fetching all users:', userError);
+                return;
+             }
+             allUsers = users;
+             
+             // Populate employee dropdowns
+             employeeSelect.innerHTML = `<option value="">-- Select an employee --</option>` + allUsers.map(user => `
+                <option value="${user.username}">${user.name} (${user.location})</option>
+            `).join('');
+            
+            employeeNameFilter.innerHTML = `<option value="all">All Employees</option>` + allUsers.map(user => `
+                <option value="${user.username}">${user.name}</option>
+            `).join('');
         }
 
         async function loadStoreFilters() {
@@ -607,14 +700,6 @@
             dateFilterInput.value = selectedDate; // Set the date filter for the dashboard
             const todayStart = dayjs(date).startOf('day').toISOString();
             const todayEnd = dayjs(date).endOf('day').toISOString();
-            
-            // Fetch all users to get total count and names
-            const { data: users, error: userError } = await supabase.from('users').select('*');
-            if (userError) {
-                console.error('Error fetching users:', userError);
-                return;
-            }
-            allUsers = users;
             
             // Fetch today's attendance
             const { data: attendance, error: attendanceError } = await supabase
@@ -693,12 +778,68 @@
                 </li>
             `).join('');
 
-            // Update Manual Attendance Dropdown
-            employeeSelect.innerHTML = `<option value="">-- Select an employee --</option>` + allUsers.map(user => `
-                <option value="${user.username}">${user.name} (${user.location})</option>
-            `).join('');
         }
         
+        async function loadEmployeeHistoryData(month, employeeUsername) {
+            selectedMonth = month;
+            selectedEmployeeUsername = employeeUsername;
+            monthFilterInput.value = selectedMonth;
+            employeeNameFilter.value = selectedEmployeeUsername;
+
+            historyLoadingMessage.classList.remove('hidden');
+            attendanceHistoryList.innerHTML = '';
+
+            const startOfMonth = dayjs(month).startOf('month').toISOString();
+            const endOfMonth = dayjs(month).endOf('month').toISOString();
+
+            try {
+                let query = supabase
+                    .from('attendance')
+                    .select('*')
+                    .gte('timestamp', startOfMonth)
+                    .lte('timestamp', endOfMonth)
+                    .order('timestamp', { ascending: false });
+
+                if (employeeUsername !== 'all') {
+                    query = query.eq('username', employeeUsername);
+                }
+
+                const { data: attendance, error } = await query;
+
+                if (error) {
+                    throw error;
+                }
+                
+                monthlyAttendanceData = attendance;
+
+                if (monthlyAttendanceData.length === 0) {
+                    attendanceHistoryList.innerHTML = '<p class="text-center text-gray-500 mt-4">No attendance records found for this month and employee.</p>';
+                    return;
+                }
+
+                attendanceHistoryList.innerHTML = monthlyAttendanceData.map(att => `
+                    <div class="py-4 flex items-center space-x-4">
+                        <img src="${att.image}" alt="Employee Selfie" class="thumbnail-img">
+                        <div class="flex-grow">
+                            <p class="font-bold">${att.name}</p>
+                            <p class="text-sm text-gray-600">Store: ${att.location}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-medium">${dayjs(att.timestamp).format('MMMM D, YYYY')}</p>
+                            <p class="text-sm text-gray-600">${dayjs(att.timestamp).format('hh:mm:ss A')}</p>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (e) {
+                console.error('Error loading attendance history:', e);
+                attendanceHistoryList.innerHTML = `<p class="text-center text-red-500 mt-4">Failed to load data: ${e.message}</p>`;
+            } finally {
+                historyLoadingMessage.classList.add('hidden');
+            }
+        }
+
+
         async function handleManualAttendance(event) {
             event.preventDefault();
             const username = employeeSelect.value;
@@ -765,7 +906,19 @@
         document.querySelectorAll('.tab-button').forEach(button => {
             button.addEventListener('click', () => {
                 showTab(button.dataset.tab);
+                if (button.dataset.tab === 'employee-history') {
+                    // Load data for the current month when the tab is clicked
+                    loadEmployeeHistoryData(dayjs().format('YYYY-MM'), 'all');
+                }
             });
+        });
+
+        monthFilterInput.addEventListener('change', async (event) => {
+            await loadEmployeeHistoryData(event.target.value, selectedEmployeeUsername);
+        });
+        
+        employeeNameFilter.addEventListener('change', async (event) => {
+            await loadEmployeeHistoryData(selectedMonth, event.target.value);
         });
 
         manualAttendanceForm.addEventListener('submit', handleManualAttendance);
@@ -777,10 +930,13 @@
         document.getElementById('download-present-pdf').addEventListener('click', generatePresentListPDF);
         document.getElementById('download-absent-pdf').addEventListener('click', generateAbsentListPDF);
         document.getElementById('download-attendance-sheet-excel').addEventListener('click', () => generateAttendanceSheet('excel'));
+        document.getElementById('export-history-excel').addEventListener('click', exportAttendanceHistoryToExcel);
 
         // Initial setup on page load
         // Set date filter to today
         dateFilterInput.value = dayjs().format('YYYY-MM-DD');
+        // Set month filter to current month
+        monthFilterInput.value = dayjs().format('YYYY-MM');
     </script>
 </body>
 </html>
