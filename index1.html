@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HR Dashboard</title>
-
-   <link rel="icon" type="image/png" href="favicon.png">
- <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -88,7 +86,7 @@
             <div class="flex justify-between items-center mb-4">
                 <div class="flex items-center space-x-4">
                     <!-- Logo: Place your round logo file (e.g., logo.png) in the root directory. -->
-                    <img src="./logo1.png" alt="Company Logo" onerror="this.onerror=null; this.src='https://placehold.co/40x40/E5E7EB/1F2937?text=Logo';" class="w-10 h-10 rounded-full">
+                    <img src="./logo.png" alt="Company Logo" onerror="this.onerror=null; this.src='https://placehold.co/40x40/E5E7EB/1F2937?text=Logo';" class="w-10 h-10 rounded-full">
                     <h1 class="text-3xl font-bold">HR Dashboard</h1>
                 </div>
                 <button id="logout-btn" class="btn btn-secondary">Logout</button>
@@ -107,11 +105,11 @@
     <!-- Main Content Area -->
     <main class="flex-grow flex flex-col p-4">
 
-        <!-- Login Page -->
-        <div id="login-page" class="w-full max-w-md mx-auto my-auto p-8 card transition-opacity duration-500">
+        <!-- Login Page (Updated styling to place it at the top) -->
+        <div id="login-page" class="w-full max-w-md mx-auto mt-10 p-8 card transition-opacity duration-500">
             <div class="flex items-center justify-center mb-6">
                 <!-- Logo for login page -->
-                <img src="./logo1.png" alt="Company Logo" onerror="this.onerror=null; this.src='https://placehold.co/40x40/E5E7EB/1F2937?text=Logo';" class="w-10 h-10 rounded-full mr-2">
+                <img src="./logo.png" alt="Company Logo" onerror="this.onerror=null; this.src='https://placehold.co/40x40/E5E7EB/1F2937?text=Logo';" class="w-10 h-10 rounded-full mr-2">
                 <h1 class="text-3xl font-bold">HR Login</h1>
             </div>
             <form id="login-form">
@@ -226,7 +224,7 @@
                     <div class="flex justify-center mt-6">
                         <button id="download-absent-pdf" class="btn btn-secondary flex items-center space-x-2">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
-                            <span>Download Absent PDF</span>
+                        <span>Download Absent PDF</span>
                         </button>
                     </div>
                 </div>
@@ -281,9 +279,9 @@
     <script>
         // Supabase configuration
         // IMPORTANT: Replace the placeholders below with your actual Supabase keys.
-       const SUPABASE_URL = 'https://dfepjaivpgomxsjbxnhz.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmZXBqYWl2cGdvbXhzamJ4bmh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk4MjY0NTMsImV4cCI6MjA2NTQwMjQ1M30.5ASDRBIH0CQ-4d2_1g8hfsZlotOp1EbU9v9nZXZdRIM';
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const SUPABASE_URL = 'https://dfepjaivpgomxsjbxnhz.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmZXBqYWl2cGdvbXhzamJ4bmh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk4MjY0NTMsImV4cCI6MjA2NTQwMjQ1M30.5ASDRBIH0CQ-4d2_1g8hfsZlotOp1EbU9v9nZXZdRIM';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         // DOM elements
         const loginPage = document.getElementById('login-page');
         const dashboardPage = document.getElementById('dashboard-page');
@@ -344,31 +342,41 @@
 
         // --- PDF Generation ---
         async function generateSummaryPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const date = dayjs(selectedDate).format('MMMM D, YYYY');
-            
-            doc.setFontSize(18);
-            doc.text(`Attendance Summary for ${date}`, 14, 22);
+            try {
+                const { jsPDF } = window.jspdf;
+                if (typeof jsPDF === 'undefined') {
+                    showModal('Error', 'PDF library not loaded. Please refresh the page.');
+                    return;
+                }
 
-            doc.setFontSize(12);
-            doc.text(`Total Employees: ${totalEmployeesEl.textContent}`, 14, 35);
-            doc.text(`Present: ${presentCountEl.textContent}`, 14, 45);
-            doc.text(`Absent: ${absentCountEl.textContent}`, 14, 55);
-            doc.text(`Present Percentage: ${presentPercentEl.textContent}`, 14, 65);
+                const doc = new jsPDF();
+                const date = dayjs(selectedDate).format('MMMM D, YYYY');
+                
+                doc.setFontSize(18);
+                doc.text(`Attendance Summary for ${date}`, 14, 22);
 
-            doc.text('Store-wise Attendance:', 14, 80);
-            const stores = Array.from(storeAttendanceList.querySelectorAll('div'));
-            let y = 90;
-            stores.forEach(store => {
-                const name = store.querySelector('.font-semibold').textContent;
-                const present = store.querySelector('.text-green-600').textContent;
-                const absent = store.querySelector('.text-red-600').textContent;
-                doc.text(`- ${name}: Present ${present}, Absent ${absent}`, 18, y);
-                y += 10;
-            });
-            
-            doc.save(`attendance-summary-${selectedDate}.pdf`);
+                doc.setFontSize(12);
+                doc.text(`Total Employees: ${totalEmployeesEl.textContent}`, 14, 35);
+                doc.text(`Present: ${presentCountEl.textContent}`, 14, 45);
+                doc.text(`Absent: ${absentCountEl.textContent}`, 14, 55);
+                doc.text(`Present Percentage: ${presentPercentEl.textContent}`, 14, 65);
+
+                doc.text('Store-wise Attendance:', 14, 80);
+                const stores = Array.from(storeAttendanceList.querySelectorAll('div'));
+                let y = 90;
+                stores.forEach(store => {
+                    const name = store.querySelector('.font-semibold').textContent;
+                    const present = store.querySelector('.text-green-600').textContent;
+                    const absent = store.querySelector('.text-red-600').textContent;
+                    doc.text(`- ${name}: Present ${present}, Absent ${absent}`, 18, y);
+                    y += 10;
+                });
+                
+                doc.save(`attendance-summary-${selectedDate}.pdf`);
+            } catch (e) {
+                console.error('An unexpected error occurred during PDF generation:', e);
+                showModal('Error', `An unexpected error occurred while generating the PDF: ${e.message}`);
+            }
         }
 
         async function generatePresentListPDF() {
@@ -400,7 +408,7 @@
 
                 doc.setFontSize(12);
                 doc.text(`Name: ${name}`, 14, y);
-                doc.text(`${store}`, 14, y + 6);
+                doc.text(`Store: ${store}`, 14, y + 6);
                 doc.text(`Time: ${time}`, 14, y + 12);
                 
                 if (img && img.src.startsWith('data:')) {
