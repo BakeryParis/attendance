@@ -10,6 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="icon" type="image/png" href="favicon.png">
+    
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -109,6 +110,9 @@
 
         <!-- Login Page (Updated styling to place it at the top) -->
         <div id="login-page" class="w-full max-w-md mx-auto mt-10 p-8 card transition-opacity duration-500">
+            <!-- New GIF Banner - Place your GIF file in the root directory and rename the src below -->
+            <img src="./banner.gif" alt="Animated data visualization banner" onerror="this.onerror=null; this.src='https://placehold.co/600x200/1C64F2/FFFFFF?text=HR+Dashboard+Banner';" class="w-full rounded-lg mb-6">
+            
             <div class="flex items-center justify-center mb-6">
                 <!-- Logo for login page -->
                 <img src="./logo1.png" alt="Company Logo" onerror="this.onerror=null; this.src='https://placehold.co/40x40/E5E7EB/1F2937?text=Logo';" class="w-10 h-10 rounded-full mr-2">
@@ -459,7 +463,7 @@
 
                 doc.setFontSize(12);
                 doc.text(`Name: ${name}`, 14, y);
-                doc.text(`${store}`, 14, y + 6);
+                doc.text(`Store: ${store}`, 14, y + 6);
                 doc.text(`Time: ${time}`, 14, y + 12);
                 
                 if (img && img.src.startsWith('data:')) {
