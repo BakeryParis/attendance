@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="icon" type="image/png" href="favicon.png">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .card {
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background-color: #1c64f2;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #1e40af;
+        }
+        .btn-secondary {
+            background-color: #e5e7eb;
+            color: #1f2937;
+        }
+        .btn-secondary:hover {
+            background-color: #d1d5db;
+        }
+        .tab-button.active {
+            border-color: #1c64f2;
+            color: #1c64f2;
+        }
+        .modal {
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+        .thumbnail-img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+        }
+        @media (min-width: 768px) {
+            .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+            .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        .marquee-container {
+            overflow: hidden;
+            white-space: nowrap;
+            width: 100%;
+        }
+        .marquee-text {
+            display: inline-block;
+            animation: marquee 15s linear infinite;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col min-h-screen">
+
+    <header id="main-header" class="sticky top-0 z-50 bg-white p-4 shadow-md hidden">
+        <div class="flex flex-col max-w-6xl mx-auto">
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center space-x-4">
+                    <img src="./logo1.png" alt="Company Logo" onerror="this.onerror=null; this.src='https://placehold.co/40x40/E5E7EB/1F2937?text=Logo';" class="w-10 h-10 rounded-full">
+                    <h1 class="text-3xl font-bold">HR Dashboard</h1>
+                </div>
+                <button id="logout-btn" class="btn btn-secondary">Logout</button>
+            </div>
+            
+            <div class="flex border-b border-gray-300 overflow-x-auto whitespace-nowrap">
+                <button class="py-2 px-4 tab-button border-b-2 border-transparent active" data-tab="dashboard">Dashboard</button>
+                <button class="py-2 px-4 tab-button border-b-2 border-transparent" data-tab="details">Details</button>
+                <button class="py-2 px-4 tab-button border-b-2 border-transparent" data-tab="employee-history">Attendance History</button>
+                <button class="py-2 px-4 tab-button border-b-2 border-transparent hidden" data-tab="manual-attendance">Manual Attendance</button>
+                <button class="py-2 px-4 tab-button border-b-2 border-transparent" data-tab="report">Reports</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow flex flex-col p-4 overflow-y-auto">
+
+        <div id="login-page" class="w-full max-w-md mx-auto mt-10 p-8 card transition-opacity duration-500">
+            <img src="./banner.gif" alt="Animated data visualization banner" onerror="this.onerror=null; this.src='https://placehold.co/600x200/1C64F2/FFFFFF?text=HR+Dashboard+Banner';" class="w-full rounded-lg mb-6">
+            
+            <div class="flex items-center justify-center mb-6">
+                <img src="./logo1.png" alt="Company Logo" onerror="this.onerror=null; this.src='https://placehold.co/40x40/E5E7EB/1F2937?text=Logo';" class="w-10 h-10 rounded-full mr-2">
+                <h1 class="text-3xl font-bold">HR Login</h1>
+            </div>
+            <form id="login-form">
+                <div class="mb-4">
+                    <label for="hr-username" class="block text-gray-700 font-bold mb-2">Username</label>
+                    <input type="text" id="hr-username" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div class="mb-6">
+                    <label for="hr-password" class="block text-gray-700 font-bold mb-2">Password</label>
+                    <input type="password" id="hr-password" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <button type="submit" class="w-full btn btn-primary">Login</button>
+                <p id="login-error" class="mt-4 text-center text-red-500 font-medium hidden">Invalid username or password.</p>
+            </form>
+        </div>
+
+        <div id="dashboard-page" class="hidden w-full h-full max-w-6xl mx-auto p-4 md:p-8">
+            
+            <div id="manual-attendance-content" class="tab-content hidden mb-6">
+                <h2 class="text-2xl font-bold mb-4">Add Manual Attendance</h2>
+                <div class="card p-6">
+                    <form id="manual-attendance-form">
+                        <div class="mb-4">
+                            <label for="employee-select" class="block text-gray-700 font-bold mb-2">Select Employee</label>
+                            <select id="employee-select" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                <option value="">-- Select an employee --</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full btn btn-primary">Mark as Present</button>
+                        <p id="manual-attendance-message" class="mt-4 text-center font-medium hidden"></p>
+                    </form>
+                </div>
+            </div>
+
+            <div id="dashboard-content" class="tab-content">
+                <div class="flex flex-wrap items-center space-x-2 w-full md:w-auto mb-4">
+                    <label for="date-filter" class="text-gray-700 font-bold">Date:</label>
+                    <input type="date" id="date-filter" class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="card p-6 text-center">
+                        <h2 class="text-xl font-semibold text-gray-500">Total Employees</h2>
+                        <p id="total-employees" class="text-4xl font-bold mt-2">0</p>
+                    </div>
+                    <div class="card p-6 text-center">
+                        <h2 class="text-xl font-semibold text-gray-500">Today's Present</h2>
+                        <p id="present-count" class="text-4xl font-bold mt-2 text-green-600">0</p>
+                    </div>
+                    <div class="card p-6 text-center">
+                        <h2 class="text-xl font-semibold text-gray-500">Today's Absent</h2>
+                        <p id="absent-count" class="text-4xl font-bold mt-2 text-red-600">0</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="card p-6">
+                        <h2 class="text-xl font-semibold text-gray-500 mb-4">Present Percentage</h2>
+                        <div class="flex items-center justify-center">
+                            <div class="relative w-32 h-32">
+                                <svg class="w-full h-full" viewBox="0 0 100 100">
+                                    <circle class="text-gray-200" stroke-width="10" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50"/>
+                                    <circle id="present-circle" class="text-blue-500" stroke-width="10" stroke-dasharray="0" stroke-dashoffset="0" stroke-linecap="round" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50" transform="rotate(-90 50 50)"/>
+                                </svg>
+                                <span id="present-percent" class="absolute inset-0 flex items-center justify-center text-3xl font-bold">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card p-6">
+                        <h2 class="text-xl font-semibold text-gray-500 mb-4">Store-wise Attendance</h2>
+                        <div id="store-attendance-list">
+                            </div>
+                    </div>
+                </div>
+                <div class="flex justify-center mt-6">
+                    <button id="download-summary-pdf" class="btn btn-secondary flex items-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                        <span>Download Summary PDF</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="details-content" class="tab-content hidden">
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold text-gray-700">Present</h2>
+                        <div class="flex items-center gap-x-6">
+                            <div class="flex items-center">
+                                <input id="show-relocated-only" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
+                                <label for="show-relocated-only" class="ml-2 text-sm font-medium text-gray-900">Relocated</label>
+                            </div>
+                            <div>
+                                <label for="present-sort-order" class="text-sm font-medium mr-2">Sort by:</label>
+                                <select id="present-sort-order" class="px-3 py-1 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="location">Store</option>
+                                    <option value="time">Time</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card p-4">
+                        <div id="present-employees-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            </div>
+                    </div>
+                    <div class="flex justify-center mt-6">
+                        <button id="download-present-pdf" class="btn btn-secondary flex items-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                            <span>Download Present PDF</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-700 mb-4">Absent</h2>
+                    <div class="card p-4">
+                        <ul id="absent-employees-list" class="divide-y divide-gray-200">
+                            </ul>
+                    </div>
+                    <div class="flex justify-center mt-6">
+                        <button id="download-absent-pdf" class="btn btn-secondary flex items-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                            <span>Download Absent PDF</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="report-content" class="tab-content hidden">
+                <h2 class="text-2xl font-bold mb-4">Download Reports</h2>
+                <div class="card p-6">
+                    <div class="flex flex-col md:flex-row items-center gap-4 mb-4">
+                        <div>
+                            <label for="start-date-filter" class="block text-gray-700 font-bold mb-1">Start Date:</label>
+                            <input type="date" id="start-date-filter" class="px-3 py-2 border rounded-lg">
+                        </div>
+                        <div>
+                            <label for="end-date-filter" class="block text-gray-700 font-bold mb-1">End Date:</label>
+                            <input type="date" id="end-date-filter" class="px-3 py-2 border rounded-lg">
+                        </div>
+                        <div>
+                            <label for="store-filter-select" class="block text-gray-700 font-bold mb-1">Store:</label>
+                            <select id="store-filter-select" class="px-3 py-2 border rounded-lg">
+                                <option value="all">All Stores</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4 mt-4">
+                        <button id="download-attendance-sheet-excel" class="btn btn-primary">Download Attendance Sheet (Excel)</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="employee-history-content" class="tab-content hidden">
+                <h2 class="text-2xl font-bold mb-4">Employee Attendance History</h2>
+                <div class="card p-6 mb-6">
+                    <div class="flex flex-col md:flex-row items-center gap-4 mb-4">
+                        <div>
+                            <label for="month-filter" class="block text-gray-700 font-bold mb-1">Select Month:</label>
+                            <input type="month" id="month-filter" class="px-3 py-2 border rounded-lg">
+                        </div>
+                        <div>
+                            <label for="employee-name-filter" class="block text-gray-700 font-bold mb-1">Select Employee:</label>
+                            <select id="employee-name-filter" class="px-3 py-2 border rounded-lg">
+                                <option value="all">All Employees</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="history-sort-order" class="block text-gray-700 font-bold mb-1">Sort by:</label>
+                            <select id="history-sort-order" class="px-3 py-2 border rounded-lg">
+                                <option value="location">Store</option>
+                                <option value="time">Time</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex justify-center mt-4">
+                        <button id="export-history-excel" class="btn btn-primary">Export to Excel</button>
+                    </div>
+                </div>
+                <div class="card p-4">
+                    <div id="attendance-history-list" class="divide-y divide-gray-200">
+                        </div>
+                    <p id="history-loading-message" class="text-center text-gray-500 mt-4 hidden">Loading...</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <div id="app-modal" class="modal fixed inset-0 flex items-center justify-center p-4 hidden">
+        <div class="modal-content card p-8 w-full max-w-sm text-center">
+            <h3 id="modal-title" class="text-2xl font-bold mb-4"></h3>
+            <p id="modal-message" class="mb-6"></p>
+            <button id="modal-close" class="btn btn-primary w-full">Close</button>
+        </div>
+    </div>
+    
+    <footer class="bg-white text-gray-700 p-2 mt-auto border-t border-gray-300">
+        <div class="marquee-container">
+            <p class="marquee-text">For support, contact Samir Singhsamanta: +91 76069 36790</p>
+        </div>
+    </footer>
+
+    <script>
+        // Supabase configuration
+        const SUPABASE_URL = 'https://wgjtkkvgskxzjqgsykze.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnanRra3Znc2t4empxZ3N5a3plIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1MzEyODYsImV4cCI6MjA3MTEwNzI4Nn0.Hr69_1j4Ts-7d1G_RylJuRZKTaigWFBgIYlHVahIvVA';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // DOM elements
+        const loginPage = document.getElementById('login-page');
+        const dashboardPage = document.getElementById('dashboard-page');
+        const loginForm = document.getElementById('login-form');
+        const loginError = document.getElementById('login-error');
+        const logoutBtn = document.getElementById('logout-btn');
+        const dateFilterInput = document.getElementById('date-filter');
+        const mainHeader = document.getElementById('main-header');
+        
+        const dashboardContent = document.getElementById('dashboard-content');
+        const detailsContent = document.getElementById('details-content');
+        const reportContent = document.getElementById('report-content');
+        const manualAttendanceContent = document.getElementById('manual-attendance-content');
+        const employeeHistoryContent = document.getElementById('employee-history-content');
+        
+        const totalEmployeesEl = document.getElementById('total-employees');
+        const presentCountEl = document.getElementById('present-count');
+        const absentCountEl = document.getElementById('absent-count');
+        const presentPercentEl = document.getElementById('present-percent');
+        const presentCircleEl = document.getElementById('present-circle');
+        const storeAttendanceList = document.getElementById('store-attendance-list');
+        const presentEmployeesList = document.getElementById('present-employees-list');
+        const absentEmployeesList = document.getElementById('absent-employees-list');
+        
+        const employeeSelect = document.getElementById('employee-select');
+        const manualAttendanceForm = document.getElementById('manual-attendance-form');
+        const manualMessage = document.getElementById('manual-attendance-message');
+
+        const startDateFilter = document.getElementById('start-date-filter');
+        const endDateFilter = document.getElementById('end-date-filter');
+        const storeFilterSelect = document.getElementById('store-filter-select');
+        
+        // Employee History DOM elements
+        const monthFilterInput = document.getElementById('month-filter');
+        const employeeNameFilter = document.getElementById('employee-name-filter');
+        const attendanceHistoryList = document.getElementById('attendance-history-list');
+        const exportHistoryExcelBtn = document.getElementById('export-history-excel');
+        const historyLoadingMessage = document.getElementById('history-loading-message');
+
+        const appModal = document.getElementById('app-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+        const modalCloseBtn = document.getElementById('modal-close');
+        
+        // Sorting and filtering elements
+        const presentSortOrderSelect = document.getElementById('present-sort-order');
+        const historySortOrderSelect = document.getElementById('history-sort-order');
+        const showRelocatedOnlyCheckbox = document.getElementById('show-relocated-only');
+
+        // State variables
+        let allUsers = [];
+        let allStores = [];
+        let selectedDate = dayjs().format('YYYY-MM-DD');
+        let storeData = {};
+        let selectedMonth = dayjs().format('YYYY-MM');
+        let selectedEmployeeUsername = 'all';
+        let monthlyAttendanceData = [];
+        let presentSortOrder = 'location'; // 'location' or 'time'
+        let historySortOrder = 'location'; // 'location' or 'time'
+        let showRelocatedOnly = false;
+
+
+        // --- Utility Functions ---
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.getElementById(`${tabName}-content`).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.tab-button[data-tab="${tabName}"]`).classList.add('active');
+        }
+
+        function showModal(title, message) {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            appModal.classList.remove('hidden');
+        }
+
+        // --- PDF Generation ---
+        async function generateSummaryPDF() {
+            try {
+                const { jsPDF } = window.jspdf;
+                if (typeof jsPDF === 'undefined') {
+                    showModal('Error', 'PDF library not loaded. Please refresh the page.');
+                    return;
+                }
+
+                if (!allUsers || allUsers.length === 0) {
+                    showModal('Error', 'No data available to generate a summary. Please wait for the dashboard to load.');
+                    return;
+                }
+                
+                const totalCount = allUsers.length;
+                const presentCount = parseInt(presentCountEl.textContent, 10) || 0;
+                const absentCount = parseInt(absentCountEl.textContent, 10) || 0;
+                const presentPercentage = totalCount > 0 ? (presentCount / totalCount) * 100 : 0;
+                
+                const doc = new jsPDF();
+                const date = dayjs(selectedDate).format('MMMM D, YYYY');
+                
+                doc.setFontSize(18);
+                doc.text(`Attendance Summary for ${date}`, 14, 22);
+
+                doc.setFontSize(12);
+                doc.text(`Total Employees: ${totalCount}`, 14, 35);
+                doc.text(`Present: ${presentCount}`, 14, 45);
+                doc.text(`Absent: ${absentCount}`, 14, 55);
+                doc.text(`Present Percentage: ${Math.round(presentPercentage)}%`, 14, 65);
+
+                doc.text('Store-wise Attendance:', 14, 80);
+                let y = 90;
+                Object.entries(storeData).sort((a, b) => a[0].localeCompare(b[0])).forEach(([storeName, data]) => {
+                    doc.text(`- ${storeName}: Present ${data.present}, Absent ${data.absent}`, 18, y);
+                    y += 10;
+                });
+                
+                doc.save(`attendance-summary-${selectedDate}.pdf`);
+            } catch (e) {
+                console.error('An unexpected error occurred during PDF generation:', e);
+                showModal('Error', `An unexpected error occurred while generating the PDF: ${e.message}`);
+            }
+        }
+
+        async function generatePresentListPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const date = dayjs(selectedDate).format('MMMM D, YYYY');
+
+            doc.setFontSize(18);
+            doc.text(`Present Employees for ${date}`, 14, 22);
+            
+            const presentEmployees = Array.from(presentEmployeesList.querySelectorAll('.card'));
+            let y = 35;
+            let page = 1;
+
+            for (const emp of presentEmployees) {
+                if (y > 280) { // Check for new page
+                    doc.addPage();
+                    y = 22;
+                    page++;
+                    doc.setFontSize(18);
+                    doc.text(`Present Employees for ${date} (Cont. - Page ${page})`, 14, 22);
+                    y = 35;
+                }
+
+                const name = emp.querySelector('.font-bold').textContent;
+                const store = emp.querySelector('p:nth-child(2)').textContent.replace('Store: ', '');
+                const time = emp.querySelector('p:nth-child(3)').textContent.replace('Time: ', '');
+                const img = emp.querySelector('img');
+
+                doc.setFontSize(12);
+                doc.text(`Name: ${name}`, 14, y);
+                doc.text(`Store: ${store}`, 14, y + 6);
+                doc.text(`Time: ${time}`, 14, y + 12);
+                
+                if (img && img.src.startsWith('data:')) {
+                    try {
+                        const imgData = img.src;
+                        doc.addImage(imgData, 'JPEG', 150, y, 30, 30);
+                    } catch (e) {
+                        console.error('Error adding image to PDF:', e);
+                    }
+                }
+                
+                y += 40;
+            }
+
+            doc.save(`present-employees-${selectedDate}.pdf`);
+        }
+        
+        async function generateAbsentListPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const date = dayjs(selectedDate).format('MMMM D, YYYY');
+
+            doc.setFontSize(18);
+            doc.text(`Absent Employees for ${date}`, 14, 22);
+
+            const absentEmployees = Array.from(absentEmployeesList.querySelectorAll('li'));
+            let y = 35;
+            let page = 1;
+
+            absentEmployees.forEach(emp => {
+                if (y > 280) {
+                    doc.addPage();
+                    y = 22;
+                    page++;
+                    doc.setFontSize(18);
+                    doc.text(`Absent Employees for ${date} (Cont. - Page ${page})`, 14, 22);
+                    y = 35;
+                }
+                const name = emp.querySelector('span:nth-child(1)').textContent;
+                const store = emp.querySelector('span:nth-child(2)').textContent;
+                doc.setFontSize(12);
+                doc.text(`Name: ${name}`, 14, y);
+                doc.text(`Store: ${store}`, 14, y + 6);
+                y += 15;
+            });
+            doc.save(`absent-employees-${selectedDate}.pdf`);
+        }
+        
+        async function generateAttendanceSheet(format = 'excel') {
+            try {
+                if (typeof XLSX === 'undefined') {
+                    showModal('Error', 'Excel library not loaded. Please refresh the page.');
+                    return;
+                }
+
+                const start = startDateFilter.value;
+                const end = endDateFilter.value;
+                const store = storeFilterSelect.value;
+                if (!start || !end) {
+                    showModal('Error', 'Please select a date range.');
+                    return;
+                }
+
+                const startOfLocalDayUTC = dayjs(start).startOf('day').toISOString();
+                const endOfLocalDayUTC = dayjs(end).endOf('day').toISOString();
+
+                let { data: users, error: userError } = await supabase
+                    .from('users')
+                    .select('username, name, location')
+                    .order('location'); 
+                if (userError) {
+                    console.error('Error fetching users:', userError);
+                    showModal('Error', `Failed to fetch user data: ${userError.message}`);
+                    return;
+                }
+                if (store !== 'all') {
+                    users = users.filter(user => user.location === store);
+                }
+
+                const { data: attendanceData, error: attendanceError } = await supabase
+                    .from('attendance')
+                    .select('username, timestamp')
+                    .gte('timestamp', startOfLocalDayUTC)
+                    .lte('timestamp', endOfLocalDayUTC);
+                if (attendanceError) {
+                    console.error('Error fetching attendance:', attendanceError);
+                    showModal('Error', `Failed to fetch attendance data: ${attendanceError.message}`);
+                    return;
+                }
+
+                const datesInRange = [];
+                let currentDate = dayjs(start);
+                while (currentDate.isBefore(dayjs(end).add(1, 'day'))) {
+                    datesInRange.push(currentDate.format('YYYY-MM-DD'));
+                    currentDate = currentDate.add('1', 'day');
+                }
+
+                const attendanceMap = new Map();
+                attendanceData.forEach(att => {
+                    const date = dayjs(att.timestamp).format('YYYY-MM-DD');
+                    if (!attendanceMap.has(att.username)) {
+                        attendanceMap.set(att.username, new Set());
+                    }
+                    attendanceMap.get(att.username).add(date);
+                });
+
+                const headers = ['Name', 'Store', ...datesInRange];
+                const data = users.map(user => {
+                    const row = [user.name, user.location];
+                    const userAttendance = attendanceMap.get(user.username) || new Set();
+                    datesInRange.forEach(date => {
+                        row.push(userAttendance.has(date) ? 'P' : 'A');
+                    });
+                    return row;
+                });
+                
+                if (format === 'excel') {
+                    const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, "Attendance Sheet");
+                    XLSX.writeFile(wb, `attendance-sheet-${start}-to-${end}.xlsx`);
+                }
+
+            } catch (e) {
+                console.error('An unexpected error occurred during report generation:', e);
+                showModal('Error', `An unexpected error occurred: ${e.message}`);
+            }
+        }
+        
+        async function exportAttendanceHistoryToExcel() {
+            try {
+                if (typeof XLSX === 'undefined') {
+                    showModal('Error', 'Excel library not loaded. Please refresh the page.');
+                    return;
+                }
+
+                if (!monthlyAttendanceData || monthlyAttendanceData.length === 0) {
+                    showModal('Error', 'No data available to export.');
+                    return;
+                }
+
+                const headers = ["Date", "Name", "Store", "Check-in Time"];
+                const data = monthlyAttendanceData.map(record => [
+                    dayjs(record.timestamp).format('YYYY-MM-DD'),
+                    record.name,
+                    record.location,
+                    dayjs(record.timestamp).format('hh:mm:ss A')
+                ]);
+
+                const employeeName = selectedEmployeeUsername === 'all' ? 'All' : allUsers.find(u => u.username === selectedEmployeeUsername).name;
+                const fileName = `attendance-history-${employeeName}-${selectedMonth}.xlsx`;
+
+                const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Monthly Attendance");
+                XLSX.writeFile(wb, fileName);
+            } catch (e) {
+                console.error('An unexpected error occurred during Excel export:', e);
+                showModal('Error', `An unexpected error occurred: ${e.message}`);
+            }
+        }
+
+        // --- Core Application Logic ---
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('hr-username').value;
+            const password = document.getElementById('hr-password').value;
+            
+            try {
+                const { data, error } = await supabase
+                    .from('hr_users')
+                    .select('*, is_admin')
+                    .eq('username', username)
+                    .eq('password', password)
+                    .single();
+
+                if (error || !data) {
+                    loginError.classList.remove('hidden');
+                    return;
+                }
+                
+                loginPage.classList.add('hidden');
+                dashboardPage.classList.remove('hidden');
+                loginError.classList.add('hidden');
+                mainHeader.classList.remove('hidden');
+                
+                if (data.is_admin) {
+                    document.querySelector('.tab-button[data-tab="manual-attendance"]').classList.remove('hidden');
+                } else {
+                    document.querySelector('.tab-button[data-tab="manual-attendance"]').classList.add('hidden');
+                }
+                
+                await loadAllUsers();
+                await loadDashboardData(dayjs().format('YYYY-MM-DD'));
+                await loadStoreFilters();
+                
+            } catch (err) {
+                console.error('Login error:', err);
+                loginError.classList.remove('hidden');
+            }
+        }
+
+        async function loadAllUsers() {
+             const { data: users, error: userError } = await supabase.from('users').select('*').order('location');
+             if (userError) {
+                console.error('Error fetching all users:', userError);
+                return;
+             }
+             allUsers = users;
+             
+             employeeSelect.innerHTML = `<option value="">-- Select an employee --</option>` + allUsers.map(user => `
+                <option value="${user.username}">${user.name} (${user.location})</option>
+            `).join('');
+            
+            employeeNameFilter.innerHTML = `<option value="all">All Employees</option>` + allUsers.map(user => `
+                <option value="${user.username}">${user.name} (${user.location})</option>
+            `).join('');
+        }
+
+        async function loadStoreFilters() {
+             const { data, error } = await supabase
+                .from('users')
+                .select('location');
+            if (error) {
+                console.error('Error fetching store locations:', error);
+                return;
+            }
+
+            allStores = [...new Set(data.map(user => user.location))].sort();
+            storeFilterSelect.innerHTML = `<option value="all">All Stores</option>` + allStores.map(store => `<option value="${store}">${store}</option>`).join('');
+        }
+
+        async function loadDashboardData(date) {
+            selectedDate = date;
+            dateFilterInput.value = selectedDate;
+            const todayStart = dayjs(date).startOf('day').toISOString();
+            const todayEnd = dayjs(date).endOf('day').toISOString();
+            
+            // Base query to get all attendance for the day
+            let baseAttendanceQuery = supabase
+                .from('attendance')
+                .select('*')
+                .gte('timestamp', todayStart)
+                .lte('timestamp', todayEnd);
+
+            // Apply sorting to the base query
+            if (presentSortOrder === 'location') {
+                baseAttendanceQuery = baseAttendanceQuery.order('location', { ascending: true }).order('timestamp', { ascending: true });
+            } else { // 'time'
+                baseAttendanceQuery = baseAttendanceQuery.order('timestamp', { ascending: true });
+            }
+
+            const { data: allDailyAttendance, error: attendanceError } = await baseAttendanceQuery;
+
+            if (attendanceError) {
+                console.error('Error fetching attendance:', attendanceError);
+                return;
+            }
+
+            // --- Use the full, unfiltered data for summaries and absent list ---
+            const presentUsernames = new Set(allDailyAttendance.map(att => att.username));
+            const presentUsers = allUsers.filter(user => presentUsernames.has(user.username));
+            const absentUsers = allUsers.filter(user => !presentUsernames.has(user.username));
+            
+            const totalCount = allUsers.length;
+            const presentCount = presentUsers.length;
+            const absentCount = absentUsers.length;
+            const presentPercentage = totalCount > 0 ? (presentCount / totalCount) * 100 : 0;
+            const circumference = 2 * Math.PI * 40;
+            const offset = circumference - (presentPercentage / 100) * circumference;
+
+            // Update Dashboard UI summary cards
+            totalEmployeesEl.textContent = totalCount;
+            presentCountEl.textContent = presentCount;
+            absentCountEl.textContent = absentCount;
+            presentPercentEl.textContent = `${Math.round(presentPercentage)}%`;
+            presentCircleEl.style.strokeDasharray = `${circumference}`;
+            presentCircleEl.style.strokeDashoffset = `${offset}`;
+
+            // Update Store-wise Attendance
+            storeData = {}; 
+            allUsers.forEach(user => {
+                if (!storeData[user.location]) {
+                    storeData[user.location] = { total: 0, present: 0, absent: 0 };
+                }
+                storeData[user.location].total++;
+            });
+            presentUsers.forEach(user => {
+                if (storeData[user.location]) {
+                    storeData[user.location].present++;
+                }
+            });
+            Object.keys(storeData).forEach(storeName => {
+                storeData[storeName].absent = storeData[storeName].total - storeData[storeName].present;
+            });
+
+            storeAttendanceList.innerHTML = Object.entries(storeData).sort((a, b) => a[0].localeCompare(b[0])).map(([store, data]) => `
+                <div class="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
+                    <span class="font-semibold">${store}</span>
+                    <div class="flex space-x-4 text-sm">
+                        <span>Present: <span class="font-bold text-green-600">${data.present}</span></span>
+                        <span>Absent: <span class="font-bold text-red-600">${data.absent}</span></span>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Update Absent Employees List
+            absentEmployeesList.innerHTML = absentUsers.map(user => `
+                <li class="py-2 flex justify-between items-center">
+                    <span class="font-medium">${user.name}</span>
+                    <span class="text-sm text-gray-500">${user.location}</span>
+                </li>
+            `).join('');
+
+            // --- Filter the data ONLY for the "Present Employees" list display ---
+            let filteredAttendance = allDailyAttendance;
+            if (showRelocatedOnly) {
+                filteredAttendance = allDailyAttendance.filter(att => att.location === 'Relocated');
+            }
+
+            // Update Present Employees List using the potentially filtered data
+            presentEmployeesList.innerHTML = filteredAttendance.map(att => `
+                <div class="card p-4 flex items-center space-x-4">
+                    <img src="${att.image}" alt="Employee Selfie" class="thumbnail-img">
+                    <div>
+                        <p class="font-bold">${att.name}</p>
+                        <p class="text-sm text-gray-600">Store: ${att.location}</p>
+                        <p class="text-sm text-gray-600">Time: ${dayjs(att.timestamp).format('hh:mm:ss A')}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        async function loadEmployeeHistoryData(month, employeeUsername) {
+            selectedMonth = month;
+            selectedEmployeeUsername = employeeUsername;
+            monthFilterInput.value = selectedMonth;
+            employeeNameFilter.value = selectedEmployeeUsername;
+
+            historyLoadingMessage.classList.remove('hidden');
+            attendanceHistoryList.innerHTML = '';
+
+            const startOfMonth = dayjs(month).startOf('month').toISOString();
+            const endOfMonth = dayjs(month).endOf('month').toISOString();
+
+            try {
+                let query = supabase
+                    .from('attendance')
+                    .select('*')
+                    .gte('timestamp', startOfMonth)
+                    .lte('timestamp', endOfMonth);
+
+                if (employeeUsername !== 'all') {
+                    query = query.eq('username', employeeUsername);
+                }
+                
+                // Apply dynamic sorting for history
+                if (historySortOrder === 'location') {
+                    query = query.order('location').order('timestamp', { ascending: false });
+                } else { // 'time'
+                    query = query.order('timestamp', { ascending: false });
+                }
+
+                const { data: attendance, error } = await query;
+
+                if (error) {
+                    throw error;
+                }
+                
+                monthlyAttendanceData = attendance;
+
+                if (monthlyAttendanceData.length === 0) {
+                    attendanceHistoryList.innerHTML = '<p class="text-center text-gray-500 mt-4">No attendance records found for this month and employee.</p>';
+                    return;
+                }
+
+                attendanceHistoryList.innerHTML = monthlyAttendanceData.map(att => `
+                    <div class="py-4 flex items-center space-x-4">
+                        <img src="${att.image}" alt="Employee Selfie" class="thumbnail-img">
+                        <div class="flex-grow">
+                            <p class="font-bold">${att.name}</p>
+                            <p class="text-sm text-gray-600">Store: ${att.location}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-medium">${dayjs(att.timestamp).format('MMMM D, YYYY')}</p>
+                            <p class="text-sm text-gray-600">${dayjs(att.timestamp).format('hh:mm:ss A')}</p>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (e) {
+                console.error('Error loading attendance history:', e);
+                attendanceHistoryList.innerHTML = `<p class="text-center text-red-500 mt-4">Failed to load data: ${e.message}</p>`;
+            } finally {
+                historyLoadingMessage.classList.add('hidden');
+            }
+        }
+
+
+        async function handleManualAttendance(event) {
+            event.preventDefault();
+            const username = employeeSelect.value;
+            if (!username) {
+                showModal('Error', 'Please select an employee.');
+                return;
+            }
+
+            const employee = allUsers.find(user => user.username === username);
+            const todayStart = dayjs().startOf('day').toISOString();
+            const todayEnd = dayjs().endOf('day').toISOString();
+            
+            const { data: existingAttendance, error: checkError } = await supabase
+                .from('attendance')
+                .select('*')
+                .eq('username', username)
+                .gte('timestamp', todayStart)
+                .lte('timestamp', todayEnd);
+            if (existingAttendance && existingAttendance.length > 0) {
+                showModal('Error', 'Attendance for this employee has already been marked today.');
+                return;
+            }
+
+            const attendanceRecord = {
+                username: employee.username,
+                name: employee.name,
+                location: 'Relocated', 
+                registered_latitude: 20.3406645,
+                registered_longitude: 85.8079595,
+                marked_latitude: 20.3406645,
+                marked_longitude: 85.8079595,
+                image: 'Manual Entry',
+                timestamp: dayjs().toISOString()
+            };
+
+            const { data, error } = await supabase
+                .from('attendance')
+                .insert([attendanceRecord]);
+            
+            if (error) {
+                console.error('Error adding manual attendance:', error);
+                showModal('Error', `Failed to add manual attendance: ${error.message}`);
+            } else {
+                showModal('Success', `${employee.name}'s attendance has been marked successfully.`);
+                await loadDashboardData(selectedDate);
+                manualAttendanceForm.reset();
+            }
+        }
+        
+        // --- Event Listeners ---
+        loginForm.addEventListener('submit', handleLogin);
+        logoutBtn.addEventListener('click', () => {
+            loginPage.classList.remove('hidden');
+            dashboardPage.classList.add('hidden');
+            mainHeader.classList.add('hidden');
+        });
+        
+        dateFilterInput.addEventListener('change', (event) => {
+            loadDashboardData(event.target.value);
+        });
+
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                showTab(button.dataset.tab);
+                if (button.dataset.tab === 'employee-history' && monthlyAttendanceData.length === 0) {
+                    loadEmployeeHistoryData(dayjs().format('YYYY-MM'), 'all');
+                }
+            });
+        });
+
+        monthFilterInput.addEventListener('change', (event) => {
+            loadEmployeeHistoryData(event.target.value, selectedEmployeeUsername);
+        });
+        
+        employeeNameFilter.addEventListener('change', (event) => {
+            loadEmployeeHistoryData(selectedMonth, event.target.value);
+        });
+        
+        // Listeners for Sorting and Filtering
+        presentSortOrderSelect.addEventListener('change', (event) => {
+            presentSortOrder = event.target.value;
+            loadDashboardData(selectedDate); 
+        });
+        
+        historySortOrderSelect.addEventListener('change', (event) => {
+            historySortOrder = event.target.value;
+            loadEmployeeHistoryData(selectedMonth, selectedEmployeeUsername);
+        });
+
+        showRelocatedOnlyCheckbox.addEventListener('change', (event) => {
+            showRelocatedOnly = event.target.checked;
+            loadDashboardData(selectedDate);
+        });
+
+        manualAttendanceForm.addEventListener('submit', handleManualAttendance);
+        modalCloseBtn.addEventListener('click', () => {
+            appModal.classList.add('hidden');
+        });
+
+        document.getElementById('download-summary-pdf').addEventListener('click', generateSummaryPDF);
+        document.getElementById('download-present-pdf').addEventListener('click', generatePresentListPDF);
+        document.getElementById('download-absent-pdf').addEventListener('click', generateAbsentListPDF);
+        document.getElementById('download-attendance-sheet-excel').addEventListener('click', () => generateAttendanceSheet('excel'));
+        document.getElementById('export-history-excel').addEventListener('click', exportAttendanceHistoryToExcel);
+
+        // Initial setup on page load
+        dateFilterInput.value = dayjs().format('YYYY-MM-DD');
+        monthFilterInput.value = dayjs().format('YYYY-MM');
+    </script>
+</body>
+</html>
