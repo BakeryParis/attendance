@@ -343,7 +343,7 @@
   <div class="slots-headline" id="attendanceSlotsHeadline">Today's Attendance by Time Slot</div>
   <div class="slots-grid" id="attendanceSlotsRow">
     <div class="slot-card">
-      <div class="slot-label">7:30-9:00 AM</div>
+      <div class="slot-label">7:00-9:00 AM</div>
       <div class="slot-count" id="slot1Count">0</div>
     </div>
     <div class="slot-card">
@@ -524,7 +524,7 @@
         let h = istTs.getHours(), m = istTs.getMinutes();
         let timeMinutes = h * 60 + m;
         // Slots in IST Time
-        if (timeMinutes >= 450 && timeMinutes < 540) { // 7:30 to 9:00
+        if (timeMinutes >= 420 && timeMinutes < 540) { // 7:30 to 9:00
           slot1++;
         } else if (timeMinutes >= 540 && timeMinutes < 780) { // 9:00 to 13:00
           slot2++;
