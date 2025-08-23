@@ -317,8 +317,8 @@
           <input type="text" class="form-control" id="username" required autocomplete="username">
         </div>
         <div class="mb-3">
-          <label for="userPassword" class="form-label">Password (optional for Cluster)</label>
-          <input type="password" class="form-control" id="userPassword" autocomplete="current-password">
+          <label for="userPassword" class="form-label">Password</label>
+          <input type="password" class="form-control" id="userPassword" required autocomplete="current-password">
         </div>
         <button type="submit" class="btn btn-primary w-100">Login</button>
       </form>
@@ -556,25 +556,25 @@
       .single();
 
     if (employeeData) {
-      // Success: Logged in as an employee
       currentEmployee = { ...employeeData, loginType: 'employee' };
       showDashboard();
       return;
     }
 
-    // 2. If employee login fails, check if it's a cluster user (password not required)
+    // 2. If employee login fails, check if it's a cluster user
+    // Assumes 'cluster' table has 'username', 'password', and 'cluster_name'
     const { data: clusterData, error: clusterError } = await supabase
       .from('cluster')
-      .select('username')
+      .select('username, cluster_name')
       .eq('username', username)
+      .eq('password', password)
       .single();
 
     if (clusterData) {
-      // Success: Logged in as a cluster user
       currentEmployee = {
         username: clusterData.username,
-        name: clusterData.username,
-        location: 'Cluster User',
+        name: clusterData.cluster_name, // Use cluster_name for display
+        location: 'Cluster',
         loginType: 'cluster'
       };
       showDashboard();
@@ -625,6 +625,14 @@
 
   // Check if attendance has been marked for the day
   async function checkAttendanceStatus() {
+    // For cluster users, bypass this check to allow multiple entries
+    if (currentEmployee && currentEmployee.loginType === 'cluster') {
+        canMarkAttendance = true;
+        markAttendanceBtn.disabled = false;
+        return;
+    }
+
+    // For regular employees, check for existing attendance today
     const now = new Date();
     let todayIST = toIST(now);
     let istYear = todayIST.getFullYear();
@@ -656,7 +664,7 @@
   }
 
   markAttendanceBtn.onclick = async function() {
-    await checkAttendanceStatus();
+    await checkAttendanceStatus(); // This will now allow cluster users to proceed
     if (!canMarkAttendance) {
       showAttendanceStatus("You have already marked attendance today.", "warning");
       return;
@@ -675,7 +683,6 @@
       currentLocation = { latitude: userLat, longitude: userLng };
 
       if (currentEmployee.loginType === 'employee') {
-          // Employee logic: check against registered location
           const registeredLat = parseFloat(currentEmployee.latitude);
           const registeredLng = parseFloat(currentEmployee.longitude);
 
@@ -687,12 +694,11 @@
           const dist = haversineDistance(userLat, userLng, registeredLat, registeredLng);
 
           if (dist > 20) { // 20 meters radius
-            showAttendanceStatus(`You are too far from your registered location (${dist.toFixed(1)} m). Attendance cannot be marked.`, "danger");
+            showAttendanceStatus(`You are too far from your registered location (${dist.toFixed(1)} m).`, "danger");
             return;
           }
           openCamera();
       } else if (currentEmployee.loginType === 'cluster') {
-          // Cluster logic: find nearest store
           const { data: stores, error } = await supabase.from('store').select('location, latitude, longitude');
           if (error || !stores || stores.length === 0) {
               showAttendanceStatus("Could not find any stores. Contact admin.", "danger");
@@ -714,14 +720,19 @@
           });
 
           if (nearestStore) {
-              showAttendanceStatus(`Nearest store found: ${nearestStore.location} (${minDistance.toFixed(1)}m away).`, "info");
+              showAttendanceStatus(`Nearest store: ${nearestStore.location} (${minDistance.toFixed(1)}m away).`, "info");
               openCamera();
           } else {
               showAttendanceStatus("Could not determine the nearest store.", "danger");
           }
       }
     }, function(error) {
-      showAttendanceStatus("Unable to get your location: " + error.message, "danger");
+      // Handle geolocation error
+      if (error.code === 1) { // PERMISSION_DENIED
+        showAttendanceStatus("Location access was denied. Please enable it in your browser settings.", "danger");
+      } else {
+        showAttendanceStatus("Unable to get your location. Please ensure GPS is on.", "danger");
+      }
     }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
   };
 
@@ -789,7 +800,7 @@
 
     let attendanceData = {
         username: currentEmployee.username,
-        name: currentEmployee.name,
+        name: currentEmployee.name, // Will be employee name or cluster_name
         marked_latitude: currentLocation.latitude,
         marked_longitude: currentLocation.longitude,
         image: selfieDataUrl,
@@ -801,7 +812,7 @@
         attendanceData.registered_latitude = currentEmployee.latitude;
         attendanceData.registered_longitude = currentEmployee.longitude;
     } else if (currentEmployee.loginType === 'cluster' && nearestStore) {
-        attendanceData.location = nearestStore.location; // Use nearest store's location
+        attendanceData.location = nearestStore.location;
         attendanceData.registered_latitude = nearestStore.latitude;
         attendanceData.registered_longitude = nearestStore.longitude;
     } else {
