@@ -693,7 +693,7 @@
 
           const dist = haversineDistance(userLat, userLng, registeredLat, registeredLng);
 
-          if (dist > 40) { // 20 meters radius
+          if (dist > 20) { // 20 meters radius
             showAttendanceStatus(`You are too far from your registered location (${dist.toFixed(1)} m).`, "danger");
             return;
           }
