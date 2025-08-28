@@ -731,6 +731,12 @@
     
     showPage('dashboard-section');
     
+    // Reset to home tab on login
+    navTabs.forEach(t => t.classList.remove('active'));
+    tabContents.forEach(content => content.classList.remove('active'));
+    document.querySelector('.nav-tab[data-tab="attendance-tab"]').classList.add('active');
+    document.getElementById('attendance-tab').classList.add('active');
+    
     // Load data for all tabs
     loadAttendance();
     loadAttendanceCalendar();
