@@ -518,12 +518,18 @@
         </div>
 
         <div id="profile-tab" class="tab-content">
-            <h5 class="mb-3"><i class="bi bi-person-fill-gear me-2"></i>Profile Settings</h5>
+            <div class="text-center mb-4">
+                <i class="bi bi-person-circle" style="font-size: 4rem; color: var(--primary-color);"></i>
+                <h4 class="mb-0 mt-2" id="profileEmployeeName">Employee Name</h4>
+                <p class="text-muted" id="profileEmployeeLocation">Location</p>
+            </div>
+        
+            <h5 class="mb-3"><i class="bi bi-shield-lock-fill me-2"></i>Change Password</h5>
             <div id="profileUpdateStatus" class="alert d-none"></div>
             <form id="profileUpdateForm">
                 <div class="mb-3">
                     <label for="updateUsername" class="form-label">Username</label>
-                    <input type="text" class="form-control" id="updateUsername" required>
+                    <input type="text" class="form-control" id="updateUsername" required readonly style="background-color: #e9ecef;">
                 </div>
                 <div class="mb-3">
                     <label for="updatePassword" class="form-label">New Password</label>
@@ -533,7 +539,7 @@
                     </div>
                 </div>
                 <div class="d-grid">
-                    <button type="submit" class="btn btn-primary">Update Profile</button>
+                    <button type="submit" class="btn btn-primary">Update Password</button>
                 </div>
             </form>
         </div>
@@ -633,6 +639,9 @@
   const updatePasswordInput = document.getElementById('updatePassword');
   const navTabs = document.querySelectorAll('.nav-tab');
   const tabContents = document.querySelectorAll('.tab-content');
+  const profileEmployeeName = document.getElementById('profileEmployeeName');
+  const profileEmployeeLocation = document.getElementById('profileEmployeeLocation');
+
 
   // Helper Functions
   function toIST(date) {
@@ -719,9 +728,12 @@
       return;
     }
     currentEmployee = data;
+    // Populate dashboard and profile info
     employeeName.textContent = data.name;
     employeeLocation.textContent = data.location || 'N/A';
     document.getElementById('updateUsername').value = data.username;
+    profileEmployeeName.textContent = data.name;
+    profileEmployeeLocation.textContent = data.location || 'N/A';
     
     showPage('dashboard-section');
     
@@ -1005,79 +1017,79 @@
           </div>`).join("");
   }
   
-  exportPdfBtn.onclick = async function() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      
-      const now = new Date();
-      const monthName = now.toLocaleString('default', { month: 'long' });
-      const year = now.getFullYear();
+  if (exportPdfBtn) {
+    exportPdfBtn.onclick = async function() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        const now = new Date();
+        const monthName = now.toLocaleString('default', { month: 'long' });
+        const year = now.getFullYear();
 
-      doc.setFontSize(18);
-      doc.text(`Attendance Report for ${currentEmployee.name}`, 14, 22);
-      doc.setFontSize(11);
-      doc.text(`Month: ${monthName} ${year}`, 14, 30);
+        doc.setFontSize(18);
+        doc.text(`Attendance Report for ${currentEmployee.name}`, 14, 22);
+        doc.setFontSize(11);
+        doc.text(`Month: ${monthName} ${year}`, 14, 30);
 
-      const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
-      const { data, error } = await supabase
-          .from('attendance')
-          .select('timestamp')
-          .eq('username', currentEmployee.username)
-          .gte('timestamp', firstDayOfMonth.toISOString())
-          .lte('timestamp', lastDayOfMonth.toISOString())
-          .order('timestamp', { ascending: true });
+        const { data, error } = await supabase
+            .from('attendance')
+            .select('timestamp')
+            .eq('username', currentEmployee.username)
+            .gte('timestamp', firstDayOfMonth.toISOString())
+            .lte('timestamp', lastDayOfMonth.toISOString())
+            .order('timestamp', { ascending: true });
 
-      if (error || !data || data.length === 0) {
-          doc.text("No attendance data found for this month.", 14, 40);
-          doc.save(`${currentEmployee.username}_attendance_${monthName}_${year}.pdf`);
-          return;
-      }
+        if (error || !data || data.length === 0) {
+            doc.text("No attendance data found for this month.", 14, 40);
+            doc.save(`${currentEmployee.username}_attendance_${monthName}_${year}.pdf`);
+            return;
+        }
 
-      const tableColumn = ["Date", "Time", "Status"];
-      const tableRows = [];
+        const tableColumn = ["Date", "Time", "Status"];
+        const tableRows = [];
 
-      data.forEach(record => {
-          const istDate = toIST(new Date(record.timestamp));
-          const rowData = [
-              istDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric'}),
-              istDate.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit'}),
-              "Present"
-          ];
-          tableRows.push(rowData);
-      });
+        data.forEach(record => {
+            const istDate = toIST(new Date(record.timestamp));
+            const rowData = [
+                istDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric'}),
+                istDate.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit'}),
+                "Present"
+            ];
+            tableRows.push(rowData);
+        });
 
-      doc.autoTable(tableColumn, tableRows, { startY: 35 });
-      doc.save(`${currentEmployee.username}_attendance_${monthName}_${year}.pdf`);
-  };
+        doc.autoTable(tableColumn, tableRows, { startY: 35 });
+        doc.save(`${currentEmployee.username}_attendance_${monthName}_${year}.pdf`);
+    };
+  }
   
   profileUpdateForm.onsubmit = async function(e) {
       e.preventDefault();
       profileUpdateStatus.classList.add('d-none');
       
-      const newUsername = document.getElementById('updateUsername').value.trim();
       const newPassword = document.getElementById('updatePassword').value;
       
-      if (!newUsername || !newPassword) {
-          showProfileStatus("Username and password cannot be empty.", "danger");
+      if (!newPassword) {
+          showProfileStatus("New password cannot be empty.", "danger");
           return;
       }
       
       const { data, error } = await supabase
           .from('users')
-          .update({ username: newUsername, password: newPassword })
+          .update({ password: newPassword })
           .eq('id', currentEmployee.id)
           .select()
           .single();
           
       if (error) {
-          showProfileStatus(`Error updating profile: ${error.message}`, "danger");
+          showProfileStatus(`Error updating password: ${error.message}`, "danger");
       } else {
-          showProfileStatus("Profile updated successfully!", "success");
-          // Update current employee object
-          currentEmployee.username = data.username;
+          showProfileStatus("Password updated successfully!", "success");
           currentEmployee.password = data.password;
+          document.getElementById('updatePassword').value = ''; // Clear password field on success
       }
   };
   
