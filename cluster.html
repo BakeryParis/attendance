@@ -15,17 +15,16 @@
   <link rel="icon" type="image/png" href="favicon.png">
   <style>
     :root {
-      --primary-color: #4a7dff;
-      --primary-dark: #3a5cad;
+      --primary-color: #3a5cad;
+      --primary-dark: #2c4685;
+      --secondary-color: #6c757d;
       --accent-green: #28a745;
       --accent-red: #dc3545;
-      --text-light: #f0f0f0;
-      --text-muted: #c0c0c0;
-      
-      --glass-bg: rgba(255, 255, 255, 0.1);
-      --glass-border: 1px solid rgba(255, 255, 255, 0.2);
-      --glass-blur: blur(12px);
-      --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+      --bg-light: #f8f9fa;
+      --bg-gradient: linear-gradient(180deg, #eef4ff 0%, #ffffff 100%);
+      --text-dark: #343a40;
+      --text-light: #6c757d;
+      --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
       --border-radius: 1rem;
     }
 
@@ -37,12 +36,9 @@
     }
 
     body {
-      background-image: url('background.jpg');
-      background-size: cover;
-      background-position: center center;
-      background-attachment: fixed;
+      background: var(--bg-gradient);
       font-family: 'Poppins', 'Segoe UI', 'Roboto', Arial, sans-serif;
-      color: var(--text-light);
+      color: var(--text-dark);
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
     }
@@ -55,8 +51,8 @@
       padding: 0;
       max-width: 450px;
       margin: 0 auto;
-      background-color: transparent; /* Changed */
-      box-shadow: none; /* Changed */
+      background-color: #fff;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
     }
 
     .page-section {
@@ -84,16 +80,14 @@
 
     .logo-img {
       max-width: 220px;
-      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2));
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.1));
     }
 
     .card {
-      border: var(--glass-border);
-      background: var(--glass-bg);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
+      border: none;
       border-radius: var(--border-radius);
       box-shadow: var(--card-shadow);
+      background: #fff;
       overflow: hidden;
     }
     
@@ -102,7 +96,7 @@
     }
     
     .card-header, h3, h4, h5 {
-      color: var(--text-light); /* Changed */
+      color: var(--primary-dark);
       font-weight: 600;
     }
     
@@ -114,23 +108,15 @@
     .form-control {
       border-radius: 0.75rem;
       padding: 0.75rem 1rem;
-      border: var(--glass-border);
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--text-light); /* Changed */
-    }
-    .form-control::placeholder {
-        color: var(--text-muted);
-        opacity: 1;
+      border: 1px solid #dee2e6;
     }
     .form-control:focus {
-      background: rgba(255, 255, 255, 0.15);
       border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(74, 125, 255, 0.25);
-      color: var(--text-light);
+      box-shadow: 0 0 0 3px rgba(58, 92, 173, 0.15);
     }
     .form-label {
       font-weight: 500;
-      color: var(--text-muted); /* Changed */
+      color: var(--text-light);
     }
     .password-wrapper {
         position: relative;
@@ -141,7 +127,7 @@
         top: 50%;
         transform: translateY(-50%);
         cursor: pointer;
-        color: var(--text-muted); /* Changed */
+        color: var(--text-light);
     }
 
     /* Buttons */
@@ -160,7 +146,7 @@
       background-color: var(--primary-dark);
       border-color: var(--primary-dark);
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(74, 125, 255, 0.2);
+      box-shadow: 0 4px 12px rgba(58, 92, 173, 0.2);
     }
     .btn-success {
       background-color: var(--accent-green);
@@ -175,10 +161,7 @@
       margin-bottom: 1rem;
     }
     .summary-card {
-      background: var(--glass-bg);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      border: var(--glass-border);
+      background: #fff;
       border-radius: var(--border-radius);
       box-shadow: var(--card-shadow);
       padding: 0.75rem 0.5rem;
@@ -187,12 +170,12 @@
     .summary-count {
       font-size: 2rem;
       font-weight: 700;
-      color: var(--text-light); /* Changed */
+      color: var(--primary-dark);
       line-height: 1.1;
     }
     .summary-label {
       font-size: 0.75rem;
-      color: var(--text-muted); /* Changed */
+      color: var(--text-light);
       font-weight: 500;
     }
 
@@ -200,7 +183,7 @@
     .slots-headline {
       font-size: 1rem;
       font-weight: 600;
-      color: var(--text-light); /* Changed */
+      color: var(--primary-dark);
       margin: 1rem 0 0.75rem 0;
       text-align: center;
     }
@@ -210,18 +193,15 @@
       gap: 0.75rem;
     }
     .slot-card {
-      background: var(--glass-bg);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      border: var(--glass-border);
+      background: #fff;
       border-radius: var(--border-radius);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
       padding: 0.75rem;
       text-align: center;
     }
     .slot-label {
       font-size: 0.8rem;
-      color: var(--text-muted); /* Changed */
+      color: var(--primary-dark);
       font-weight: 600;
       margin-bottom: 0.25rem;
     }
@@ -243,19 +223,17 @@
         justify-content: space-between;
         align-items: center;
         padding: 0.75rem 1rem;
-        background: var(--glass-bg);
-        backdrop-filter: var(--glass-blur);
-        -webkit-backdrop-filter: var(--glass-blur);
-        color: var(--text-light); /* Changed */
+        background-color: #ffffff;
+        color: var(--text-dark);
         flex-shrink: 0;
-        border-bottom: var(--glass-border);
+        border-bottom: 1px solid #dee2e6;
     }
     .header-logo {
         height: 50px;
     }
     .logout-btn {
-        background: rgba(255,255,255,0.15); /* Changed */
-        color: var(--text-light); /* Changed */
+        background: #f1f1f1;
+        color: var(--text-dark);
         border: none;
         width: 40px;
         height: 40px;
@@ -296,27 +274,25 @@
     }
     .marquee-support {
       padding: 0.5em 0;
-      color: var(--text-muted);
+      color: var(--text-light);
       font-size: 0.8rem;
       text-align: center;
-      background-color: rgba(0,0,0,0.3); /* Changed */
+      background-color: #f8f9fa;
     }
     
     .nav-tabs-bottom {
         display: flex;
         justify-content: space-around;
         padding: 0.5rem 0;
-        border-top: var(--glass-border);
-        background: var(--glass-bg);
-        backdrop-filter: var(--glass-blur);
-        -webkit-backdrop-filter: var(--glass-blur);
+        border-top: 1px solid #dee2e6;
+        background-color: #fff;
     }
     .nav-tab {
         flex: 1;
         text-align: center;
         padding: 0.5rem 0;
         cursor: pointer;
-        color: var(--text-muted);
+        color: var(--text-light);
         background: none;
         border: none;
         display: flex;
@@ -334,6 +310,7 @@
         font-weight: 600;
     }
 
+
     /* Attendance Records */
     #attendanceRecords {
         overflow-y: auto;
@@ -347,7 +324,7 @@
       display: flex;
       align-items: center;
       padding: 0.75rem 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Changed */
+      border-bottom: 1px solid #f0f0f0;
     }
     .attendance-record-row:last-child { border-bottom: none; }
     .attendance-img {
@@ -358,7 +335,7 @@
       border: 2px solid var(--primary-color);
     }
     .record-info-name { font-weight: 500; }
-    .record-info-time { font-size: 0.9rem; color: var(--text-muted); }
+    .record-info-time { font-size: 0.9rem; color: var(--text-light); }
     
     /* Calendar */
     .calendar-table {
@@ -369,7 +346,7 @@
     }
     .calendar-table th {
       font-weight: 600;
-      color: var(--text-muted);
+      color: var(--text-light);
       font-size: 0.8rem;
     }
     .calendar-table th, .calendar-table td {
@@ -388,23 +365,17 @@
         margin: 0 auto;
         border-radius: 50%;
     }
-    .day-present { background-color: rgba(40, 167, 69, 0.25); color: #c8ff d7; font-weight: 600; } /* Changed */
-    .day-absent { background-color: rgba(220, 53, 69, 0.2); color: #ffdde0; font-weight: 600;} /* Changed */
+    .day-present { background-color: rgba(40, 167, 69, 0.15); color: #1e7b34; font-weight: 600; }
+    .day-absent { background-color: rgba(220, 53, 69, 0.1); color: var(--accent-red); font-weight: 600;}
 
     /* Camera Modal */
-    .modal-content {
-      background: rgba(30, 30, 45, 0.7);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      border: var(--glass-border);
-    }
     .webcam-box {
       width: 100%;
       min-height: 240px;
       display: flex;
       justify-content: center;
       align-items: center;
-      background: #000; /* Changed */
+      background: #f1f1f1;
       border-radius: 0.75rem;
       overflow: hidden;
       margin-bottom: 1rem;
@@ -413,6 +384,7 @@
       width: 240px;
       height: 320px;
       object-fit: cover;
+      background: #e5f0fa;
       transform: scaleX(-1); /* Mirror the webcam preview */
     }
     .selfie-preview {
@@ -431,9 +403,6 @@
     #summary-section::-webkit-scrollbar {
       display: none;
     }
-    #profileUpdateForm #updateUsername {
-        background-color: rgba(255, 255, 255, 0.1) !important;
-    }
   </style>
 </head>
 <body>
@@ -445,7 +414,7 @@
       <img src="logo.png" alt="Logo" class="logo-img" onerror="this.style.display='none'">
     </div>
     
-    <div class="card p-4">
+    <div class="card p-4 shadow-sm">
       <h3 class="mb-4 text-center">Employee Login</h3>
       <form id="loginForm">
         <div class="mb-3">
@@ -527,7 +496,7 @@
                 </div>
             </div>
 
-            <hr class="my-4" style="border-color: rgba(255,255,255,0.2);">
+            <hr class="my-4">
 
             <h5 class="mb-3"><i class="bi bi-clock-history me-2"></i>Recent Attendance</h5>
             <div id="attendanceRecords"></div>
@@ -548,36 +517,20 @@
         </div>
 
         <div id="profile-tab" class="tab-content">
-            <div class="text-center mb-4">
+             <div class="text-center mb-4">
                 <i class="bi bi-person-circle" style="font-size: 4rem; color: var(--primary-color);"></i>
                 <h4 class="mb-0 mt-2" id="profileEmployeeName">Employee Name</h4>
                 <p class="text-muted" id="profileEmployeeLocation">Location</p>
             </div>
-        
-            <h5 class="mb-3"><i class="bi bi-shield-lock-fill me-2"></i>Change Password</h5>
-            <div id="profileUpdateStatus" class="alert d-none"></div>
-            <form id="profileUpdateForm">
-                <div class="mb-3">
-                    <label for="updateUsername" class="form-label">Username</label>
-                    <input type="text" class="form-control" id="updateUsername" required readonly>
-                </div>
-                <div class="mb-3">
-                    <label for="updatePassword" class="form-label">New Password</label>
-                     <div class="password-wrapper">
-                        <input type="password" class="form-control" id="updatePassword" required placeholder="Enter new password" style="padding-right: 3rem;">
-                        <i class="bi bi-eye-slash" id="toggleNewPassword"></i>
-                    </div>
-                </div>
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-primary">Update Password</button>
-                </div>
-            </form>
+            <div class="alert alert-info">Reach out to the admin for a password change</div>
         </div>
     </main>
     
     <footer class="dashboard-footer">
         <div class="marquee-support" id="dashboardSupportMarquee">
+          <marquee behavior="scroll" direction="left" scrollamount="5">
             For support, contact Samir Singhsamanta: +91 76069 36790
+          </marquee>
         </div>
         <nav class="nav-tabs-bottom">
             <button class="nav-tab active" data-tab="attendance-tab"><i class="bi bi-house-door-fill"></i><span>Home</span></button>
@@ -616,8 +569,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
 <script>
   // Supabase config
   const SUPABASE_URL = 'https://wgjtkkvgskxzjqgsykze.supabase.co';
@@ -629,6 +580,7 @@
   let webcamStream = null;
   let currentLocation = null;
   let canMarkAttendance = true;
+  let nearestStore = null; 
 
   // DOM Elements
   const summaryPresent = document.getElementById('summaryPresent');
@@ -658,27 +610,20 @@
   const attendanceRecords = document.getElementById('attendanceRecords');
   const attendanceCalendar = document.getElementById('attendanceCalendar');
   const historyList = document.getElementById('historyList');
-  const exportPdfBtn = document.getElementById('exportPdfBtn');
-  const profileUpdateForm = document.getElementById('profileUpdateForm');
-  const profileUpdateStatus = document.getElementById('profileUpdateStatus');
   const logoutBtn = document.getElementById('logoutBtn');
-  const summarySection = document.getElementById('summary-section');
   const togglePassword = document.getElementById('togglePassword');
   const userPassword = document.getElementById('userPassword');
-  const toggleNewPassword = document.getElementById('toggleNewPassword');
-  const updatePasswordInput = document.getElementById('updatePassword');
   const navTabs = document.querySelectorAll('.nav-tab');
   const tabContents = document.querySelectorAll('.tab-content');
   const profileEmployeeName = document.getElementById('profileEmployeeName');
   const profileEmployeeLocation = document.getElementById('profileEmployeeLocation');
-
 
   // Helper Functions
   function toIST(date) {
     let utc = date.getTime() + (date.getTimezoneOffset() * 60000);
     return new Date(utc + 19800000);
   }
-
+  
   function getISTDateRange(date) {
     let istDate = toIST(date);
     let year = istDate.getFullYear();
@@ -742,48 +687,65 @@
     summaryAbsent.textContent = totalEmp - presentCount;
   }
 
-  // Login/Logout Logic
+  // Unified Login Logic
   loginForm.onsubmit = async function(e) {
     e.preventDefault();
     loginError.classList.add('d-none');
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('userPassword').value;
 
-    const { data, error } = await supabase
+    const { data: employeeData, error: employeeError } = await supabase
       .from('users').select('*').eq('username', username).eq('password', password).single();
 
-    if (error || !data) {
-      loginError.textContent = "Invalid username or password.";
-      loginError.classList.remove('d-none');
+    if (employeeData) {
+      currentEmployee = { ...employeeData, loginType: 'employee' };
+      initializeDashboard();
       return;
     }
-    currentEmployee = data;
-    // Populate dashboard and profile info
-    employeeName.textContent = data.name;
-    employeeLocation.textContent = data.location || 'N/A';
-    document.getElementById('updateUsername').value = data.username;
-    profileEmployeeName.textContent = data.name;
-    profileEmployeeLocation.textContent = data.location || 'N/A';
+
+    const { data: clusterData, error: clusterError } = await supabase
+      .from('cluster').select('username, cluster_name').eq('username', username).eq('password', password).single();
+
+    if (clusterData) {
+      currentEmployee = {
+        username: clusterData.username,
+        name: clusterData.cluster_name,
+        location: 'Cluster Manager',
+        loginType: 'cluster'
+      };
+      initializeDashboard();
+      return;
+    }
     
-    showPage('dashboard-section');
-    
-    // Reset to home tab on login
-    navTabs.forEach(t => t.classList.remove('active'));
-    tabContents.forEach(content => content.classList.remove('active'));
-    document.querySelector('.nav-tab[data-tab="attendance-tab"]').classList.add('active');
-    document.getElementById('attendance-tab').classList.add('active');
-    
-    // Load data for all tabs
-    loadAttendance();
-    loadAttendanceCalendar();
-    loadHistory();
-    checkAttendanceStatus();
+    loginError.textContent = "Invalid username or password.";
+    loginError.classList.remove('d-none');
   };
+  
+  function initializeDashboard() {
+      // Populate dashboard and profile info
+      employeeName.textContent = currentEmployee.name;
+      employeeLocation.textContent = currentEmployee.location || 'N/A';
+      profileEmployeeName.textContent = currentEmployee.name;
+      profileEmployeeLocation.textContent = currentEmployee.location || 'N/A';
+      
+      showPage('dashboard-section');
+      
+      // Reset to home tab on login
+      navTabs.forEach(t => t.classList.remove('active'));
+      tabContents.forEach(content => content.classList.remove('active'));
+      document.querySelector('.nav-tab[data-tab="attendance-tab"]').classList.add('active');
+      document.getElementById('attendance-tab').classList.add('active');
+      
+      // Load data for all tabs
+      loadAttendance();
+      loadAttendanceCalendar();
+      loadHistory();
+      checkAttendanceStatus();
+  }
 
   logoutBtn.onclick = function() {
-    currentEmployee = null; selfieDataUrl = null; webcamStream = null; currentLocation = null; canMarkAttendance = true;
+    currentEmployee = null; selfieDataUrl = null; webcamStream = null; currentLocation = null; canMarkAttendance = true; nearestStore = null;
     loginForm.reset();
-    profileUpdateForm.reset();
     attendanceRecords.innerHTML = '';
     attendanceCalendar.innerHTML = '';
     historyList.innerHTML = '';
@@ -792,23 +754,25 @@
     loadTodayAttendanceSummary();
   };
   
-  // Password Toggles
   togglePassword.addEventListener('click', () => togglePasswordVisibility(userPassword, togglePassword));
-  toggleNewPassword.addEventListener('click', () => togglePasswordVisibility(updatePasswordInput, toggleNewPassword));
 
-  // Tab Navigation
   navTabs.forEach(tab => {
       tab.addEventListener('click', () => {
           navTabs.forEach(t => t.classList.remove('active'));
           tab.classList.add('active');
-          
           tabContents.forEach(content => content.classList.remove('active'));
           document.getElementById(tab.dataset.tab).classList.add('active');
       });
   });
 
-  // Attendance Logic
   async function checkAttendanceStatus() {
+    if (currentEmployee && currentEmployee.loginType === 'cluster') {
+        canMarkAttendance = true;
+        markAttendanceBtn.disabled = false;
+        attendanceStatus.classList.add('d-none');
+        return;
+    }
+    
     const { start, end } = getISTDateRange(new Date());
     const { data, error } = await supabase
       .from('attendance').select('id').eq('username', currentEmployee.username).gte('timestamp', start).lte('timestamp', end);
@@ -831,7 +795,6 @@
     }
     selfiePreviewSection.classList.add('d-none');
     selfiePreview.src = '';
-
     if (!navigator.geolocation) {
       showAttendanceStatus("Geolocation is not supported by your browser.", "danger");
       return;
@@ -840,22 +803,42 @@
 
     navigator.geolocation.getCurrentPosition(async (position) => {
       currentLocation = { latitude: position.coords.latitude, longitude: position.coords.longitude };
-      const { latitude: regLat, longitude: regLng } = currentEmployee;
 
-      if (!regLat || !regLng) {
-        showAttendanceStatus("Registered location not set. Contact admin.", "danger");
-        return;
+      if (currentEmployee.loginType === 'employee') {
+          const registeredLat = parseFloat(currentEmployee.latitude);
+          const registeredLng = parseFloat(currentEmployee.longitude);
+          if (isNaN(registeredLat) || isNaN(registeredLng)) {
+            showAttendanceStatus("Registered location not set. Contact admin.", "danger"); return;
+          }
+          const dist = haversineDistance(currentLocation.latitude, currentLocation.longitude, registeredLat, registeredLng);
+          if (dist > 20) {
+            showAttendanceStatus(`You are too far from your location (${dist.toFixed(0)}m away).`, "danger"); return;
+          }
+          startCamera();
+      } else if (currentEmployee.loginType === 'cluster') {
+          const { data: stores, error } = await supabase.from('store').select('location, latitude, longitude');
+          if (error || !stores || stores.length === 0) {
+              showAttendanceStatus("Could not find any stores. Contact admin.", "danger"); return;
+          }
+          let minDistance = Infinity;
+          stores.forEach(store => {
+              const storeLat = parseFloat(store.latitude);
+              const storeLng = parseFloat(store.longitude);
+              if (!isNaN(storeLat) && !isNaN(storeLng)) {
+                  const dist = haversineDistance(currentLocation.latitude, currentLocation.longitude, storeLat, storeLng);
+                  if (dist < minDistance) {
+                      minDistance = dist;
+                      nearestStore = store;
+                  }
+              }
+          });
+          if (nearestStore) {
+              showAttendanceStatus(`Nearest store: ${nearestStore.location} (${minDistance.toFixed(0)}m away).`, "info");
+              startCamera();
+          } else {
+              showAttendanceStatus("Could not determine the nearest store.", "danger");
+          }
       }
-
-      const dist = haversineDistance(currentLocation.latitude, currentLocation.longitude, parseFloat(regLat), parseFloat(regLng));
-      if (dist > 20) { // Distance check in meters
-        showAttendanceStatus(`You are too far from your location (${dist.toFixed(0)}m away).`, "danger");
-        return;
-      }
-      
-      attendanceStatus.classList.add('d-none');
-      startCamera();
-
     }, (error) => {
       showAttendanceStatus("Unable to get your location: " + error.message, "danger");
     }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
@@ -881,33 +864,19 @@
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     const video = webcam;
-    
-    const targetWidth = 240;
-    const targetHeight = 320;
-    canvas.width = targetWidth;
-    canvas.height = targetHeight;
-
+    canvas.width = 240; canvas.height = 320;
     const videoRatio = video.videoWidth / video.videoHeight;
-    const targetRatio = targetWidth / targetHeight;
+    const targetRatio = 240 / 320;
     let sWidth, sHeight, sx, sy;
-
     if (videoRatio > targetRatio) {
-      sHeight = video.videoHeight;
-      sWidth = sHeight * targetRatio;
-      sx = (video.videoWidth - sWidth) / 2;
-      sy = 0;
+      sHeight = video.videoHeight; sWidth = sHeight * targetRatio;
+      sx = (video.videoWidth - sWidth) / 2; sy = 0;
     } else {
-      sWidth = video.videoWidth;
-      sHeight = sWidth / targetRatio;
-      sx = 0;
-      sy = (video.videoHeight - sHeight) / 2;
+      sWidth = video.videoWidth; sHeight = sWidth / targetRatio;
+      sx = 0; sy = (video.videoHeight - sHeight) / 2;
     }
-    
-    context.translate(targetWidth, 0);
-    context.scale(-1, 1);
-    
-    context.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, targetWidth, targetHeight);
-
+    context.translate(240, 0); context.scale(-1, 1);
+    context.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, 240, 320);
     selfieDataUrl = canvas.toDataURL('image/jpeg', 0.9);
     selfiePreview.src = selfieDataUrl;
     selfiePreviewSection.classList.remove('d-none');
@@ -915,37 +884,40 @@
     if (webcamStream) webcamStream.getTracks().forEach(track => track.stop());
   };
 
-  retakeSelfieBtn.onclick = () => {
-    selfiePreviewSection.classList.add('d-none');
-    selfiePreview.src = '';
-    startCamera();
-  };
+  retakeSelfieBtn.onclick = () => { selfiePreviewSection.classList.add('d-none'); selfiePreview.src = ''; startCamera(); };
 
   submitAttendanceBtn.onclick = async function() {
+    await checkAttendanceStatus();
     if (!canMarkAttendance) { showAttendanceStatus("Already marked for today.", "warning"); return; }
     if (!currentEmployee || !selfieDataUrl || !currentLocation) return;
-    
     showAttendanceStatus('Uploading...', 'info');
-    const { error } = await supabase.from('attendance').insert([{
-      username: currentEmployee.username, name: currentEmployee.name, location: currentEmployee.location,
-      registered_latitude: currentEmployee.latitude, registered_longitude: currentEmployee.longitude,
-      marked_latitude: currentLocation.latitude, marked_longitude: currentLocation.longitude,
-      image: selfieDataUrl, timestamp: new Date().toISOString()
-    }]);
 
+    let attendanceData = {
+        username: currentEmployee.username, name: currentEmployee.name,
+        marked_latitude: currentLocation.latitude, marked_longitude: currentLocation.longitude,
+        image: selfieDataUrl, timestamp: new Date().toISOString()
+    };
+    if (currentEmployee.loginType === 'employee') {
+        attendanceData.location = currentEmployee.location;
+        attendanceData.registered_latitude = currentEmployee.latitude;
+        attendanceData.registered_longitude = currentEmployee.longitude;
+    } else if (currentEmployee.loginType === 'cluster' && nearestStore) {
+        attendanceData.location = nearestStore.location;
+        attendanceData.registered_latitude = nearestStore.latitude;
+        attendanceData.registered_longitude = nearestStore.longitude;
+    } else {
+        showAttendanceStatus("Could not submit. Location data missing.", 'danger'); return;
+    }
+    
+    const { error } = await supabase.from('attendance').insert([attendanceData]);
     if (error) {
       showAttendanceStatus("Failed to record attendance. " + error.message, 'danger');
     } else {
       showAttendanceStatus("Attendance marked successfully!", 'success');
-      loadAttendance();
-      loadAttendanceCalendar();
-      loadHistory();
-      checkAttendanceStatus();
+      loadAttendance(); loadAttendanceCalendar(); loadHistory(); checkAttendanceStatus();
     }
     selfiePreviewSection.classList.add('d-none');
-    selfiePreview.src = '';
-    selfieDataUrl = null;
-    currentLocation = null;
+    selfiePreview.src = ''; selfieDataUrl = null; currentLocation = null; nearestStore = null;
   };
 
   function showAttendanceStatus(msg, type) {
@@ -960,39 +932,33 @@
       .from('attendance').select('*').eq('username', currentEmployee.username).order('timestamp', { ascending: false }).limit(5);
 
     if (error || !data || !data.length) {
-      attendanceRecords.innerHTML = "<em>No recent records found.</em>";
-      return;
+      attendanceRecords.innerHTML = "<em>No recent records found.</em>"; return;
     }
     attendanceRecords.innerHTML = data.map(r => `
       <div class="attendance-record-row">
         <img src="${r.image}" class="attendance-img me-3" alt="Selfie" />
         <div class="record-info">
-          <div class="record-info-name">${currentEmployee.name}</div>
+          <div class="record-info-name">${r.location || currentEmployee.name}</div>
           <div class="record-info-time">${toIST(new Date(r.timestamp)).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</div>
         </div>
       </div>`).join("");
   }
 
   async function loadAttendanceCalendar() {
-    const now = new Date();
-    const istNow = toIST(now);
-    const year = istNow.getFullYear();
-    const month = istNow.getMonth();
-    
+    const now = new Date(); const istNow = toIST(now);
+    const year = istNow.getFullYear(); const month = istNow.getMonth();
     const firstDayOfMonth = new Date(Date.UTC(year, month, 1));
     const lastDayOfMonth = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59));
 
     const { data, error } = await supabase
       .from('attendance').select('timestamp').eq('username', currentEmployee.username)
       .gte('timestamp', firstDayOfMonth.toISOString()).lte('timestamp', lastDayOfMonth.toISOString());
-    
     const presentDays = new Set(data ? data.map(r => toIST(new Date(r.timestamp)).getDate()) : []);
 
     let cal = `<table class="calendar-table"><thead><tr><th>S</th><th>M</th><th>T</th><th>W</th><th>T</th><th>F</th><th>S</th></tr></thead><tbody>`;
     let firstDay = new Date(year, month, 1).getDay();
     let totalDays = new Date(year, month + 1, 0).getDate();
     let day = 1;
-
     for (let i = 0; i < 6; i++) {
       cal += '<tr>';
       for (let j = 0; j < 7; j++) {
@@ -1000,17 +966,13 @@
           cal += '<td></td>';
         } else {
           let dayClass = '';
-          if (day < istNow.getDate()) {
-            dayClass = presentDays.has(day) ? 'day-present' : 'day-absent';
-          } else if (day === istNow.getDate()) {
-            dayClass = presentDays.has(day) ? 'day-present' : '';
-          }
+          if (day < istNow.getDate()) dayClass = presentDays.has(day) ? 'day-present' : 'day-absent';
+          else if (day === istNow.getDate()) dayClass = presentDays.has(day) ? 'day-present' : '';
           cal += `<td><div class="calendar-day ${dayClass}">${day}</div></td>`;
           day++;
         }
       }
-      cal += '</tr>';
-      if (day > totalDays) break;
+      cal += '</tr>'; if (day > totalDays) break;
     }
     cal += '</tbody></table>';
     attendanceCalendar.innerHTML = cal;
@@ -1018,128 +980,37 @@
   
   async function loadHistory() {
       historyList.innerHTML = "<em>Loading...</em>";
-      const now = new Date();
-      const istNow = toIST(now);
-      const year = istNow.getFullYear();
-      const month = istNow.getMonth();
+      const now = new Date(); const istNow = toIST(now);
+      const year = istNow.getFullYear(); const month = istNow.getMonth();
       const firstDayOfMonth = new Date(Date.UTC(year, month, 1));
       const lastDayOfMonth = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59));
       
       const { data, error } = await supabase
-          .from('attendance')
-          .select('*')
-          .eq('username', currentEmployee.username)
-          .gte('timestamp', firstDayOfMonth.toISOString())
-          .lte('timestamp', lastDayOfMonth.toISOString())
+          .from('attendance').select('*').eq('username', currentEmployee.username)
+          .gte('timestamp', firstDayOfMonth.toISOString()).lte('timestamp', lastDayOfMonth.toISOString())
           .order('timestamp', { ascending: false });
 
       if (error || !data || !data.length) {
-          historyList.innerHTML = "<em>No records found for this month.</em>";
-          return;
+          historyList.innerHTML = "<em>No records found for this month.</em>"; return;
       }
       historyList.innerHTML = data.map(r => `
           <div class="attendance-record-row">
               <img src="${r.image}" class="attendance-img me-3" alt="Selfie" />
               <div class="record-info">
-                  <div class="record-info-name">${toIST(new Date(r.timestamp)).toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
-                  <div class="record-info-time">Time: ${toIST(new Date(r.timestamp)).toLocaleTimeString('en-IN', { timeStyle: 'short' })}</div>
+                  <div class="record-info-name">${toIST(new Date(r.timestamp)).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long'})}</div>
+                  <div class="record-info-time">Time: ${toIST(new Date(r.timestamp)).toLocaleTimeString('en-IN', { timeStyle: 'short' })} at ${r.location}</div>
               </div>
           </div>`).join("");
   }
   
-  if (exportPdfBtn) {
-    exportPdfBtn.onclick = async function() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        
-        const now = new Date();
-        const monthName = now.toLocaleString('default', { month: 'long' });
-        const year = now.getFullYear();
-
-        doc.setFontSize(18);
-        doc.text(`Attendance Report for ${currentEmployee.name}`, 14, 22);
-        doc.setFontSize(11);
-        doc.text(`Month: ${monthName} ${year}`, 14, 30);
-
-        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
-
-        const { data, error } = await supabase
-            .from('attendance')
-            .select('timestamp')
-            .eq('username', currentEmployee.username)
-            .gte('timestamp', firstDayOfMonth.toISOString())
-            .lte('timestamp', lastDayOfMonth.toISOString())
-            .order('timestamp', { ascending: true });
-
-        if (error || !data || data.length === 0) {
-            doc.text("No attendance data found for this month.", 14, 40);
-            doc.save(`${currentEmployee.username}_attendance_${monthName}_${year}.pdf`);
-            return;
-        }
-
-        const tableColumn = ["Date", "Time", "Status"];
-        const tableRows = [];
-
-        data.forEach(record => {
-            const istDate = toIST(new Date(record.timestamp));
-            const rowData = [
-                istDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric'}),
-                istDate.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit'}),
-                "Present"
-            ];
-            tableRows.push(rowData);
-        });
-
-        doc.autoTable(tableColumn, tableRows, { startY: 35 });
-        doc.save(`${currentEmployee.username}_attendance_${monthName}_${year}.pdf`);
-    };
-  }
-  
-  profileUpdateForm.onsubmit = async function(e) {
-      e.preventDefault();
-      profileUpdateStatus.classList.add('d-none');
-      
-      const newPassword = document.getElementById('updatePassword').value;
-      
-      if (!newPassword) {
-          showProfileStatus("New password cannot be empty.", "danger");
-          return;
-      }
-      
-      const { data, error } = await supabase
-          .from('users')
-          .update({ password: newPassword })
-          .eq('id', currentEmployee.id)
-          .select()
-          .single();
-          
-      if (error) {
-          showProfileStatus(`Error updating password: ${error.message}`, "danger");
-      } else {
-          showProfileStatus("Password updated successfully!", "success");
-          currentEmployee.password = data.password;
-          document.getElementById('updatePassword').value = ''; // Clear password field on success
-      }
-  };
-  
-  function showProfileStatus(msg, type) {
-      profileUpdateStatus.innerHTML = msg;
-      profileUpdateStatus.className = `alert alert-${type}`;
-      profileUpdateStatus.classList.remove('d-none');
-  }
-
-  // Haversine formula for distance calculation
   function haversineDistance(lat1, lon1, lat2, lon2) {
     function toRad(x) { return x * Math.PI / 180; }
-    const R = 6371000; // Earth's radius in meters
-    const dLat = toRad(lat2 - lat1);
-    const dLon = toRad(lon2 - lon1);
+    const R = 6371000;
+    const dLat = toRad(lat2 - lat1); const dLon = toRad(lon2 - lon1);
     const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
     return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
   }
   
-  // Initial Load
   loadTodayAttendanceSummary();
 </script>
 </body>

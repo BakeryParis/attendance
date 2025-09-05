@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PB HRMS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <style>
+    body {
+      background: #f7f9fc;
+      min-height: 100vh;
+      font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;      
+    }
+    
+    .container {
+      max-width: 420px;
+      margin: 0 auto;
+      padding-top: 56px;
+      padding-bottom: 40px; /* Some space for bottom elements */
+    }
+    .logo-box {
+      text-align: center;
+      margin-bottom: 1px;
+      margin-top: 0;
+      padding-top: 0;
+    }
+    .logo-img {
+      max-width: 320px;
+      width: 96%;
+      height: auto;
+      margin-bottom: 0;
+      margin-top: 0;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      filter: drop-shadow(0 2px 16px #d0e0ef);
+    }
+    .card {
+      border-radius: 1rem;
+      box-shadow: 0 8px 32px rgba(40, 40, 40, 0.07);
+      background: #fff;
+      border: none;
+      margin-bottom: 20px;
+    }
+    .form-label, h3, h4, h5 {
+      color: #24477a;
+    }
+    .btn-primary, .btn-success {
+      background: #24477a !important;
+      border-color: #24477a !important;
+      color: #fff !important;
+      font-weight: 500;
+      box-shadow: 0 2px 6px #24477a20;
+    }
+    .btn-primary:hover, .btn-success:hover {
+      background: #183150 !important;
+      border-color: #183150 !important;
+    }
+    .btn-outline-danger.logout-btn {
+      position: absolute;
+      right: 18px;
+      top: 18px;
+      background: none;
+      border-color: #24477a;
+      color: #24477a;
+      font-weight: 500;
+      box-shadow: none;
+    }
+    .btn-outline-danger.logout-btn:hover {
+      background: #24477a;
+      color: #fff;
+    }
+    .attendance-img {
+      width: 52px;
+      height: 52px;
+      object-fit: cover;
+      border-radius: 8px;
+      background: #f7f9fc;
+      border: 2px solid #d0e0ef;
+    }
+    .attendance-record-row {
+      border-bottom: 1px solid #f0f4fa;
+      padding-bottom: 6px;
+      margin-bottom: 6px;
+    }
+    .calendar-box {
+      margin: 24px 0 0 0;
+    }
+    .calendar-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      background: #f7f9fc;
+      border-radius: 0.8rem;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .calendar-table th, .calendar-table td {
+      width: 14.285%;
+      min-width: 30px;
+      height: 36px;
+      text-align: center;
+      padding: 6px 1px;
+      font-size: 13px;
+      word-break: break-word;
+      vertical-align: middle;
+      background: #f7f9fc;
+      border: none;
+      color: #24477a;
+      position: relative;
+    }
+    .calendar-present {
+      background: #d4f5e8 !important;
+      color: #24925d !important;
+      font-weight: 700;
+      font-size: 13px;
+      border-radius: 5px;
+      padding: 3px 8px;
+      display: inline-block;
+      border: 1px solid #b6ecce;
+    }
+    .calendar-absent {
+      background: #ffe3e3 !important;
+      color: #da2f2f !important;
+      font-weight: 700;
+      font-size: 13px;
+      border-radius: 5px;
+      padding: 3px 8px;
+      display: inline-block;
+      border: 1px solid #ffd1d1;
+    }
+    .calendar-table td.blank-cell {
+      background: #f7f9fc;
+      min-width: 30px;
+      height: 36px;
+      padding: 6px 1px;
+    }
+    .summary-row {
+      margin-bottom: 12px;
+      display: flex;
+      gap: 12px;
+    }
+    .summary-card {
+      background: #fff;
+      border-radius: 0.8rem;
+      box-shadow: 0 2px 12px rgba(36, 71, 122, 0.06);
+      padding: 18px 10px;
+      text-align: center;
+      margin-bottom: 0;
+      flex: 1 1 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 0;
+    }
+    .summary-count {
+      font-size: 2.1rem;
+      font-weight: 700;
+      color: #24477a;
+      margin-bottom: 0;
+      line-height: 1.1;
+    }
+    .summary-label {
+      font-size: 1rem;
+      color: #60779c;
+      margin-bottom: 0;
+    }
+    .slots-headline {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #24477a;
+      text-align: left;
+      margin: 14px 0 8px 2px;
+    }
+    .slots-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .slot-card {
+      background: #fff;
+      border-radius: 0.85rem;
+      box-shadow: 0 2px 12px rgba(36, 71, 122, 0.06);
+      padding: 13px 10px;
+      text-align: center;
+      margin-bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 0;
+      margin-right: 0;
+      margin-top: 0;
+    }
+    .slot-label {
+      font-size: 1rem;
+      color: #24477a;
+      margin-bottom: 0;
+      font-weight: 600;
+    }
+    .slot-count {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #24925d;
+      margin-bottom: 0;
+      line-height: 1.1;
+    }
+    .btn-small {
+      width: auto !important;
+      font-size: 0.9rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 0.5rem;
+    }
+    /* Marquee text - login page only, no background */
+    .marquee-support {
+      width: 100%;
+      margin: 0.5em 0 1.2em 0;
+      color: #24477a;
+      font-size: 1rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      border-radius: 0;
+      background: transparent !important;
+    }
+    .marquee-support marquee {
+      background: transparent !important;
+    }
+    /* CAMERA PREVIEW FIX FOR 240x320px */
+    .webcam-box {
+      width: 100%;
+      min-height: 160px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f7f9fc;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    #webcam {
+      width: 240px;
+      height: 320px;
+      max-width: 98vw;
+      max-height: 90vh;
+      border-radius: 8px;
+      object-fit: cover;
+      background: #e5f0fa;
+      display: block;
+    }
+    /* Modal Dialog Responsive */
+    #selfieModal .modal-dialog {
+      max-width: 370px;
+      width: 97vw;
+    }
+    @media (max-width: 600px) {
+      .container { max-width: 98vw; }
+      .logo-img { max-width: 200px; }
+      .calendar-table th, .calendar-table td { font-size: 11px; min-width: 18px; height: 22px; padding: 2px 0; }
+      .summary-count { font-size: 1.4rem; }
+      .summary-label { font-size: 0.9rem; }
+      .slot-count { font-size: 1.1rem; }
+      .slot-label { font-size: 0.9rem; }
+      .slots-headline { font-size: 1rem; }
+      .marquee-support { font-size: 0.95rem; }
+      #webcam {
+        width: 180px;
+        height: 240px;
+        max-width: 98vw;
+        max-height: 80vh;
+      }
+      #selfieModal .modal-dialog {
+        max-width: 99vw;
+        width: 99vw;
+      }
+      .webcam-box {
+        min-height: 120px;
+      }
+    }
+    @media (max-width: 400px) {
+      .logo-img { max-width: 110px; }
+      .calendar-table th, .calendar-table td { font-size: 10px; min-width: 10px; height: 14px; padding: 1px 0; }
+      .summary-count { font-size: 1rem; }
+      .summary-label { font-size: 0.8rem; }
+      .slot-count { font-size: 0.9rem; }
+      .slot-label { font-size: 0.8rem; }
+      .slots-headline { font-size: 0.95rem; }
+      .summary-row { gap: 6px; }
+      .slots-grid { gap: 5px; }
+      .marquee-support { font-size: 0.9rem; }
+      #webcam {
+        width: 120px;
+        height: 160px;
+        max-width: 95vw;
+        max-height: 60vh;
+      }
+      .webcam-box {
+        min-height: 80px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="container position-relative">
+  <div class="logo-box">
+    <img src="logo.png" alt="Logo" class="logo-img" onerror="this.onerror=null;this.src='https://placehold.co/320x100/d0e0ef/24477a?text=PB+HRMS';">
+  </div>
+
+  <div class="login-container" id="login-section">
+    <!-- Unified Login Form -->
+    <div class="card p-4">
+      <h3 class="mb-3 text-center">Employee Login</h3>
+      <form id="loginForm">
+        <div class="mb-3">
+          <label for="username" class="form-label">User Name</label>
+          <input type="text" class="form-control" id="username" required autocomplete="username">
+        </div>
+        <div class="mb-3">
+          <label for="userPassword" class="form-label">Password</label>
+          <input type="password" class="form-control" id="userPassword" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form>
+      <div id="loginError" class="text-danger mt-2 d-none"></div>
+    </div>
+  </div>
+
+  <div class="summary-row" id="attendanceSummaryRow">
+    <div class="summary-card">
+      <div class="summary-count" id="summaryTotalEmp">0</div>
+      <div class="summary-label">Total Employees</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-count" id="summaryPresent">0</div>
+      <div class="summary-label">Present Today</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-count" id="summaryAbsent">0</div>
+      <div class="summary-label">Absent Today</div>
+    </div>
+  </div>
+
+  <div class="slots-headline" id="attendanceSlotsHeadline">Today's Attendance by Time Slot</div>
+  <div class="slots-grid" id="attendanceSlotsRow">
+    <div class="slot-card">
+      <div class="slot-label">7:00-9:00 AM</div>
+      <div class="slot-count" id="slot1Count">0</div>
+    </div>
+    <div class="slot-card">
+      <div class="slot-label">9:00 AM - 1:00 PM</div>
+      <div class="slot-count" id="slot2Count">0</div>
+    </div>
+    <div class="slot-card">
+      <div class="slot-label">1:00 PM - 5:00 PM</div>
+      <div class="slot-count" id="slot3Count">0</div>
+    </div>
+    <div class="slot-card">
+      <div class="slot-label">5:00 PM - 10:00 PM</div>
+      <div class="slot-count" id="slot4Count">0</div>
+    </div>
+  </div>
+  <div class="text-center mt-3" id="hrLoginSection">
+    <a href="hr.html" class="btn btn-primary w-100 btn-small">HR Login</a>
+  </div>
+  
+  <div class="dashboard-container d-none" id="dashboard-section">
+    <button class="btn btn-outline-danger logout-btn" id="logoutBtn">Logout</button>
+    <div class="card p-4">
+      <div class="mb-3 text-center">
+        <h4 id="employeeName"></h4>
+        <div class="text-muted" id="employeeLocation"></div>
+      </div>
+      <button class="btn btn-success w-100 mb-3" id="markAttendanceBtn">Mark Attendance</button>
+      <div id="attendanceStatus" class="alert d-none"></div>
+      <div id="selfieModal" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content p-3">
+            <h5 class="modal-title mb-2">Take a Selfie</h5>
+            <div class="webcam-box mb-2" id="webcamContainer">
+              <video id="webcam" autoplay playsinline></video>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button class="btn btn-primary ms-auto" id="captureBtn">Capture</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="d-none" id="selfiePreviewSection">
+        <img id="selfiePreview" class="selfie-preview mb-2" alt="Selfie Preview">
+        <button class="btn btn-primary w-100 mb-2" id="submitAttendanceBtn">Submit Attendance</button>
+        <button class="btn btn-outline-secondary w-100" id="retakeSelfieBtn">Retake</button>
+      </div>
+
+      <hr class="my-3">
+
+      <h5>Recent Attendance</h5>
+      <div id="attendanceRecords"></div>
+
+      <div class="calendar-box">
+        <h5 class="mb-2">Attendance Calendar</h5>
+        <div id="attendanceCalendar"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="cameraPermissionModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-4">
+      <h5 class="modal-title mb-2">Camera Access Needed</h5>
+      <div class="mb-2" id="cameraPermissionMsg">
+        This app needs access to your camera to mark attendance.<br>
+        <em>Please click "Allow" when prompted by your browser.</em><br>
+        <ul>
+          <li>If you see a blocked camera icon in your address bar, click it and allow camera access.</li>
+          <li>If you previously blocked access, go to browser settings and enable camera for this site.</li>
+          <li>Reload the page after allowing access.</li>
+        </ul>
+      </div>
+      <button class="btn btn-primary w-100" data-bs-dismiss="modal">OK</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Supabase config
+  const SUPABASE_URL = 'https://wgjtkkvgskxzjqgsykze.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnanRra3Znc2t4empxZ3N5a3plIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1MzEyODYsImV4cCI6MjA3MTEwNzI4Nn0.Hr69_1j4Ts-7d1G_RylJuRZKTaigWFBgIYlHVahIvVA';
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let currentEmployee = null;
+  let selfieDataUrl = null;
+  let webcamStream = null;
+  let currentLocation = null;
+  let canMarkAttendance = true;
+  let nearestStore = null; 
+
+  // DOM Elements
+  const summaryPresent = document.getElementById('summaryPresent');
+  const summaryAbsent = document.getElementById('summaryAbsent');
+  const summaryTotalEmp = document.getElementById('summaryTotalEmp');
+  const slot1Count = document.getElementById('slot1Count');
+  const slot2Count = document.getElementById('slot2Count');
+  const slot3Count = document.getElementById('slot3Count');
+  const slot4Count = document.getElementById('slot4Count');
+
+  const loginSection = document.getElementById('login-section');
+  const dashboardSection = document.getElementById('dashboard-section');
+  
+  const loginForm = document.getElementById('loginForm');
+  const loginError = document.getElementById('loginError');
+
+  const employeeName = document.getElementById('employeeName');
+  const employeeLocation = document.getElementById('employeeLocation');
+  const markAttendanceBtn = document.getElementById('markAttendanceBtn');
+  const attendanceStatus = document.getElementById('attendanceStatus');
+  const selfieModalElem = document.getElementById('selfieModal');
+  const selfieModal = new bootstrap.Modal(selfieModalElem);
+  const webcam = document.getElementById('webcam');
+  const captureBtn = document.getElementById('captureBtn');
+  const selfiePreviewSection = document.getElementById('selfiePreviewSection');
+  const selfiePreview = document.getElementById('selfiePreview');
+  const submitAttendanceBtn = document.getElementById('submitAttendanceBtn');
+  const retakeSelfieBtn = document.getElementById('retakeSelfieBtn');
+  const cameraPermissionModalElem = document.getElementById('cameraPermissionModal');
+  const cameraPermissionModal = new bootstrap.Modal(cameraPermissionModalElem);
+  const cameraPermissionMsg = document.getElementById('cameraPermissionMsg');
+  const attendanceRecords = document.getElementById('attendanceRecords');
+  const attendanceCalendar = document.getElementById('attendanceCalendar');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const hrLoginSection = document.getElementById('hrLoginSection');
+
+
+  // Indian Standard Time offset
+  function toIST(date) {
+    let utc = date.getTime() + (date.getTimezoneOffset() * 60000);
+    return new Date(utc + 19800000); // IST is UTC+5:30
+  }
+
+  // Attendance Summary for TODAY (on login page)
+  async function loadTodayAttendanceSummary() {
+    const { data: userList, error: userError } = await supabase
+      .from('users')
+      .select('username');
+    const totalEmp = userList && userList.length ? userList.length : 0;
+    summaryTotalEmp.textContent = totalEmp;
+
+    const now = new Date();
+    let todayIST = toIST(now);
+    let istYear = todayIST.getFullYear();
+    let istMonth = todayIST.getMonth();
+    let istDate = todayIST.getDate();
+
+    let startIST = new Date(Date.UTC(istYear, istMonth, istDate));
+    startIST.setUTCHours(18, 30, 0, 0);
+    if (startIST > todayIST) {
+      startIST.setUTCDate(startIST.getUTCDate() - 1);
+    }
+    let endIST = new Date(startIST);
+    endIST.setUTCDate(endIST.getUTCDate() + 1);
+    endIST.setUTCHours(18, 29, 59, 999);
+
+    const { data: attendanceToday, error: attError } = await supabase
+      .from('attendance')
+      .select('username, timestamp')
+      .gte('timestamp', startIST.toISOString())
+      .lte('timestamp', endIST.toISOString());
+
+    let slot1 = 0, slot2 = 0, slot3 = 0, slot4 = 0;
+    let presentUsernames = new Set();
+
+    if (attendanceToday) {
+      attendanceToday.forEach(a => {
+        let ts = new Date(a.timestamp);
+        let istTs = toIST(ts);
+        let h = istTs.getHours(), m = istTs.getMinutes();
+        let timeMinutes = h * 60 + m;
+        if (timeMinutes >= 420 && timeMinutes < 540) slot1++;
+        else if (timeMinutes >= 540 && timeMinutes < 780) slot2++;
+        else if (timeMinutes >= 780 && timeMinutes < 1020) slot3++;
+        else if (timeMinutes >= 1020 && timeMinutes < 1320) slot4++;
+        presentUsernames.add(a.username);
+      });
+    }
+    slot1Count.textContent = slot1;
+    slot2Count.textContent = slot2;
+    slot3Count.textContent = slot3;
+    slot4Count.textContent = slot4;
+
+    const presentCount = presentUsernames.size;
+    const absentCount = totalEmp - presentCount;
+    summaryPresent.textContent = presentCount;
+    summaryAbsent.textContent = absentCount;
+  }
+
+  // Initial load summary & slots
+  loadTodayAttendanceSummary();
+
+  // Unified Login Logic
+  loginForm.onsubmit = async function(e) {
+    e.preventDefault();
+    loginError.classList.add('d-none');
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('userPassword').value;
+
+    // 1. Try to log in as a regular employee first
+    const { data: employeeData, error: employeeError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('username', username)
+      .eq('password', password)
+      .single();
+
+    if (employeeData) {
+      currentEmployee = { ...employeeData, loginType: 'employee' };
+      showDashboard();
+      return;
+    }
+
+    // 2. If employee login fails, check if it's a cluster user
+    // Assumes 'cluster' table has 'username', 'password', and 'cluster_name'
+    const { data: clusterData, error: clusterError } = await supabase
+      .from('cluster')
+      .select('username, cluster_name')
+      .eq('username', username)
+      .eq('password', password)
+      .single();
+
+    if (clusterData) {
+      currentEmployee = {
+        username: clusterData.username,
+        name: clusterData.cluster_name, // Use cluster_name for display
+        location: 'Cluster',
+        loginType: 'cluster'
+      };
+      showDashboard();
+      return;
+    }
+
+    // 3. If both fail, show an error
+    loginError.textContent = "Invalid username or password.";
+    loginError.classList.remove('d-none');
+  };
+
+  function showDashboard() {
+    employeeName.textContent = currentEmployee.name;
+    employeeLocation.textContent = currentEmployee.location || '';
+    loginSection.classList.add('d-none');
+    dashboardSection.classList.remove('d-none');
+    document.getElementById('attendanceSummaryRow').style.display = "none";
+    document.getElementById('attendanceSlotsRow').style.display = "none";
+    document.getElementById('attendanceSlotsHeadline').style.display = "none";
+    hrLoginSection.classList.add('d-none');
+    
+    loadAttendance();
+    loadAttendanceCalendar();
+    checkAttendanceStatus();
+  }
+
+  // Logout logic
+  logoutBtn.onclick = function() {
+    currentEmployee = null;
+    selfieDataUrl = null;
+    webcamStream = null;
+    currentLocation = null;
+    canMarkAttendance = true;
+    nearestStore = null;
+    loginSection.classList.remove('d-none');
+    dashboardSection.classList.add('d-none');
+    document.getElementById('attendanceSummaryRow').style.display = "";
+    document.getElementById('attendanceSlotsRow').style.display = "";
+    document.getElementById('attendanceSlotsHeadline').style.display = "";
+    hrLoginSection.classList.remove('d-none');
+    
+    loginForm.reset();
+    attendanceRecords.innerHTML = '';
+    attendanceCalendar.innerHTML = '';
+    markAttendanceBtn.disabled = false;
+    loadTodayAttendanceSummary();
+  };
+
+  // Check if attendance has been marked for the day
+  async function checkAttendanceStatus() {
+    // For cluster users, bypass this check to allow multiple entries
+    if (currentEmployee && currentEmployee.loginType === 'cluster') {
+        canMarkAttendance = true;
+        markAttendanceBtn.disabled = false;
+        return;
+    }
+
+    // For regular employees, check for existing attendance today
+    const now = new Date();
+    let todayIST = toIST(now);
+    let istYear = todayIST.getFullYear();
+    let istMonth = todayIST.getMonth();
+    let istDate = todayIST.getDate();
+
+    let startIST = new Date(Date.UTC(istYear, istMonth, istDate));
+    startIST.setUTCHours(18, 30, 0, 0);
+    if (startIST > todayIST) {
+      startIST.setUTCDate(startIST.getUTCDate() - 1);
+    }
+    let endIST = new Date(startIST);
+    endIST.setUTCDate(endIST.getUTCDate() + 1);
+    endIST.setUTCHours(18, 29, 59, 999);
+
+    const { data, error } = await supabase
+      .from('attendance')
+      .select('id')
+      .eq('username', currentEmployee.username)
+      .gte('timestamp', startIST.toISOString())
+      .lte('timestamp', endIST.toISOString());
+
+    canMarkAttendance = !(data && data.length > 0);
+    markAttendanceBtn.disabled = !canMarkAttendance;
+
+    if (!canMarkAttendance) {
+      showAttendanceStatus("You have already marked attendance today.", "warning");
+    }
+  }
+
+  markAttendanceBtn.onclick = async function() {
+    await checkAttendanceStatus(); // This will now allow cluster users to proceed
+    if (!canMarkAttendance) {
+      showAttendanceStatus("You have already marked attendance today.", "warning");
+      return;
+    }
+    selfiePreviewSection.classList.add('d-none');
+    selfiePreview.src = '';
+    if (!navigator.geolocation) {
+      showAttendanceStatus("Geolocation is not supported by your browser.", "danger");
+      return;
+    }
+    showAttendanceStatus("Checking your location...", "info");
+
+    navigator.geolocation.getCurrentPosition(async function(position) {
+      const userLat = position.coords.latitude;
+      const userLng = position.coords.longitude;
+      currentLocation = { latitude: userLat, longitude: userLng };
+
+      if (currentEmployee.loginType === 'employee') {
+          const registeredLat = parseFloat(currentEmployee.latitude);
+          const registeredLng = parseFloat(currentEmployee.longitude);
+
+          if (isNaN(registeredLat) || isNaN(registeredLng)) {
+            showAttendanceStatus("Registered location not set. Contact admin.", "danger");
+            return;
+          }
+
+          const dist = haversineDistance(userLat, userLng, registeredLat, registeredLng);
+
+          if (dist > 20) { // 20 meters radius
+            showAttendanceStatus(`You are too far from your registered location (${dist.toFixed(1)} m).`, "danger");
+            return;
+          }
+          openCamera();
+      } else if (currentEmployee.loginType === 'cluster') {
+          const { data: stores, error } = await supabase.from('store').select('location, latitude, longitude');
+          if (error || !stores || stores.length === 0) {
+              showAttendanceStatus("Could not find any stores. Contact admin.", "danger");
+              return;
+          }
+
+          let minDistance = Infinity;
+          
+          stores.forEach(store => {
+              const storeLat = parseFloat(store.latitude);
+              const storeLng = parseFloat(store.longitude);
+              if (!isNaN(storeLat) && !isNaN(storeLng)) {
+                  const dist = haversineDistance(userLat, userLng, storeLat, storeLng);
+                  if (dist < minDistance) {
+                      minDistance = dist;
+                      nearestStore = store;
+                  }
+              }
+          });
+
+          if (nearestStore) {
+              showAttendanceStatus(`Nearest store: ${nearestStore.location} (${minDistance.toFixed(1)}m away).`, "info");
+              openCamera();
+          } else {
+              showAttendanceStatus("Could not determine the nearest store.", "danger");
+          }
+      }
+    }, function(error) {
+      // Handle geolocation error
+      if (error.code === 1) { // PERMISSION_DENIED
+        showAttendanceStatus("Location access was denied. Please enable it in your browser settings.", "danger");
+      } else {
+        showAttendanceStatus("Unable to get your location. Please ensure GPS is on.", "danger");
+      }
+    }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+  };
+
+  async function openCamera() {
+      try {
+        if (webcamStream) {
+          webcamStream.getTracks().forEach(track => track.stop());
+          webcam.srcObject = null;
+        }
+        webcamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: {exact: 240}, height: {exact: 320} } });
+        webcam.srcObject = webcamStream;
+        webcam.onloadedmetadata = function() { webcam.play(); };
+        selfieModal.show();
+      } catch (err) {
+        let msg = '';
+        if (err.name === 'NotAllowedError') {
+          msg = `<strong>Camera access was blocked.</strong><br>Please allow camera access in your browser settings and reload.`;
+        } else if (err.name === 'NotFoundError' || err.name === 'OverconstrainedError') {
+          msg = `<strong>No camera detected.</strong><br>Ensure your camera is working and not used by another app.`;
+        } else {
+          msg = `<strong>Could not access camera.</strong><br>Error: ${err.message || err.name}`;
+        }
+        cameraPermissionMsg.innerHTML = msg;
+        cameraPermissionModal.show();
+      }
+  }
+
+  captureBtn.onclick = function() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 240;
+    canvas.height = 320;
+    let sx = 0, sy = 0, sw = webcam.videoWidth, sh = webcam.videoHeight;
+    if (sw / sh > 240/320) {
+      sw = sh * (240/320);
+      sx = (webcam.videoWidth - sw) / 2;
+    } else if (sw / sh < 240/320) {
+      sh = sw * (320/240);
+      sy = (webcam.videoHeight - sh) / 2;
+    }
+    canvas.getContext('2d').drawImage(webcam, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+    selfieDataUrl = canvas.toDataURL('image/jpeg');
+    selfiePreview.src = selfieDataUrl;
+    selfiePreviewSection.classList.remove('d-none');
+    selfieModal.hide();
+    if (webcamStream) {
+      webcamStream.getTracks().forEach(track => track.stop());
+      webcam.srcObject = null;
+    }
+  };
+
+  retakeSelfieBtn.onclick = function() {
+    selfiePreviewSection.classList.add('d-none');
+    selfiePreview.src = '';
+    markAttendanceBtn.click();
+  };
+
+  submitAttendanceBtn.onclick = async function() {
+    await checkAttendanceStatus();
+    if (!canMarkAttendance) {
+      showAttendanceStatus("You have already marked attendance today.", "warning");
+      return;
+    }
+    if (!currentEmployee || !selfieDataUrl || !currentLocation) return;
+    showAttendanceStatus('Uploading...', 'info');
+
+    let attendanceData = {
+        username: currentEmployee.username,
+        name: currentEmployee.name, // Will be employee name or cluster_name
+        marked_latitude: currentLocation.latitude,
+        marked_longitude: currentLocation.longitude,
+        image: selfieDataUrl,
+        timestamp: new Date().toISOString()
+    };
+
+    if (currentEmployee.loginType === 'employee') {
+        attendanceData.location = currentEmployee.location;
+        attendanceData.registered_latitude = currentEmployee.latitude;
+        attendanceData.registered_longitude = currentEmployee.longitude;
+    } else if (currentEmployee.loginType === 'cluster' && nearestStore) {
+        attendanceData.location = nearestStore.location;
+        attendanceData.registered_latitude = nearestStore.latitude;
+        attendanceData.registered_longitude = nearestStore.longitude;
+    } else {
+        showAttendanceStatus("Could not submit. Location data is missing.", 'danger');
+        return;
+    }
+
+    const { error } = await supabase.from('attendance').insert([attendanceData]);
+    
+    if (error) {
+      showAttendanceStatus("Failed to record attendance.", 'danger');
+    } else {
+      showAttendanceStatus("Attendance marked successfully!", 'success');
+      loadAttendance();
+      loadAttendanceCalendar();
+      checkAttendanceStatus();
+    }
+    selfiePreviewSection.classList.add('d-none');
+    selfiePreview.src = '';
+    selfieDataUrl = null;
+    currentLocation = null;
+    nearestStore = null;
+  };
+
+  function showAttendanceStatus(msg, type) {
+    attendanceStatus.innerHTML = msg;
+    attendanceStatus.className = `alert alert-${type}`;
+    attendanceStatus.classList.remove('d-none');
+    setTimeout(() => attendanceStatus.classList.add('d-none'), 3500);
+  }
+
+  async function loadAttendance() {
+    attendanceRecords.innerHTML = "Loading...";
+    const { data, error } = await supabase
+      .from('attendance')
+      .select('*')
+      .eq('username', currentEmployee.username)
+      .order('timestamp', { ascending: false })
+      .limit(5);
+    if (error) {
+      attendanceRecords.innerHTML = "Could not load records.";
+      return;
+    }
+    if (!data || !data.length) {
+      attendanceRecords.innerHTML = "<em>No attendance marked yet.</em>";
+      return;
+    }
+    attendanceRecords.innerHTML = data.map(r => 
+      `<div class="d-flex align-items-center mb-2 attendance-record-row">
+        <img src="${r.image}" class="attendance-img me-2" alt="Selfie" />
+        <div>
+          <div>${toIST(new Date(r.timestamp)).toLocaleString('en-IN', { hour12: true })}</div>
+          <div class="small text-muted">${r.location}</div>
+        </div>
+      </div>`
+    ).join("");
+  }
+
+  async function loadAttendanceCalendar() {
+    const now = new Date();
+    let todayIST = toIST(now);
+    let istYear = todayIST.getFullYear();
+    let istMonth = todayIST.getMonth();
+    let firstDayIST = new Date(Date.UTC(istYear, istMonth, 1, 2, 0, 0));
+    let lastDayIST = new Date(Date.UTC(istYear, istMonth + 1, 0, 18, 30, 0));
+
+    const { data, error } = await supabase
+      .from('attendance')
+      .select('timestamp')
+      .eq('username', currentEmployee.username)
+      .gte('timestamp', firstDayIST.toISOString())
+      .lte('timestamp', lastDayIST.toISOString())
+      .order('timestamp', { ascending: true });
+
+    const presentDays = {};
+    if(data) {
+      data.forEach(r => {
+        const d = toIST(new Date(r.timestamp));
+        presentDays[d.getDate()] = true;
+      });
+    }
+
+    let cal = `<table class="calendar-table"><thead><tr>`;
+    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(day => cal += `<th>${day}</th>`);
+    cal += `</tr></thead><tbody>`;
+
+    let firstDay = new Date(istYear, istMonth, 1);
+    let lastDay = new Date(istYear, istMonth + 1, 0);
+    let dayOfWeek = firstDay.getDay();
+    let day = 1;
+    let totalDays = lastDay.getDate();
+
+    while (day <= totalDays) {
+      cal += '<tr>';
+      for(let i=0; i<7; i++) {
+        if ((day === 1 && i < dayOfWeek) || day > totalDays) {
+          cal += '<td class="blank-cell"></td>';
+        } else {
+          let todayDate = new Date(istYear, istMonth, day);
+          let nowDate = new Date(todayIST.getFullYear(), todayIST.getMonth(), todayIST.getDate());
+          let cell = '';
+          if (todayDate <= nowDate) {
+            cell = presentDays[day]
+              ? `<span class="calendar-present">P</span>`
+              : `<span class="calendar-absent">A</span>`;
+          }
+          cal += `<td class="blank-cell">${day}<br>${cell}</td>`;
+          day++;
+        }
+      }
+      cal += '</tr>';
+    }
+    cal += '</tbody></table>';
+    attendanceCalendar.innerHTML = cal;
+  }
+
+  // Haversine formula to calculate distance in meters
+  function haversineDistance(lat1, lon1, lat2, lon2) {
+    function toRad(x) { return x * Math.PI / 180; }
+    const R = 6371000; // Earth's radius in meters
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  }
+</script>
+  <div class="marquee-support" id="loginSupportMarquee">
+    <marquee behavior="scroll" direction="left" scrollamount="5">
+      For support, contact Samir Singhsamanta: +91 76069 36790
+    </marquee>
+  </div>
+</body>
+</html>
