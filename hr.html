@@ -97,22 +97,22 @@
             100% { transform: translateX(-100%); }
         }
 
-        /* Desktop specific styles */
+        /* Original Desktop specific styles - some are overridden by new styles below */
         @media (min-width: 768px) {
             #dashboard-page {
                 flex-direction: row;
             }
             main {
                 flex-grow: 1;
-                width: calc(100% - 250px); /* Adjust as needed for sidebar width */
-                padding-bottom: 24px; /* Maintain padding for desktop */
+                /* width: calc(100% - 250px); */ /* No longer needed */
+                padding-bottom: 24px;
             }
             nav {
                 position: sticky;
                 top: 0;
                 left: 0;
                 bottom: 0;
-                width: 250px; /* Sidebar width */
+                width: 250px;
                 height: 100vh;
                 border-right: 1px solid var(--border-color);
                 border-top: none;
@@ -141,14 +141,101 @@
                 position: sticky;
                 top: 0;
                 z-index: 50;
-                width: calc(100% - 250px); /* Header width matches main content */
-                margin-left: 250px; /* Offset for sidebar */
+                /* width: calc(100% - 250px); */ /* No longer needed */
+                /* margin-left: 250px; */ /* No longer needed */
             }
             footer {
-                display: none; /* Hide footer marquee on desktop, or reposition if desired */
+                display: none;
             }
             .app-card {
-                padding: 1.5rem; /* More padding for desktop cards */
+                padding: 1.5rem;
+            }
+        }
+    </style>
+    <style>
+        /* Keka-inspired Desktop View Enhancements */
+        @media (min-width: 768px) {
+            body {
+                overflow: hidden; /* Prevent body scroll on desktop */
+            }
+
+            #dashboard-page {
+                display: flex;
+                flex-direction: row;
+                height: 100vh; /* Full viewport height */
+            }
+
+            /* --- Enhanced Sidebar --- */
+            nav {
+                position: static; /* Override fixed positioning from mobile */
+                height: 100vh;
+                width: 260px; /* A slightly wider sidebar */
+                flex-shrink: 0;
+                background-color: #f8fafc; /* A distinct background */
+                border-right: 1px solid var(--border-color);
+                padding: 1rem;
+                display: flex;
+                flex-direction: column;
+            }
+
+            nav .grid {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+                height: auto;
+            }
+
+            .bottom-nav-btn {
+                justify-content: flex-start;
+                font-weight: 500;
+                color: #334155; /* Slightly darker text */
+                padding: 0.75rem 1rem;
+            }
+
+            .bottom-nav-btn:hover {
+                 background-color: #f1f5f9;
+            }
+
+            .bottom-nav-btn.active {
+                background-color: var(--accent-color);
+                color: white;
+                font-weight: 600;
+                box-shadow: 0 2px 8px -1px rgba(79, 70, 229, 0.4);
+            }
+             .bottom-nav-btn.active svg {
+                color: white;
+            }
+
+            /* --- Main Content Wrapper --- */
+            #main-content-wrapper {
+                flex-grow: 1;
+                display: flex;
+                flex-direction: column;
+                height: 100vh;
+                overflow: hidden; /* Hide overflow to manage scrolling internally */
+            }
+            
+            /* --- Fixed Header --- */
+            #main-header {
+                position: static; /* Header is part of the flex column, not sticky to viewport */
+                width: 100%;
+                margin-left: 0;
+                flex-shrink: 0; /* Prevent header from shrinking */
+                background-color: white;
+                 z-index: 10;
+            }
+            
+            /* --- Scrollable Main Area --- */
+            main {
+                flex-grow: 1;
+                overflow-y: auto; /* This is the ONLY scrollable area */
+                padding: 1.5rem;
+                padding-bottom: 2rem; /* Ensure space at the bottom */
+                 width: 100%;
+            }
+
+            footer {
+                display: none; /* Hide footer on desktop */
             }
         }
     </style>
@@ -179,10 +266,15 @@
             </div>
         </div>
 
-        <div id="dashboard-page" class="hidden flex flex-col h-screen md:flex-row">
+        <div id="dashboard-page" class="hidden flex-col md:flex-row">
             
             <nav class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 shadow-[0_-2px_10px_-1px_rgba(0,0,0,0.05)] md:relative md:shadow-none">
-                <div class="grid h-16 max-w-lg grid-cols-4 mx-auto font-medium md:h-full md:max-w-none md:grid-cols-1 md:gap-4 md:px-4">
+                <div class="hidden md:flex items-center space-x-3 p-2 mb-4 border-b border-slate-200">
+                    <img src="./logo1.png" alt="Company Logo" onerror="this.onerror=null; this.src='https://placehold.co/40x40/E5E7EB/1F2937?text=Logo';" class="w-10 h-10 rounded-lg">
+                    <h1 class="text-xl font-bold text-slate-800">HR Portal</h1>
+                </div>
+
+                <div class="grid h-16 max-w-lg grid-cols-4 mx-auto font-medium md:h-full md:max-w-none md:grid-cols-1 md:gap-4">
                     <button type="button" class="bottom-nav-btn inline-flex flex-col items-center justify-center px-5 text-slate-500 hover:bg-gray-50 active" data-tab="dashboard">
                         <svg class="w-6 h-6 mb-1 md:mb-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                         <span class="text-xs md:text-base">Home</span>
@@ -200,15 +292,14 @@
                        <svg class="w-6 h-6 mb-1 md:mb-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         <span class="text-xs md:text-base">Reports</span>
                     </button>
-                    <!-- Admin tabs will be appended here by JS -->
                 </div>
             </nav>
 
-            <div class="flex-grow flex flex-col">
+            <div id="main-content-wrapper" class="flex-grow flex flex-col">
                 <header id="main-header" class="sticky top-0 z-50 bg-white/80 backdrop-blur-lg p-4 border-b border-slate-200">
                     <div class="flex justify-between items-center max-w-6xl mx-auto md:max-w-full">
                         <div class="flex items-center space-x-3">
-                            <img src="./logo1.png" alt="Company Logo" onerror="this.onerror=null; this.src='https://placehold.co/40x40/E5E7EB/1F2937?text=Logo';" class="w-10 h-10 rounded-full">
+                             <img src="./logo1.png" alt="Company Logo" onerror="this.onerror=null; this.src='https://placehold.co/40x40/E5E7EB/1F2937?text=Logo';" class="w-10 h-10 rounded-full md:hidden">
                             <h1 class="text-xl font-bold text-slate-800">Dashboard</h1>
                         </div>
                         <button id="logout-btn" class="text-slate-500 hover:text-red-500 transition">
@@ -273,6 +364,7 @@
                             <label for="date-filter-details" class="text-sm font-medium text-slate-600">Viewing Data For:</label>
                             <input type="date" id="date-filter-details" class="input-field w-auto text-sm bg-transparent border-0 focus:ring-0">
                         </div>
+                        
                         <div class="app-card p-4">
                             <div class="flex justify-between items-center mb-4">
                                 <h2 class="text-xl font-bold text-slate-700">Present Employees</h2>
@@ -359,7 +451,7 @@
                         </div>
                     </div>
 
-                    <div id="add-employee-content" class="tab-content hidden space-y-6">
+                    <div id="manage-content" class="tab-content hidden space-y-6">
                         <div class="app-card p-4 space-y-4">
                             <h2 class="text-xl font-bold text-slate-700">Add New Employee</h2>
                             <form id="add-employee-form" class="space-y-4">
@@ -383,19 +475,29 @@
                                 <p id="add-employee-message" class="text-center font-medium hidden"></p>
                             </form>
                         </div>
+                        
+                        <div class="app-card p-4 space-y-4">
+                             <h2 class="text-xl font-bold text-slate-700">Manage Employee Status</h2>
+                             <div id="manage-employee-list" class="divide-y divide-slate-200">
+                                 </div>
+                             <p id="manage-list-loading" class="text-center text-slate-500 p-4 hidden">Loading employees...</p>
+                        </div>
                     </div>
                     
                 </main>
             </div>
-
         </div>
+
     </div>
     
     <div id="app-modal" class="modal fixed inset-0 flex items-center justify-center p-4 hidden z-50">
-        <div class="app-card p-6 w-full max-w-sm text-center">
+        <div id="modal-content-area" class="app-card p-6 w-full max-w-sm text-center">
             <h3 id="modal-title" class="text-xl font-bold mb-3"></h3>
             <p id="modal-message" class="mb-6 text-slate-600"></p>
-            <button id="modal-close" class="btn btn-primary w-full">Close</button>
+            <div id="modal-buttons" class="flex flex-col sm:flex-row-reverse gap-3">
+                 <button id="modal-confirm" class="btn btn-primary w-full">Confirm</button>
+                 <button id="modal-cancel" class="btn bg-slate-200 text-slate-700 hover:bg-slate-300 w-full">Cancel</button>
+            </div>
         </div>
     </div>
     
@@ -417,14 +519,14 @@
         const loginError = document.getElementById('login-error');
         const logoutBtn = document.getElementById('logout-btn');
         const dateFilterInput = document.getElementById('date-filter');
-        const dateFilterDetails = document.getElementById('date-filter-details'); // New element for details tab
+        const dateFilterDetails = document.getElementById('date-filter-details'); 
         const mainHeader = document.getElementById('main-header');
         
         const dashboardContent = document.getElementById('dashboard-content');
         const detailsContent = document.getElementById('details-content');
         const reportContent = document.getElementById('report-content');
         const manualAttendanceContent = document.getElementById('manual-attendance-content');
-        const addEmployeeContent = document.getElementById('add-employee-content');
+        const manageContent = document.getElementById('manage-content');
         const employeeHistoryContent = document.getElementById('employee-history-content');
         
         const totalEmployeesEl = document.getElementById('total-employees');
@@ -447,11 +549,13 @@
         const employeeStoreSelect = document.getElementById('employee-store');
         const addEmployeeMessage = document.getElementById('add-employee-message');
 
+        const manageEmployeeList = document.getElementById('manage-employee-list');
+        const manageListLoading = document.getElementById('manage-list-loading');
+
         const startDateFilter = document.getElementById('start-date-filter');
         const endDateFilter = document.getElementById('end-date-filter');
         const storeFilterSelect = document.getElementById('store-filter-select');
         
-        // Employee History DOM elements
         const monthFilterInput = document.getElementById('month-filter');
         const employeeNameFilter = document.getElementById('employee-name-filter');
         const attendanceHistoryList = document.getElementById('attendance-history-list');
@@ -461,15 +565,15 @@
         const appModal = document.getElementById('app-modal');
         const modalTitle = document.getElementById('modal-title');
         const modalMessage = document.getElementById('modal-message');
-        const modalCloseBtn = document.getElementById('modal-close');
+        const modalConfirmBtn = document.getElementById('modal-confirm');
+        const modalCancelBtn = document.getElementById('modal-cancel');
         
-        // Sorting and filtering elements
         const presentSortOrderSelect = document.getElementById('present-sort-order');
         const historySortOrderSelect = document.getElementById('history-sort-order');
         const showRelocatedOnlyCheckbox = document.getElementById('show-relocated-only');
 
         // State variables
-        let allUsers = [];
+        let allUsers = []; // IMPORTANT: This will now only store ACTIVE users
         let allStores = [];
         let allStoresData = [];
         let selectedDate = dayjs().format('YYYY-MM-DD');
@@ -477,11 +581,10 @@
         let selectedMonth = dayjs().format('YYYY-MM');
         let selectedEmployeeUsername = 'all';
         let monthlyAttendanceData = [];
-        let presentSortOrder = 'location'; // 'location' or 'time'
-        let historySortOrder = 'location'; // 'location' or 'time'
+        let presentSortOrder = 'location';
+        let historySortOrder = 'location';
         let showRelocatedOnly = false;
         let isAdmin = false;
-
 
         // --- Utility Functions ---
 
@@ -494,15 +597,31 @@
             if (newActiveButton) {
                 newActiveButton.classList.add('active');
             }
-            // Update the date filter for details tab if it's the active tab
             if (tabName === 'details') {
                 dateFilterDetails.value = selectedDate;
             }
         }
-
+        
         function showModal(title, message) {
             modalTitle.textContent = title;
             modalMessage.textContent = message;
+            modalConfirmBtn.textContent = 'Close';
+            modalConfirmBtn.onclick = () => appModal.classList.add('hidden');
+            modalCancelBtn.classList.add('hidden'); // Hide cancel button for simple alerts
+            appModal.classList.remove('hidden');
+        }
+
+        function showConfirmation(title, message, onConfirm) {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            modalConfirmBtn.textContent = 'Confirm';
+            modalConfirmBtn.onclick = () => {
+                appModal.classList.add('hidden');
+                onConfirm(); // Execute the callback function
+            };
+            modalCancelBtn.classList.remove('hidden'); // Show cancel button
+            modalCancelBtn.textContent = 'Cancel';
+            modalCancelBtn.onclick = () => appModal.classList.add('hidden');
             appModal.classList.remove('hidden');
         }
 
@@ -514,36 +633,29 @@
                     showModal('Error', 'PDF library not loaded. Please refresh the page.');
                     return;
                 }
-
                 if (!allUsers || allUsers.length === 0) {
-                    showModal('Error', 'No data available to generate a summary. Please wait for the dashboard to load.');
+                    showModal('Error', 'No active employees found to generate a summary.');
                     return;
                 }
-                
                 const totalCount = allUsers.length;
                 const presentCount = parseInt(presentCountEl.textContent, 10) || 0;
                 const absentCount = parseInt(absentCountEl.textContent, 10) || 0;
                 const presentPercentage = totalCount > 0 ? (presentCount / totalCount) * 100 : 0;
-                
                 const doc = new jsPDF();
                 const date = dayjs(selectedDate).format('MMMM D, YYYY');
-                
                 doc.setFontSize(18);
                 doc.text(`Attendance Summary for ${date}`, 14, 22);
-
                 doc.setFontSize(12);
-                doc.text(`Total Employees: ${totalCount}`, 14, 35);
+                doc.text(`Total Active Employees: ${totalCount}`, 14, 35);
                 doc.text(`Present: ${presentCount}`, 14, 45);
                 doc.text(`Absent: ${absentCount}`, 14, 55);
                 doc.text(`Present Percentage: ${Math.round(presentPercentage)}%`, 14, 65);
-
                 doc.text('Store-wise Attendance:', 14, 80);
                 let y = 90;
                 Object.entries(storeData).sort((a, b) => a[0].localeCompare(b[0])).forEach(([storeName, data]) => {
                     doc.text(`- ${storeName}: Present ${data.present}, Absent ${data.absent}`, 18, y);
                     y += 10;
                 });
-                
                 doc.save(`attendance-summary-${selectedDate}.pdf`);
             } catch (e) {
                 console.error('An unexpected error occurred during PDF generation:', e);
@@ -555,16 +667,13 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             const date = dayjs(selectedDate).format('MMMM D, YYYY');
-
             doc.setFontSize(18);
             doc.text(`Present Employees for ${date}`, 14, 22);
-            
             const presentEmployees = Array.from(presentEmployeesList.querySelectorAll('.app-card'));
             let y = 35;
             let page = 1;
-
             for (const emp of presentEmployees) {
-                if (y > 280) { // Check for new page
+                if (y > 280) {
                     doc.addPage();
                     y = 22;
                     page++;
@@ -572,29 +681,21 @@
                     doc.text(`Present Employees for ${date} (Cont. - Page ${page})`, 14, 22);
                     y = 35;
                 }
-
                 const name = emp.querySelector('.font-bold').textContent;
                 const store = emp.querySelector('p:nth-child(2)').textContent.replace('Store: ', '');
                 const time = emp.querySelector('p:nth-child(3)').textContent.replace('Time: ', '');
                 const img = emp.querySelector('img');
-
                 doc.setFontSize(12);
                 doc.text(`Name: ${name}`, 14, y);
                 doc.text(`Store: ${store}`, 14, y + 6);
                 doc.text(`Time: ${time}`, 14, y + 12);
-                
                 if (img && img.src.startsWith('data:')) {
                     try {
-                        const imgData = img.src;
-                        doc.addImage(imgData, 'JPEG', 150, y, 30, 30);
-                    } catch (e) {
-                        console.error('Error adding image to PDF:', e);
-                    }
+                        doc.addImage(img.src, 'JPEG', 150, y, 30, 30);
+                    } catch (e) { console.error('Error adding image to PDF:', e); }
                 }
-                
                 y += 40;
             }
-
             doc.save(`present-employees-${selectedDate}.pdf`);
         }
         
@@ -602,14 +703,11 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             const date = dayjs(selectedDate).format('MMMM D, YYYY');
-
             doc.setFontSize(18);
             doc.text(`Absent Employees for ${date}`, 14, 22);
-
             const absentEmployees = Array.from(absentEmployeesList.querySelectorAll('li'));
             let y = 35;
             let page = 1;
-
             absentEmployees.forEach(emp => {
                 if (y > 280) {
                     doc.addPage();
@@ -631,45 +729,20 @@
         
         async function generateAttendanceSheet(format = 'excel') {
             try {
-                if (typeof XLSX === 'undefined') {
-                    showModal('Error', 'Excel library not loaded. Please refresh the page.');
-                    return;
-                }
-
+                if (typeof XLSX === 'undefined') { showModal('Error', 'Excel library not loaded.'); return; }
                 const start = startDateFilter.value;
                 const end = endDateFilter.value;
                 const store = storeFilterSelect.value;
-                if (!start || !end) {
-                    showModal('Error', 'Please select a date range.');
-                    return;
-                }
-
-                const startOfLocalDayUTC = dayjs(start).startOf('day').toISOString();
-                const endOfLocalDayUTC = dayjs(end).endOf('day').toISOString();
-
-                let { data: users, error: userError } = await supabase
-                    .from('users')
-                    .select('username, name, location')
-                    .order('location'); 
-                if (userError) {
-                    console.error('Error fetching users:', userError);
-                    showModal('Error', `Failed to fetch user data: ${userError.message}`);
-                    return;
-                }
+                if (!start || !end) { showModal('Error', 'Please select a date range.'); return; }
+                
+                let { data: users, error: userError } = await supabase.from('users').select('username, name, location').eq('status', 'active').order('location');
+                if (userError) { showModal('Error', `Failed to fetch user data: ${userError.message}`); return; }
                 if (store !== 'all') {
                     users = users.filter(user => user.location === store);
                 }
 
-                const { data: attendanceData, error: attendanceError } = await supabase
-                    .from('attendance')
-                    .select('username, timestamp')
-                    .gte('timestamp', startOfLocalDayUTC)
-                    .lte('timestamp', endOfLocalDayUTC);
-                if (attendanceError) {
-                    console.error('Error fetching attendance:', attendanceError);
-                    showModal('Error', `Failed to fetch attendance data: ${attendanceError.message}`);
-                    return;
-                }
+                const { data: attendanceData, error: attendanceError } = await supabase.from('attendance').select('username, timestamp').gte('timestamp', dayjs(start).startOf('day').toISOString()).lte('timestamp', dayjs(end).endOf('day').toISOString());
+                if (attendanceError) { showModal('Error', `Failed to fetch attendance data: ${attendanceError.message}`); return; }
 
                 const datesInRange = [];
                 let currentDate = dayjs(start);
@@ -677,7 +750,6 @@
                     datesInRange.push(currentDate.format('YYYY-MM-DD'));
                     currentDate = currentDate.add('1', 'day');
                 }
-
                 const attendanceMap = new Map();
                 attendanceData.forEach(att => {
                     const date = dayjs(att.timestamp).format('YYYY-MM-DD');
@@ -686,7 +758,6 @@
                     }
                     attendanceMap.get(att.username).add(date);
                 });
-
                 const headers = ['Name', 'Store', ...datesInRange];
                 const data = users.map(user => {
                     const row = [user.name, user.location];
@@ -696,51 +767,32 @@
                     });
                     return row;
                 });
-                
                 if (format === 'excel') {
                     const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
                     const wb = XLSX.utils.book_new();
                     XLSX.utils.book_append_sheet(wb, ws, "Attendance Sheet");
                     XLSX.writeFile(wb, `attendance-sheet-${start}-to-${end}.xlsx`);
                 }
-
             } catch (e) {
-                console.error('An unexpected error occurred during report generation:', e);
                 showModal('Error', `An unexpected error occurred: ${e.message}`);
             }
         }
         
         async function exportAttendanceHistoryToExcel() {
             try {
-                if (typeof XLSX === 'undefined') {
-                    showModal('Error', 'Excel library not loaded. Please refresh the page.');
-                    return;
-                }
-
-                if (!monthlyAttendanceData || monthlyAttendanceData.length === 0) {
-                    showModal('Error', 'No data available to export.');
-                    return;
-                }
-
+                if (typeof XLSX === 'undefined') { showModal('Error', 'Excel library not loaded.'); return; }
+                if (!monthlyAttendanceData || monthlyAttendanceData.length === 0) { showModal('Error', 'No data to export.'); return; }
                 const headers = ["Date", "Name", "Store", "Check-in Time"];
                 const data = monthlyAttendanceData.map(record => [
-                    dayjs(record.timestamp).format('YYYY-MM-DD'),
-                    record.name,
-                    record.location,
-                    dayjs(record.timestamp).format('hh:mm:ss A')
+                    dayjs(record.timestamp).format('YYYY-MM-DD'), record.name, record.location, dayjs(record.timestamp).format('hh:mm:ss A')
                 ]);
-
-                const employeeName = selectedEmployeeUsername === 'all' ? 'All' : allUsers.find(u => u.username === selectedEmployeeUsername).name;
+                const employeeName = selectedEmployeeUsername === 'all' ? 'All_Active' : allUsers.find(u => u.username === selectedEmployeeUsername).name;
                 const fileName = `attendance-history-${employeeName}-${selectedMonth}.xlsx`;
-
                 const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
                 const wb = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(wb, ws, "Monthly Attendance");
                 XLSX.writeFile(wb, fileName);
-            } catch (e) {
-                console.error('An unexpected error occurred during Excel export:', e);
-                showModal('Error', `An unexpected error occurred: ${e.message}`);
-            }
+            } catch (e) { showModal('Error', `An unexpected error occurred: ${e.message}`); }
         }
 
         // --- Core Application Logic ---
@@ -749,67 +801,44 @@
             event.preventDefault();
             const username = document.getElementById('hr-username').value;
             const password = document.getElementById('hr-password').value;
-            
             try {
-                const { data, error } = await supabase
-                    .from('hr_users')
-                    .select('*, is_admin')
-                    .eq('username', username)
-                    .eq('password', password)
-                    .single();
-
-                if (error || !data) {
-                    loginError.classList.remove('hidden');
-                    return;
-                }
-                
+                const { data, error } = await supabase.from('hr_users').select('*, is_admin').eq('username', username).eq('password', password).single();
+                if (error || !data) { loginError.classList.remove('hidden'); return; }
                 loginPage.style.display = 'none';
                 dashboardPage.style.display = 'flex';
                 loginError.classList.add('hidden');
-                
-                isAdmin = data.is_admin; // Set isAdmin flag
-
-                // Clear previous admin tabs if any (for reload scenarios)
+                isAdmin = data.is_admin;
                 document.querySelectorAll('.admin-tab-btn').forEach(btn => btn.remove());
-
-                // Show admin tabs if user is admin
-                const adminTabs = ['manual-attendance', 'add-employee']; // Removed 'user' tab
+                
+                const adminTabs = ['manual-attendance', 'manage']; 
                 if (isAdmin) {
                     const navGrid = document.querySelector('nav .grid');
                     adminTabs.forEach(tabName => {
                         const newButton = document.createElement('button');
                         newButton.type = 'button';
-                        newButton.classList.add('bottom-nav-btn', 'inline-flex', 'flex-col', 'items-center', 'justify-center', 'px-5', 'text-slate-500', 'hover:bg-gray-50', 'admin-tab-btn'); // Added admin-tab-btn class
+                        newButton.classList.add('bottom-nav-btn', 'inline-flex', 'flex-col', 'items-center', 'justify-center', 'px-5', 'text-slate-500', 'hover:bg-gray-50', 'admin-tab-btn');
                         newButton.dataset.tab = tabName;
-                        let iconSvg = '';
-                        let labelText = '';
-
-                        if(tabName === 'manual-attendance'){
+                        let iconSvg = ''; let labelText = '';
+                        if (tabName === 'manual-attendance') {
                             iconSvg = `<svg class="w-6 h-6 mb-1 md:mb-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>`;
                             labelText = `<span class="text-xs md:text-base">Manual</span>`;
-                        } else if (tabName === 'add-employee') {
-                            iconSvg = `<svg class="w-6 h-6 mb-1 md:mb-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>`;
-                            labelText = `<span class="text-xs md:text-base">+User</span>`;
+                        } else if (tabName === 'manage') {
+                            iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">   <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" /> </svg>`;
+                            labelText = `<span class="text-xs md:text-base">Manage</span>`;
                         }
-
                         newButton.innerHTML = iconSvg + labelText;
                         navGrid.appendChild(newButton);
                     });
-                    // Adjust grid columns based on number of tabs
                     navGrid.classList.remove('grid-cols-4');
-                    navGrid.classList.add(`grid-cols-${4 + adminTabs.length}`); // 4 default tabs + 2 admin tabs = 6
-
-                    // For desktop, always set to 1 column
+                    navGrid.classList.add(`grid-cols-${4 + adminTabs.length}`);
                     if (window.innerWidth >= 768) {
                         navGrid.classList.remove(`grid-cols-${4 + adminTabs.length}`);
                         navGrid.classList.add('grid-cols-1');
                     }
                 }
-                
                 await loadAllUsers();
                 await loadDashboardData(dayjs().format('YYYY-MM-DD'));
                 await loadStoreFilters();
-                
             } catch (err) {
                 console.error('Login error:', err);
                 loginError.classList.remove('hidden');
@@ -817,43 +846,25 @@
         }
 
         async function loadAllUsers() {
-             const { data: users, error: userError } = await supabase.from('users').select('*').order('location');
-             if (userError) {
-                console.error('Error fetching all users:', userError);
-                return;
-             }
+             const { data: users, error: userError } = await supabase.from('users').select('*').eq('status', 'active').order('location');
+             if (userError) { console.error('Error fetching active users:', userError); return; }
              allUsers = users;
              
-             employeeSelect.innerHTML = `<option value="">-- Select an employee --</option>` + allUsers.map(user => `
-                <option value="${user.username}">${user.name} (${user.location})</option>
-            `).join('');
-            
-            employeeNameFilter.innerHTML = `<option value="all">All Employees</option>` + allUsers.map(user => `
-                <option value="${user.username}">${user.name} (${user.location})</option>
-            `).join('');
+             const userOptionsHTML = allUsers.map(user => `<option value="${user.username}">${user.name} (${user.location})</option>`).join('');
+             employeeSelect.innerHTML = `<option value="">-- Select an employee --</option>${userOptionsHTML}`;
+             employeeNameFilter.innerHTML = `<option value="all">All Employees</option>${userOptionsHTML}`;
         }
-
+        
         async function loadStoresForAddEmployee() {
             const { data, error } = await supabase.from('store').select('location, latitude, longitude').order('location');
-            if (error) {
-                console.error('Error fetching stores:', error);
-                return;
-            }
+            if (error) { console.error('Error fetching stores:', error); return; }
             allStoresData = data;
-            employeeStoreSelect.innerHTML = `<option value="">-- Select a store --</option>` + allStoresData.map(store => `
-                <option value="${store.location}">${store.location}</option>
-            `).join('');
+            employeeStoreSelect.innerHTML = `<option value="">-- Select a store --</option>` + allStoresData.map(store => `<option value="${store.location}">${store.location}</option>`).join('');
         }
 
         async function loadStoreFilters() {
-             const { data, error } = await supabase
-                .from('users')
-                .select('location');
-            if (error) {
-                console.error('Error fetching store locations:', error);
-                return;
-            }
-
+             const { data, error } = await supabase.from('users').select('location').eq('status', 'active');
+            if (error) { console.error('Error fetching store locations:', error); return; }
             allStores = [...new Set(data.map(user => user.location))].sort();
             storeFilterSelect.innerHTML = `<option value="all">All Stores</option>` + allStores.map(store => `<option value="${store}">${store}</option>`).join('');
         }
@@ -861,28 +872,17 @@
         async function loadDashboardData(date) {
             selectedDate = date;
             dateFilterInput.value = selectedDate;
-            dateFilterDetails.value = selectedDate; // Also update details tab date filter
+            dateFilterDetails.value = selectedDate;
             const todayStart = dayjs(date).startOf('day').toISOString();
             const todayEnd = dayjs(date).endOf('day').toISOString();
             
-            let baseAttendanceQuery = supabase
-                .from('attendance')
-                .select('*')
-                .gte('timestamp', todayStart)
-                .lte('timestamp', todayEnd);
-
-            if (presentSortOrder === 'location') {
-                baseAttendanceQuery = baseAttendanceQuery.order('location', { ascending: true }).order('timestamp', { ascending: true });
-            } else { // 'time'
-                baseAttendanceQuery = baseAttendanceQuery.order('timestamp', { ascending: true });
-            }
+            let baseAttendanceQuery = supabase.from('attendance').select('*').gte('timestamp', todayStart).lte('timestamp', todayEnd);
+            baseAttendanceQuery = (presentSortOrder === 'location') 
+                ? baseAttendanceQuery.order('location', { ascending: true }).order('timestamp', { ascending: true })
+                : baseAttendanceQuery.order('timestamp', { ascending: true });
 
             const { data: allDailyAttendance, error: attendanceError } = await baseAttendanceQuery;
-
-            if (attendanceError) {
-                console.error('Error fetching attendance:', attendanceError);
-                return;
-            }
+            if (attendanceError) { console.error('Error fetching attendance:', attendanceError); return; }
 
             const presentUsernames = new Set(allDailyAttendance.map(att => att.username));
             const presentUsers = allUsers.filter(user => presentUsernames.has(user.username));
@@ -904,15 +904,11 @@
 
             storeData = {}; 
             allUsers.forEach(user => {
-                if (!storeData[user.location]) {
-                    storeData[user.location] = { total: 0, present: 0, absent: 0 };
-                }
+                if (!storeData[user.location]) storeData[user.location] = { total: 0, present: 0, absent: 0 };
                 storeData[user.location].total++;
             });
             presentUsers.forEach(user => {
-                if (storeData[user.location]) {
-                    storeData[user.location].present++;
-                }
+                if (storeData[user.location]) storeData[user.location].present++;
             });
             Object.keys(storeData).forEach(storeName => {
                 storeData[storeName].absent = storeData[storeName].total - storeData[storeName].present;
@@ -928,161 +924,135 @@
                 </div>
             `).join('');
             
-            absentEmployeesList.innerHTML = absentUsers.map(user => `
-                <li class="py-3 flex justify-between items-center">
-                    <span class="font-medium text-slate-700">${user.name}</span>
-                    <span class="text-sm text-slate-500 bg-slate-100 px-2 py-1 rounded-full">${user.location}</span>
-                </li>
-            `).join('');
-
-            let filteredAttendance = allDailyAttendance;
-            if (showRelocatedOnly) {
-                filteredAttendance = allDailyAttendance.filter(att => att.location === 'Relocated');
-            }
-
+            absentEmployeesList.innerHTML = absentUsers.map(user => `<li class="py-3 flex justify-between items-center"><span class="font-medium text-slate-700">${user.name}</span><span class="text-sm text-slate-500 bg-slate-100 px-2 py-1 rounded-full">${user.location}</span></li>`).join('');
+            
+            let filteredAttendance = showRelocatedOnly ? allDailyAttendance.filter(att => att.location === 'Relocated') : allDailyAttendance;
             presentEmployeesList.innerHTML = filteredAttendance.map(att => `
                 <div class="app-card p-3 flex items-center space-x-4">
                     <img src="${att.image}" alt="Employee Selfie" class="w-12 h-12 object-cover rounded-lg">
-                    <div class="flex-grow">
-                        <p class="font-bold text-slate-800">${att.name}</p>
-                        <p class="text-xs text-slate-500">Store: ${att.location}</p>
-                    </div>
+                    <div class="flex-grow"> <p class="font-bold text-slate-800">${att.name}</p> <p class="text-xs text-slate-500">Store: ${att.location}</p> </div>
                     <p class="text-sm text-slate-600 font-medium">${dayjs(att.timestamp).format('hh:mm A')}</p>
-                </div>
-            `).join('');
+                </div>`).join('');
         }
         
         async function loadEmployeeHistoryData(month, employeeUsername) {
-            selectedMonth = month;
-            selectedEmployeeUsername = employeeUsername;
-            monthFilterInput.value = selectedMonth;
-            employeeNameFilter.value = selectedEmployeeUsername;
-
-            historyLoadingMessage.classList.remove('hidden');
-            attendanceHistoryList.innerHTML = '';
-
-            const startOfMonth = dayjs(month).startOf('month').toISOString();
-            const endOfMonth = dayjs(month).endOf('month').toISOString();
-
+            selectedMonth = month; selectedEmployeeUsername = employeeUsername;
+            monthFilterInput.value = selectedMonth; employeeNameFilter.value = selectedEmployeeUsername;
+            historyLoadingMessage.classList.remove('hidden'); attendanceHistoryList.innerHTML = '';
+            
             try {
-                let query = supabase
-                    .from('attendance')
-                    .select('*')
-                    .gte('timestamp', startOfMonth)
-                    .lte('timestamp', endOfMonth);
-
-                if (employeeUsername !== 'all') {
-                    query = query.eq('username', employeeUsername);
-                }
+                let query = supabase.from('attendance').select('*').gte('timestamp', dayjs(month).startOf('month').toISOString()).lte('timestamp', dayjs(month).endOf('month').toISOString());
+                if (employeeUsername !== 'all') query = query.eq('username', employeeUsername);
+                query = (historySortOrder === 'location') ? query.order('location').order('timestamp', { ascending: false }) : query.order('timestamp', { ascending: false });
                 
-                if (historySortOrder === 'location') {
-                    query = query.order('location').order('timestamp', { ascending: false });
-                } else { // 'time'
-                    query = query.order('timestamp', { ascending: false });
-                }
-
                 const { data: attendance, error } = await query;
-
                 if (error) { throw error; }
-                
                 monthlyAttendanceData = attendance;
-
+                
                 if (monthlyAttendanceData.length === 0) {
                     attendanceHistoryList.innerHTML = '<p class="text-center text-slate-500 p-4">No attendance records found.</p>';
-                    return;
+                } else {
+                    attendanceHistoryList.innerHTML = monthlyAttendanceData.map(att => `
+                        <div class="p-3 flex items-center space-x-4">
+                            <img src="${att.image}" alt="Employee Selfie" class="w-12 h-12 object-cover rounded-lg">
+                            <div class="flex-grow"> <p class="font-bold text-slate-800">${att.name}</p> <p class="text-xs text-slate-500">${att.location} on ${dayjs(att.timestamp).format('MMM D')}</p> </div>
+                            <p class="text-sm text-slate-600 font-medium">${dayjs(att.timestamp).format('hh:mm A')}</p>
+                        </div>`).join('');
                 }
-
-                attendanceHistoryList.innerHTML = monthlyAttendanceData.map(att => `
-                    <div class="p-3 flex items-center space-x-4">
-                        <img src="${att.image}" alt="Employee Selfie" class="w-12 h-12 object-cover rounded-lg">
-                        <div class="flex-grow">
-                            <p class="font-bold text-slate-800">${att.name}</p>
-                            <p class="text-xs text-slate-500">${att.location} on ${dayjs(att.timestamp).format('MMM D')}</p>
-                        </div>
-                        <p class="text-sm text-slate-600 font-medium">${dayjs(att.timestamp).format('hh:mm A')}</p>
-                    </div>
-                `).join('');
-
             } catch (e) {
-                console.error('Error loading attendance history:', e);
                 attendanceHistoryList.innerHTML = `<p class="text-center text-red-500 p-4">Failed to load data: ${e.message}</p>`;
             } finally {
                 historyLoadingMessage.classList.add('hidden');
             }
         }
+        
+        // --- Admin Functions ---
+        
+        async function loadAndDisplayAllManageableUsers() {
+            manageListLoading.classList.remove('hidden');
+            manageEmployeeList.innerHTML = '';
+            const { data: allManageableUsers, error } = await supabase.from('users').select('*').order('name');
+            manageListLoading.classList.add('hidden');
+            if (error) {
+                manageEmployeeList.innerHTML = `<p class="text-center text-red-500 p-4">Failed to load employees: ${error.message}</p>`;
+                return;
+            }
+            manageEmployeeList.innerHTML = allManageableUsers.map(user => {
+                const is_active = user.status === 'active';
+                const status_class = is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
+                const button_class = is_active ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600';
+                const button_text = is_active ? 'Mark Resigned' : 'Mark Active';
+                return `
+                <div class="py-3 flex justify-between items-center">
+                    <div>
+                        <p class="font-medium text-slate-700">${user.name}</p>
+                        <p class="text-sm text-slate-500">${user.location}</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-semibold px-2 py-1 rounded-full ${status_class} capitalize">${user.status}</span>
+                        <button data-username="${user.username}" data-name="${user.name}" data-current-status="${user.status}" 
+                                class="change-status-btn btn text-white text-xs py-1 px-2 rounded-md ${button_class}">
+                            ${button_text}
+                        </button>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        async function updateEmployeeStatus(username, name, currentStatus) {
+            const newStatus = currentStatus === 'active' ? 'resigned' : 'active';
+            const confirmationMessage = `Are you sure you want to mark ${name} as ${newStatus}? This will affect all dashboard calculations and reports.`;
+            
+            showConfirmation('Confirm Status Change', confirmationMessage, async () => {
+                const { error } = await supabase.from('users').update({ status: newStatus }).eq('username', username);
+                if (error) {
+                    showModal('Error', `Failed to update status: ${error.message}`);
+                } else {
+                    showModal('Success', `${name}'s status has been updated to ${newStatus}.`);
+                    await loadAndDisplayAllManageableUsers();
+                    await loadAllUsers();
+                    await loadDashboardData(selectedDate);
+                }
+            });
+        }
 
         async function handleAddEmployee(event) {
             event.preventDefault();
-            
-            const name = employeeNameInput.value;
-            const location = employeeStoreSelect.value;
-            const username = newEmployeeUsernameInput.value;
-            const password = newEmployeePasswordInput.value;
-
-            if (!name || !location || !username || !password) {
-                showModal('Error', 'Please fill in all fields.');
-                return;
-            }
-
+            const name = employeeNameInput.value, location = employeeStoreSelect.value, username = newEmployeeUsernameInput.value, password = newEmployeePasswordInput.value;
+            if (!name || !location || !username || !password) { showModal('Error', 'Please fill in all fields.'); return; }
             const selectedStore = allStoresData.find(s => s.location === location);
-            if (!selectedStore) {
-                showModal('Error', 'Invalid store selected.');
-                return;
-            }
-
+            if (!selectedStore) { showModal('Error', 'Invalid store selected.'); return; }
             const { data: existingUser } = await supabase.from('users').select('username').eq('username', username).single();
-
-            if (existingUser) {
-                showModal('Error', 'Username already exists. Please choose a different one.');
-                return;
-            }
-            
-            const { error } = await supabase.from('users').insert([{
-                name: name, location: location, username: username, password: password,
-                latitude: selectedStore.latitude, longitude: selectedStore.longitude
-            }]);
-            
+            if (existingUser) { showModal('Error', 'Username already exists.'); return; }
+            const { error } = await supabase.from('users').insert([{ name, location, username, password, latitude: selectedStore.latitude, longitude: selectedStore.longitude }]);
             if (error) {
                 showModal('Error', `Failed to add employee: ${error.message}`);
             } else {
                 showModal('Success', `${name} has been added as a new employee.`);
                 addEmployeeForm.reset();
                 await loadAllUsers();
+                await loadAndDisplayAllManageableUsers();
             }
         }
 
         async function handleManualAttendance(event) {
             event.preventDefault();
             const username = employeeSelect.value;
-            if (!username) {
-                showModal('Error', 'Please select an employee.');
-                return;
-            }
-
+            if (!username) { showModal('Error', 'Please select an employee.'); return; }
             const employee = allUsers.find(user => user.username === username);
-            const todayStart = dayjs().startOf('day').toISOString();
-            const todayEnd = dayjs().endOf('day').toISOString();
-            
-            const { data: existingAttendance } = await supabase.from('attendance').select('*').eq('username', username).gte('timestamp', todayStart).lte('timestamp', todayEnd);
-            
-            if (existingAttendance && existingAttendance.length > 0) {
-                showModal('Error', 'Attendance for this employee has already been marked today.');
-                return;
-            }
-
+            const { data: existingAttendance } = await supabase.from('attendance').select('*').eq('username', username).gte('timestamp', dayjs().startOf('day').toISOString()).lte('timestamp', dayjs().endOf('day').toISOString());
+            if (existingAttendance && existingAttendance.length > 0) { showModal('Error', 'Attendance already marked today.'); return; }
             const attendanceRecord = {
                 username: employee.username, name: employee.name, location: 'Relocated', 
                 registered_latitude: 20.3406645, registered_longitude: 85.8079595,
                 marked_latitude: 20.3406645, marked_longitude: 85.8079595,
                 image: 'Manual Entry', timestamp: dayjs().toISOString()
             };
-
             const { error } = await supabase.from('attendance').insert([attendanceRecord]);
-            
-            if (error) {
-                showModal('Error', `Failed to add manual attendance: ${error.message}`);
+            if (error) { showModal('Error', `Failed to add manual attendance: ${error.message}`);
             } else {
-                showModal('Success', `${employee.name}'s attendance has been marked successfully.`);
+                showModal('Success', `${employee.name}'s attendance marked successfully.`);
                 await loadDashboardData(selectedDate);
                 manualAttendanceForm.reset();
             }
@@ -1091,53 +1061,39 @@
         // --- Event Listeners ---
         loginForm.addEventListener('submit', handleLogin);
         logoutBtn.addEventListener('click', () => location.reload());
-        dateFilterInput.addEventListener('change', (event) => loadDashboardData(event.target.value));
-        dateFilterDetails.addEventListener('change', (event) => loadDashboardData(event.target.value)); // Listener for details tab date filter
+        dateFilterInput.addEventListener('change', (e) => loadDashboardData(e.target.value));
+        dateFilterDetails.addEventListener('change', (e) => loadDashboardData(e.target.value));
 
         document.querySelector('nav').addEventListener('click', (event) => {
             const button = event.target.closest('.bottom-nav-btn');
             if (button) {
-                showTab(button.dataset.tab);
-                if (button.dataset.tab === 'employee-history' && monthlyAttendanceData.length === 0) {
+                const tab = button.dataset.tab;
+                showTab(tab);
+                if (tab === 'employee-history' && monthlyAttendanceData.length === 0) {
                     loadEmployeeHistoryData(dayjs().format('YYYY-MM'), 'all');
+                }
+                if (tab === 'manage') {
+                    loadAndDisplayAllManageableUsers();
                 }
             }
         });
 
-        monthFilterInput.addEventListener('change', (event) => loadEmployeeHistoryData(event.target.value, selectedEmployeeUsername));
-        employeeNameFilter.addEventListener('change', (event) => loadEmployeeHistoryData(selectedMonth, event.target.value));
-        presentSortOrderSelect.addEventListener('change', (event) => {
-            presentSortOrder = event.target.value;
-            loadDashboardData(selectedDate); 
-        });
-        historySortOrderSelect.addEventListener('change', (event) => {
-            historySortOrder = event.target.value;
-            loadEmployeeHistoryData(selectedMonth, selectedEmployeeUsername);
-        });
-        showRelocatedOnlyCheckbox.addEventListener('change', (event) => {
-            showRelocatedOnly = event.target.checked;
-            loadDashboardData(selectedDate);
-        });
+        monthFilterInput.addEventListener('change', (e) => loadEmployeeHistoryData(e.target.value, selectedEmployeeUsername));
+        employeeNameFilter.addEventListener('change', (e) => loadEmployeeHistoryData(selectedMonth, e.target.value));
+        presentSortOrderSelect.addEventListener('change', (e) => { presentSortOrder = e.target.value; loadDashboardData(selectedDate); });
+        historySortOrderSelect.addEventListener('change', (e) => { historySortOrder = e.target.value; loadEmployeeHistoryData(selectedMonth, selectedEmployeeUsername); });
+        showRelocatedOnlyCheckbox.addEventListener('change', (e) => { showRelocatedOnly = e.target.checked; loadDashboardData(selectedDate); });
 
         manualAttendanceForm.addEventListener('submit', handleManualAttendance);
         addEmployeeForm.addEventListener('submit', handleAddEmployee);
-        modalCloseBtn.addEventListener('click', () => {
-            appModal.classList.add('hidden');
-        });
 
-        // Override showModal for simple messages
-        const originalShowModal = showModal;
-        showModal = (title, message) => {
-            originalShowModal(title, message);
-            modalCloseBtn.textContent = 'Close';
-            modalCloseBtn.onclick = () => appModal.classList.add('hidden');
-            // Remove any dynamically added "Cancel" button from previous confirmations
-            const existingCancelBtn = appModal.querySelector('.app-card .btn.bg-gray-200');
-            if (existingCancelBtn) {
-                existingCancelBtn.remove();
+        manageEmployeeList.addEventListener('click', (event) => {
+            const button = event.target.closest('.change-status-btn');
+            if (button) {
+                const { username, name, currentStatus } = button.dataset;
+                updateEmployeeStatus(username, name, currentStatus);
             }
-        };
-
+        });
 
         document.getElementById('download-summary-pdf').addEventListener('click', generateSummaryPDF);
         document.getElementById('download-present-pdf').addEventListener('click', generatePresentListPDF);
