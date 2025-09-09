@@ -1,1149 +1,926 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>PB HRMS</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-  
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
-  <link rel="icon" type="image/png" href="favicon.png">
-  <style>
-    :root {
-      --primary-color: #4a7dff;
-      --primary-dark: #3a5cad;
-      --accent-green: #28a745;
-      --accent-red: #dc3545;
-      --text-light: #f0f0f0;
-      --text-muted: #c0c0c0;
-      
-      --glass-bg: rgba(255, 255, 255, 0.1);
-      --glass-border: 1px solid rgba(255, 255, 255, 0.2);
-      --glass-blur: blur(12px);
-      --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
-      --border-radius: 1rem;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Modern HR Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="favicon.png">
 
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-    }
+    <style>
+        :root {
+            --bg-primary: #121212;
+            --bg-card: #1e1e1e;
+            --text-light: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --accent-green: #38a169;
+            --accent-red: #e53e3e;
+            --accent-blue: #4299e1;
+            --border-color: #333333;
+        }
 
-    body {
-      background-image: url('background.jpg');
-      background-size: cover;
-      background-position: center center;
-      background-attachment: fixed;
-      font-family: 'Poppins', 'Segoe UI', 'Roboto', Arial, sans-serif;
-      color: var(--text-light);
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-light);
+        }
 
-    .container-fluid {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 0;
-      max-width: 450px;
-      margin: 0 auto;
-      background-color: transparent;
-      box-shadow: none;
-    }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
 
-    .page-section {
-      transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .page-section.hidden {
-      opacity: 0;
-      transform: scale(0.98);
-      display: none !important;
-    }
-    
-    #login-section {
-        padding: 1rem;
-        justify-content: center;
-    }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
 
-    .logo-box {
-      text-align: center;
-      padding: 1rem 0;
-    }
+        .tally-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
 
-    .logo-img {
-      max-width: 220px;
-      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2));
-    }
+        .tally-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.3);
+        }
 
-    .card {
-      border: var(--glass-border);
-      background: var(--glass-bg);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      border-radius: var(--border-radius);
-      box-shadow: var(--card-shadow);
-      overflow: hidden;
-    }
-    
-    #login-section .card {
-        margin-bottom: 1.5rem;
-    }
-    
-    .card-header, h3, h4, h5 {
-      color: var(--text-light);
-      font-weight: 600;
-    }
-    
-    h3 { font-size: 1.6rem; }
-    h4 { font-size: 1.4rem; }
-    h5 { font-size: 1.15rem; }
+        .tally-btn {
+            background-color: var(--accent-blue);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
 
-    /* Forms */
-    .form-control {
-      border-radius: 0.75rem;
-      padding: 0.75rem 1rem;
-      border: var(--glass-border);
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--text-light);
-    }
-    .form-control::placeholder {
-        color: var(--text-muted);
-        opacity: 1;
-    }
-    .form-control:focus {
-      background: rgba(255, 255, 255, 0.15);
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(74, 125, 255, 0.25);
-      color: var(--text-light);
-    }
-    .form-label {
-      font-weight: 500;
-      color: var(--text-muted);
-    }
-    .password-wrapper {
-        position: relative;
-    }
-    #togglePassword, #toggleNewPassword {
-        position: absolute;
-        right: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        cursor: pointer;
-        color: var(--text-muted);
-    }
+        .tally-btn:hover {
+            background-color: #3182ce;
+        }
 
-    /* Buttons */
-    .btn {
-      border-radius: 0.75rem;
-      padding: 0.75rem 1.5rem;
-      font-weight: 600;
-      transition: all 0.2s ease;
-      letter-spacing: 0.5px;
-    }
-    .btn-primary {
-      background-color: var(--primary-color);
-      border-color: var(--primary-color);
-    }
-    .btn-primary:hover {
-      background-color: var(--primary-dark);
-      border-color: var(--primary-dark);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(74, 125, 255, 0.2);
-    }
-    .btn-success {
-      background-color: var(--accent-green);
-      border-color: var(--accent-green);
-    }
-    
-    /* Login Page Summary Cards */
-    .summary-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.75rem;
-      margin-bottom: 1rem;
-    }
-    .summary-card {
-      background: var(--glass-bg);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      border: var(--glass-border);
-      border-radius: var(--border-radius);
-      box-shadow: var(--card-shadow);
-      padding: 0.75rem 0.5rem;
-      text-align: center;
-    }
-    .summary-count {
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--text-light);
-      line-height: 1.1;
-    }
-    .summary-label {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      font-weight: 500;
-    }
+        .tally-btn-outline {
+            background-color: transparent;
+            color: var(--accent-blue);
+            border: 1px solid var(--accent-blue);
+            padding: 10px 16px;
+            border-radius: 6px;
+            transition: background-color 0.2s, color 0.2s;
+        }
 
-    /* Slot Grid */
-    .slots-headline {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--text-light);
-      margin: 1rem 0 0.75rem 0;
-      text-align: center;
-    }
-    .slots-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.75rem;
-    }
-    .slot-card {
-      background: var(--glass-bg);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      border: var(--glass-border);
-      border-radius: var(--border-radius);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-      padding: 0.75rem;
-      text-align: center;
-    }
-    .slot-label {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      font-weight: 600;
-      margin-bottom: 0.25rem;
-    }
-    .slot-count {
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: var(--accent-green);
-      line-height: 1.1;
-    }
-
-    /* Dashboard */
-    #dashboard-section {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-    }
-    .dashboard-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.75rem 1rem;
-        background: var(--glass-bg);
-        backdrop-filter: var(--glass-blur);
-        -webkit-backdrop-filter: var(--glass-blur);
-        color: var(--text-light);
-        flex-shrink: 0;
-        border-bottom: var(--glass-border);
-    }
-    .header-logo {
-        height: 50px;
-    }
-    .logout-btn {
-        background: rgba(255,255,255,0.15);
-        color: var(--text-light);
-        border: none;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        font-size: 1.2rem;
-        padding: 0;
-    }
-    
-    .dashboard-content {
-        flex-grow: 1;
-        overflow-y: auto;
-        background: var(--glass-bg);
-        backdrop-filter: var(--glass-blur);
-        -webkit-backdrop-filter: var(--glass-blur);
-    }
-    
-    .tab-content {
-        display: none;
-    }
-    .tab-content.active {
-        display: block;
-    }
-    .tab-content:not(#history-tab) {
-        padding: 1.25rem;
-    }
-    #history-tab.tab-content.active {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-    }
-    #history-tab > .d-flex, #history-tab > p {
-        padding: 0 1.25rem;
-        flex-shrink: 0;
-    }
-    #history-tab > .d-flex {
-        padding-top: 1.25rem;
-    }
-    
-    .dashboard-footer {
-        flex-shrink: 0;
-    }
-    .marquee-support {
-      padding: 0.5em 0;
-      color: var(--text-muted);
-      font-size: 0.8rem;
-      text-align: center;
-      background-color: rgba(0,0,0,0.3);
-    }
-    
-    .nav-tabs-bottom {
-        display: flex;
-        justify-content: space-around;
-        padding: 0.5rem 0;
-        border-top: var(--glass-border);
-        background: var(--glass-bg);
-        backdrop-filter: var(--glass-blur);
-        -webkit-backdrop-filter: var(--glass-blur);
-    }
-    .nav-tab {
-        flex: 1;
-        text-align: center;
-        padding: 0.5rem 0;
-        cursor: pointer;
-        color: var(--text-muted);
-        background: none;
-        border: none;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 4px;
-        font-size: 0.75rem;
-        font-weight: 500;
-    }
-    .nav-tab i {
-        font-size: 1.5rem;
-    }
-    .nav-tab.active {
-        color: var(--primary-color);
-        font-weight: 600;
-    }
-
-    /* Attendance Records */
-    #attendanceRecords {
-        overflow-y: auto;
-    }
-    #historyList {
-        flex-grow: 1;
-        padding: 0 1.25rem;
-        overflow-y: auto;
-    }
-    .attendance-record-row {
-      display: flex;
-      align-items: center;
-      padding: 0.75rem 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    .attendance-record-row:last-child { border-bottom: none; }
-    .attendance-img {
-      width: 48px;
-      height: 48px;
-      object-fit: cover;
-      border-radius: 50%;
-      border: 2px solid var(--primary-color);
-    }
-    .record-info-name { font-weight: 500; }
-    .record-info-time { font-size: 0.9rem; color: var(--text-muted); }
-    
-    /* Calendar */
-    .calendar-table {
-      width: 100%;
-      border-collapse: collapse;
-      table-layout: fixed;
-      margin-top: 1rem;
-    }
-    .calendar-table th {
-      font-weight: 600;
-      color: var(--text-muted);
-      font-size: 0.8rem;
-    }
-    .calendar-table th, .calendar-table td {
-      text-align: center;
-      padding: 0.5rem 0;
-      vertical-align: middle;
-      font-size: 0.9rem;
-      position: relative;
-    }
-    .calendar-day {
-        width: 36px;
-        height: 36px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto;
-        border-radius: 50%;
-    }
-    .day-present { background-color: rgba(40, 167, 69, 0.25); color: #c8ffd7; font-weight: 600; }
-    .day-absent { background-color: rgba(220, 53, 69, 0.2); color: #ffdde0; font-weight: 600;}
-
-    /* Camera Modal */
-    .modal-content {
-      background: rgba(30, 30, 45, 0.7);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      border: var(--glass-border);
-    }
-    .webcam-box {
-      width: 100%;
-      min-height: 240px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: #000;
-      border-radius: 0.75rem;
-      overflow: hidden;
-      margin-bottom: 1rem;
-    }
-    #webcam {
-      width: 240px;
-      height: 320px;
-      object-fit: cover;
-      transform: scaleX(-1); /* Mirror the webcam preview */
-    }
-    .selfie-preview {
-      width: 100%;
-      height: auto;
-      border-radius: var(--border-radius);
-    }
-
-    #summary-section {
-      flex: 1; 
-      overflow-y: auto; 
-      padding-top: 1rem;
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-    #summary-section::-webkit-scrollbar {
-      display: none;
-    }
-    #profileUpdateForm #updateUsername {
-        background-color: rgba(255, 255, 255, 0.1) !important;
-    }
-  </style>
+        .tally-btn-outline:hover {
+            background-color: var(--accent-blue);
+            color: white;
+        }
+    </style>
 </head>
-<body>
+<body class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-[var(--bg-card)] border-r border-[var(--border-color)] p-4 space-y-4 flex flex-col items-center">
+        <h1 class="text-2xl font-bold mb-6 text-[var(--text-light)] text-center">HR Dashboard</h1>
+        <nav class="w-full">
+            <ul class="space-y-2">
+                <li>
+                    <a href="#dashboard" class="sidebar-item flex items-center p-3 rounded-lg hover:bg-[var(--border-color)] transition-colors active">
+                        <i class="fa-solid fa-gauge mr-3 text-[var(--text-secondary)]"></i>
+                        <span class="text-[var(--text-light)]">Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#reports" class="sidebar-item flex items-center p-3 rounded-lg hover:bg-[var(--border-color)] transition-colors">
+                        <i class="fa-solid fa-chart-line mr-3 text-[var(--text-secondary)]"></i>
+                        <span class="text-[var(--text-light)]">Reports</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#history" class="sidebar-item flex items-center p-3 rounded-lg hover:bg-[var(--border-color)] transition-colors">
+                        <i class="fa-solid fa-clock-rotate-left mr-3 text-[var(--text-secondary)]"></i>
+                        <span class="text-[var(--text-light)]">History</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#manage-employees" class="sidebar-item flex items-center p-3 rounded-lg hover:bg-[var(--border-color)] transition-colors">
+                        <i class="fa-solid fa-users mr-3 text-[var(--text-secondary)]"></i>
+                        <span class="text-[var(--text-light)]">Manage Employees</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#add-employee" class="sidebar-item flex items-center p-3 rounded-lg hover:bg-[var(--border-color)] transition-colors">
+                        <i class="fa-solid fa-user-plus mr-3 text-[var(--text-secondary)]"></i>
+                        <span class="text-[var(--text-light)]">Add New Employee</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
 
-<div class="container-fluid">
-  
-  <div class="page-section" id="login-section">
-    <div class="logo-box">
-      <img src="logo.png" alt="Logo" class="logo-img" onerror="this.style.display='none'">
-    </div>
-    
-    <div class="card p-4">
-      <h3 class="mb-4 text-center">Employee Login</h3>
-      <form id="loginForm">
-        <div class="mb-3">
-          <label for="username" class="form-label">User Name</label>
-          <input type="text" class="form-control" id="username" required autocomplete="username" placeholder="Enter your username">
-        </div>
-        <div class="mb-4">
-          <label for="userPassword" class="form-label">Password</label>
-          <div class="password-wrapper">
-            <input type="password" class="form-control" id="userPassword" required autocomplete="current-password" placeholder="Enter your password" style="padding-right: 3rem;">
-            <i class="bi bi-eye-slash" id="togglePassword"></i>
-          </div>
-        </div>
-        <button type="submit" class="btn btn-primary w-100"><i class="bi bi-box-arrow-in-right me-2"></i>Login</button>
-      </form>
-      <div id="loginError" class="text-danger mt-3 text-center d-none"></div>
-    </div>
+    <!-- Main Content -->
+    <main class="flex-grow p-8 overflow-y-auto scrollbar-hide">
+        <header class="flex justify-between items-center mb-8 pb-4 border-b border-[var(--border-color)]">
+            <h2 id="page-title" class="text-3xl font-bold">Dashboard</h2>
+        </header>
 
-    <div id="summary-section">
-      <div class="summary-row">
-        <div class="summary-card">
-          <div class="summary-count" id="summaryTotalEmp">0</div>
-          <div class="summary-label">Total Staff</div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-count" id="summaryPresent">0</div>
-          <div class="summary-label">Present</div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-count" id="summaryAbsent">0</div>
-          <div class="summary-label">Absent</div>
-        </div>
-      </div>
-      
-      <div class="slots-headline">Today's Attendance by Slot</div>
-      <div class="slots-grid" id="attendanceSlotsRow">
-        <div class="slot-card">
-          <div class="slot-label">7am - 9am</div>
-          <div class="slot-count" id="slot1Count">0</div>
-        </div>
-        <div class="slot-card">
-          <div class="slot-label">9am - 1pm</div>
-          <div class="slot-count" id="slot2Count">0</div>
-        </div>
-        <div class="slot-card">
-          <div class="slot-label">1pm - 5pm</div>
-          <div class="slot-count" id="slot3Count">0</div>
-        </div>
-        <div class="slot-card">
-          <div class="slot-label">5pm - 10pm</div>
-          <div class="slot-count" id="slot4Count">0</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="page-section hidden" id="dashboard-section">
-    <header class="dashboard-header">
-        <img src="logo.png" alt="Logo" class="header-logo" onerror="this.style.display='none'">
-        <button class="btn logout-btn" id="logoutBtn" title="Logout"><i class="bi bi-box-arrow-right"></i></button>
-    </header>
-
-    <main class="dashboard-content">
-        <div id="attendance-tab" class="tab-content active">
-            <h4 class="mb-1">Hello, <span id="employeeName"></span>!</h4>
-            <div id="employeeLocation" class="text-muted mb-3"></div>
-            
-            <div id="attendanceStatus" class="alert d-none"></div>
-            
-            <div class="d-grid gap-2 mb-4">
-              <button class="btn btn-success" id="markAttendanceBtn"><i class="bi bi-camera-fill me-2"></i>Mark Attendance</button>
-            </div>
-            
-            <div class="d-none" id="selfiePreviewSection">
-                <img id="selfiePreview" class="selfie-preview mb-3 shadow-sm" alt="Selfie Preview">
-                <div class="d-grid gap-2">
-                    <button class="btn btn-primary" id="submitAttendanceBtn"><i class="bi bi-check-circle-fill me-2"></i>Submit Attendance</button>
-                    <button class="btn btn-outline-secondary" id="retakeSelfieBtn"><i class="bi bi-arrow-counterclockwise me-2"></i>Retake</button>
-                </div>
-            </div>
-
-            <hr class="my-4" style="border-color: rgba(255,255,255,0.2);">
-
-            <h5 class="mb-3"><i class="bi bi-clock-history me-2"></i>Recent Attendance</h5>
-            <div id="attendanceRecords"></div>
-        </div>
-
-        <div id="calendar-tab" class="tab-content">
-            <h5 class="mb-2"><i class="bi bi-calendar-check me-2"></i>Attendance Calendar</h5>
-            <p class="text-muted">Your attendance for the current month.</p>
-            <div id="attendanceCalendar"></div>
-        </div>
-        
-        <div id="history-tab" class="tab-content">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="mb-0"><i class="bi bi-list-ul me-2"></i>Attendance History</h5>
-            </div>
-            <p class="text-muted">Showing records for the current month.</p>
-            <div id="historyList"></div>
-        </div>
-
-        <div id="profile-tab" class="tab-content">
-            <div class="text-center mb-4">
-                <i class="bi bi-person-circle" style="font-size: 4rem; color: var(--primary-color);"></i>
-                <h4 class="mb-0 mt-2" id="profileEmployeeName">Employee Name</h4>
-                <p class="text-muted" id="profileEmployeeLocation">Location</p>
-            </div>
-        
-            <h5 class="mb-3"><i class="bi bi-shield-lock-fill me-2"></i>Change Password</h5>
-            <div id="profileUpdateStatus" class="alert d-none"></div>
-            <form id="profileUpdateForm">
-                <div class="mb-3">
-                    <label for="updateUsername" class="form-label">Username</label>
-                    <input type="text" class="form-control" id="updateUsername" required readonly>
-                </div>
-                <div class="mb-3">
-                    <label for="updatePassword" class="form-label">New Password</label>
-                     <div class="password-wrapper">
-                        <input type="password" class="form-control" id="updatePassword" required placeholder="Enter new password" style="padding-right: 3rem;">
-                        <i class="bi bi-eye-slash" id="toggleNewPassword"></i>
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="page-section space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Total Employees Card -->
+                <div class="tally-card p-6 flex items-center">
+                    <div class="bg-blue-600 text-white rounded-full p-3 mr-4">
+                        <i class="fa-solid fa-users fa-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-[var(--text-secondary)]">Total Employees</p>
+                        <p id="totalEmployees" class="text-3xl font-bold">...</p>
                     </div>
                 </div>
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-primary">Update Password</button>
+
+                <!-- Present Employees Card -->
+                <div class="tally-card p-6 flex items-center">
+                    <div class="bg-green-600 text-white rounded-full p-3 mr-4">
+                        <i class="fa-solid fa-user-check fa-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-[var(--text-secondary)]">Present Today</p>
+                        <p id="presentEmployees" class="text-3xl font-bold">...</p>
+                    </div>
                 </div>
-            </form>
+
+                <!-- Absent Employees Card -->
+                <div class="tally-card p-6 flex items-center">
+                    <div class="bg-red-600 text-white rounded-full p-3 mr-4">
+                        <i class="fa-solid fa-user-slash fa-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-[var(--text-secondary)]">Absent Today</p>
+                        <p id="absentEmployees" class="text-3xl font-bold">...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Controls -->
+            <div class="tally-card p-6 space-y-4">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <label for="date-filter" class="font-medium text-[var(--text-light)]">Select Date:</label>
+                        <input type="date" id="date-filter" class="rounded-md border bg-[var(--bg-primary)] border-[var(--border-color)] p-2 focus:outline-none focus:ring-1 focus:ring-[var(--accent-blue)]">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="show-relocated-only" class="rounded text-[var(--accent-blue)] focus:ring-0">
+                        <label for="show-relocated-only" class="text-[var(--text-light)]">Show Relocated Only</label>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <button id="download-summary-pdf" class="tally-btn flex items-center justify-center">
+                        <i class="fa-solid fa-file-pdf mr-2"></i>
+                        <span>Summary PDF</span>
+                    </button>
+                    <button id="download-present-pdf" class="tally-btn flex items-center justify-center">
+                        <i class="fa-solid fa-file-pdf mr-2"></i>
+                        <span>Present List PDF</span>
+                    </button>
+                    <button id="download-absent-pdf" class="tally-btn flex items-center justify-center">
+                        <i class="fa-solid fa-file-pdf mr-2"></i>
+                        <span>Absent List PDF</span>
+                    </button>
+                    <button id="download-attendance-sheet-excel" class="tally-btn-outline flex items-center justify-center col-span-1 md:col-span-3">
+                        <i class="fa-solid fa-file-excel mr-2"></i>
+                        <span>Download Attendance Sheet (Excel)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Attendance Tables -->
+            <div id="attendance-lists" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Present List -->
+                <div class="tally-card p-6">
+                    <h3 class="text-xl font-semibold mb-4">Present Employees</h3>
+                    <div class="overflow-x-auto scrollbar-hide">
+                        <table class="w-full table-auto">
+                            <thead class="bg-[var(--bg-primary)]">
+                                <tr class="text-left text-sm font-semibold">
+                                    <th class="p-3 text-[var(--text-secondary)]">ID</th>
+                                    <th class="p-3 text-[var(--text-secondary)]">Name</th>
+                                    <th class="p-3 text-[var(--text-secondary)]">Location</th>
+                                </tr>
+                            </thead>
+                            <tbody id="present-list" class="divide-y divide-[var(--border-color)]">
+                                <!-- Data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Absent List -->
+                <div class="tally-card p-6">
+                    <h3 class="text-xl font-semibold mb-4">Absent Employees</h3>
+                    <div class="overflow-x-auto scrollbar-hide">
+                        <table class="w-full table-auto">
+                            <thead class="bg-[var(--bg-primary)]">
+                                <tr class="text-left text-sm font-semibold">
+                                    <th class="p-3 text-[var(--text-secondary)]">ID</th>
+                                    <th class="p-3 text-[var(--text-secondary)]">Name</th>
+                                </tr>
+                            </thead>
+                            <tbody id="absent-list" class="divide-y divide-[var(--border-color)]">
+                                <!-- Data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reports Section -->
+        <section id="reports" class="page-section hidden space-y-6">
+            <h2 class="text-3xl font-bold">Reports</h2>
+            <div class="tally-card p-6">
+                <h3 class="text-xl font-semibold mb-4">Employee Activity Report</h3>
+                <div class="flex items-center gap-4 mb-4">
+                    <label for="report-month-filter" class="font-medium">Select Month:</label>
+                    <input type="month" id="report-month-filter" class="rounded-md border bg-[var(--bg-primary)] border-[var(--border-color)] p-2 focus:outline-none focus:ring-1 focus:ring-[var(--accent-blue)]">
+                </div>
+                <div class="overflow-x-auto scrollbar-hide">
+                    <table class="w-full table-auto">
+                        <thead class="bg-[var(--bg-primary)]">
+                            <tr class="text-left text-sm font-semibold">
+                                <th class="p-3 text-[var(--text-secondary)]">Username</th>
+                                <th class="p-3 text-[var(--text-secondary)]">Name</th>
+                                <th class="p-3 text-[var(--text-secondary)]">Relocated</th>
+                                <th class="p-3 text-[var(--text-secondary)]">Present Count</th>
+                                <th class="p-3 text-[var(--text-secondary)]">Absent Count</th>
+                            </tr>
+                        </thead>
+                        <tbody id="report-table" class="divide-y divide-[var(--border-color)]">
+                            <!-- Data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- History Section -->
+        <section id="history" class="page-section hidden space-y-6">
+            <h2 class="text-3xl font-bold">Attendance History</h2>
+            <div class="tally-card p-6">
+                <h3 class="text-xl font-semibold mb-4">Employee Attendance History</h3>
+                <div class="flex flex-wrap items-center gap-4 mb-4">
+                    <label for="month-filter" class="font-medium">Select Month:</label>
+                    <input type="month" id="month-filter" class="rounded-md border bg-[var(--bg-primary)] border-[var(--border-color)] p-2 focus:outline-none focus:ring-1 focus:ring-[var(--accent-blue)]">
+                    <label for="employee-select" class="font-medium">Select Employee:</label>
+                    <select id="employee-select" class="rounded-md border bg-[var(--bg-primary)] border-[var(--border-color)] p-2 focus:outline-none focus:ring-1 focus:ring-[var(--accent-blue)]"></select>
+                    <button id="export-history-excel" class="tally-btn-outline flex items-center justify-center">
+                        <i class="fa-solid fa-file-excel mr-2"></i>
+                        <span>Export to Excel</span>
+                    </button>
+                </div>
+                <div class="overflow-x-auto scrollbar-hide">
+                    <table class="w-full table-auto">
+                        <thead class="bg-[var(--bg-primary)]">
+                            <tr class="text-left text-sm font-semibold">
+                                <th class="p-3 text-[var(--text-secondary)]">Date</th>
+                                <th class="p-3 text-[var(--text-secondary)]">Status</th>
+                                <th class="p-3 text-[var(--text-secondary)]">In Time</th>
+                                <th class="p-3 text-[var(--text-secondary)]">Out Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employee-history-table" class="divide-y divide-[var(--border-color)]">
+                            <!-- Data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Manage Employees Section -->
+        <section id="manage-employees" class="page-section hidden space-y-6">
+            <h2 class="text-3xl font-bold">Manage Employees</h2>
+            <div class="tally-card p-6">
+                <h3 class="text-xl font-semibold mb-4">Employee List</h3>
+                <div class="overflow-x-auto scrollbar-hide">
+                    <table class="w-full table-auto">
+                        <thead class="bg-[var(--bg-primary)]">
+                            <tr class="text-left text-sm font-semibold">
+                                <th class="p-3 text-[var(--text-secondary)]">Username</th>
+                                <th class="p-3 text-[var(--text-secondary)]">Name</th>
+                                <th class="p-3 text-[var(--text-secondary)]">Status</th>
+                                <th class="p-3 text-[var(--text-secondary)]">Relocated</th>
+                                <th class="p-3 text-[var(--text-secondary)]">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="manage-employee-list" class="divide-y divide-[var(--border-color)]">
+                            <!-- Data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Add Employee Section -->
+        <section id="add-employee" class="page-section hidden space-y-6">
+            <h2 class="text-3xl font-bold">Add New Employee</h2>
+            <div class="tally-card p-6">
+                <h3 class="text-xl font-semibold mb-4">Add Employee Form</h3>
+                <form id="add-employee-form" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="new-username" class="block font-medium mb-1">Username (Email):</label>
+                            <input type="email" id="new-username" required class="w-full rounded-md border bg-[var(--bg-primary)] border-[var(--border-color)] p-2 focus:outline-none focus:ring-1 focus:ring-[var(--accent-blue)]">
+                        </div>
+                        <div>
+                            <label for="new-name" class="block font-medium mb-1">Full Name:</label>
+                            <input type="text" id="new-name" required class="w-full rounded-md border bg-[var(--bg-primary)] border-[var(--border-color)] p-2 focus:outline-none focus:ring-1 focus:ring-[var(--accent-blue)]">
+                        </div>
+                        <div>
+                            <label for="new-store" class="block font-medium mb-1">Store Location:</label>
+                            <select id="new-store" required class="w-full rounded-md border bg-[var(--bg-primary)] border-[var(--border-color)] p-2 focus:outline-none focus:ring-1 focus:ring-[var(--accent-blue)]">
+                                <option value="">Select Store</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="new-status" class="block font-medium mb-1">Status:</label>
+                            <select id="new-status" required class="w-full rounded-md border bg-[var(--bg-primary)] border-[var(--border-color)] p-2 focus:outline-none focus:ring-1 focus:ring-[var(--accent-blue)]">
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" id="new-relocated" class="rounded text-[var(--accent-blue)] focus:ring-0">
+                            <label for="new-relocated" class="font-medium">Relocated Employee</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="tally-btn w-full mt-4">Add Employee</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Manual Attendance Section -->
+        <section id="manual-attendance" class="page-section hidden space-y-6">
+            <h2 class="text-3xl font-bold">Manual Attendance</h2>
+            <div class="tally-card p-6">
+                <h3 class="text-xl font-semibold mb-4">Record Attendance Manually</h3>
+                <form id="manual-attendance-form" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="employee-username" class="block font-medium mb-1">Username (Email):</label>
+                            <input type="email" id="employee-username" required class="w-full rounded-md border bg-[var(--bg-primary)] border-[var(--border-color)] p-2 focus:outline-none focus:ring-1 focus:ring-[var(--accent-blue)]">
+                        </div>
+                        <div>
+                            <label for="attendance-date" class="block font-medium mb-1">Date:</label>
+                            <input type="date" id="attendance-date" required class="w-full rounded-md border bg-[var(--bg-primary)] border-[var(--border-color)] p-2 focus:outline-none focus:ring-1 focus:ring-[var(--accent-blue)]">
+                        </div>
+                        <div>
+                            <label for="attendance-status" class="block font-medium mb-1">Status:</label>
+                            <select id="attendance-status" required class="w-full rounded-md border bg-[var(--bg-primary)] border-[var(--border-color)] p-2 focus:outline-none focus:ring-1 focus:ring-[var(--accent-blue)]">
+                                <option value="Present">Present</option>
+                                <option value="Absent">Absent</option>
+                                <option value="Half Day">Half Day</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="attendance-time" class="block font-medium mb-1">Time (Optional):</label>
+                            <input type="time" id="attendance-time" class="w-full rounded-md border bg-[var(--bg-primary)] border-[var(--border-color)] p-2 focus:outline-none focus:ring-1 focus:ring-[var(--accent-blue)]">
+                        </div>
+                    </div>
+                    <button type="submit" class="tally-btn w-full mt-4">Save Attendance</button>
+                </form>
+            </div>
+        </section>
+        
+        <!-- Custom Modal for Alerts and Confirmations -->
+        <div id="custom-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden">
+            <div class="bg-white p-6 rounded-lg shadow-xl w-96">
+                <h3 id="modal-title" class="text-lg font-semibold mb-4 text-black"></h3>
+                <p id="modal-message" class="text-sm text-gray-700 mb-6"></p>
+                <div id="modal-actions" class="flex justify-end space-x-2">
+                    <!-- Buttons will be injected here -->
+                </div>
+            </div>
         </div>
     </main>
-    
-    <footer class="dashboard-footer">
-        <div class="marquee-support" id="dashboardSupportMarquee">
-            For support, contact Samir Singhsamanta: +91 76069 36790
-        </div>
-        <nav class="nav-tabs-bottom">
-            <button class="nav-tab active" data-tab="attendance-tab"><i class="bi bi-house-door-fill"></i><span>Home</span></button>
-            <button class="nav-tab" data-tab="calendar-tab"><i class="bi bi-calendar3"></i><span>Calendar</span></button>
-            <button class="nav-tab" data-tab="history-tab"><i class="bi bi-clock-history"></i><span>History</span></button>
-            <button class="nav-tab" data-tab="profile-tab"><i class="bi bi-person-circle"></i><span>Profile</span></button>
-        </nav>
-    </footer>
-  </div>
-</div>
 
-<div id="selfieModal" class="modal fade" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content p-3">
-            <h5 class="modal-title mb-3 text-center">Take a Selfie</h5>
-            <div class="webcam-box">
-                <video id="webcam" autoplay playsinline></video>
-            </div>
-            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button class="btn btn-primary" id="captureBtn"><i class="bi bi-camera me-2"></i>Capture</button>
-            </div>
-        </div>
-    </div>
-</div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDoc, doc, setDoc, updateDoc, getDocs, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-<div class="modal fade" id="cameraPermissionModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content p-4 text-center">
-            <h5 class="modal-title mb-3"><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>Camera Access Needed</h5>
-            <div class="mb-3" id="cameraPermissionMsg"></div>
-            <button class="btn btn-primary" data-bs-dismiss="modal">OK, I understand</button>
-        </div>
-    </div>
-</div>
+        // Global variables provided by the environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
-<script>
-  // Supabase config
-  const SUPABASE_URL = 'https://wgjtkkvgskxzjqgsykze.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnanRra3Znc2t4empxZ3N5a3plIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1MzEyODYsImV4cCI6MjA3MTEwNzI4Nn0.Hr69_1j4Ts-7d1G_RylJuRZKTaigWFBgIYlHVahIvVA';
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // --- Firebase Initialization and Auth ---
+        let db, auth;
+        let userId = 'anonymous';
 
-  let currentEmployee = null;
-  let selfieDataUrl = null;
-  let webcamStream = null;
-  let currentLocation = null;
-  let canMarkAttendance = true;
+        const setupFirebase = async () => {
+            try {
+                if (Object.keys(firebaseConfig).length === 0) {
+                    console.error("Firebase config is empty. Please ensure it's provided.");
+                    return;
+                }
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                userId = auth.currentUser?.uid || 'anonymous';
+                console.log("Firebase initialized successfully. User ID:", userId);
+                initApp();
+            } catch (error) {
+                console.error("Error setting up Firebase:", error);
+                showModal('Error', `Failed to initialize application. Please try again.`, ['OK']);
+            }
+        };
 
-  // DOM Elements
-  const summaryPresent = document.getElementById('summaryPresent');
-  const summaryAbsent = document.getElementById('summaryAbsent');
-  const summaryTotalEmp = document.getElementById('summaryTotalEmp');
-  const slot1Count = document.getElementById('slot1Count');
-  const slot2Count = document.getElementById('slot2Count');
-  const slot3Count = document.getElementById('slot3Count');
-  const slot4Count = document.getElementById('slot4Count');
-  const loginSection = document.getElementById('login-section');
-  const dashboardSection = document.getElementById('dashboard-section');
-  const loginForm = document.getElementById('loginForm');
-  const loginError = document.getElementById('loginError');
-  const employeeName = document.getElementById('employeeName');
-  const employeeLocation = document.getElementById('employeeLocation');
-  const markAttendanceBtn = document.getElementById('markAttendanceBtn');
-  const attendanceStatus = document.getElementById('attendanceStatus');
-  const selfieModal = new bootstrap.Modal(document.getElementById('selfieModal'));
-  const webcam = document.getElementById('webcam');
-  const captureBtn = document.getElementById('captureBtn');
-  const selfiePreviewSection = document.getElementById('selfiePreviewSection');
-  const selfiePreview = document.getElementById('selfiePreview');
-  const submitAttendanceBtn = document.getElementById('submitAttendanceBtn');
-  const retakeSelfieBtn = document.getElementById('retakeSelfieBtn');
-  const cameraPermissionModal = new bootstrap.Modal(document.getElementById('cameraPermissionModal'));
-  const cameraPermissionMsg = document.getElementById('cameraPermissionMsg');
-  const attendanceRecords = document.getElementById('attendanceRecords');
-  const attendanceCalendar = document.getElementById('attendanceCalendar');
-  const historyList = document.getElementById('historyList');
-  const exportPdfBtn = document.getElementById('exportPdfBtn');
-  const profileUpdateForm = document.getElementById('profileUpdateForm');
-  const profileUpdateStatus = document.getElementById('profileUpdateStatus');
-  const logoutBtn = document.getElementById('logoutBtn');
-  const summarySection = document.getElementById('summary-section');
-  const togglePassword = document.getElementById('togglePassword');
-  const userPassword = document.getElementById('userPassword');
-  const toggleNewPassword = document.getElementById('toggleNewPassword');
-  const updatePasswordInput = document.getElementById('updatePassword');
-  const navTabs = document.querySelectorAll('.nav-tab');
-  const tabContents = document.querySelectorAll('.tab-content');
-  const profileEmployeeName = document.getElementById('profileEmployeeName');
-  const profileEmployeeLocation = document.getElementById('profileEmployeeLocation');
+        // --- UI & State Management ---
+        const sidebarItems = document.querySelectorAll('.sidebar-item');
+        const pageSections = document.querySelectorAll('.page-section');
+        const pageTitle = document.getElementById('page-title');
 
+        let allEmployees = [];
+        let allStores = [];
+        let selectedDate = dayjs().format('YYYY-MM-DD');
+        let selectedMonth = dayjs().format('YYYY-MM');
+        let selectedEmployeeUsername = '';
+        let showRelocatedOnly = false;
 
-  // Helper Functions
-  function toIST(date) {
-    let utc = date.getTime() + (date.getTimezoneOffset() * 60000);
-    return new Date(utc + 19800000);
-  }
+        // --- Utility Functions ---
+        const showModal = (title, message, buttons, callback = null) => {
+            const modal = document.getElementById('custom-modal');
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-message').innerText = message;
+            const actionsContainer = document.getElementById('modal-actions');
+            actionsContainer.innerHTML = '';
+            
+            buttons.forEach(btnText => {
+                const button = document.createElement('button');
+                button.innerText = btnText;
+                button.className = 'tally-btn';
+                button.onclick = () => {
+                    modal.classList.add('hidden');
+                    if (callback && btnText === 'Confirm') {
+                        callback();
+                    }
+                };
+                actionsContainer.appendChild(button);
+            });
+            modal.classList.remove('hidden');
+        };
 
-  function getISTDateRange(date) {
-    let istDate = toIST(date);
-    let year = istDate.getFullYear();
-    let month = istDate.getMonth();
-    let day = istDate.getDate();
-    let start = new Date(Date.UTC(year, month, day, 0, 0, 0) - 19800000);
-    let end = new Date(Date.UTC(year, month, day, 23, 59, 59, 999) - 19800000);
-    return { start: start.toISOString(), end: end.toISOString() };
-  }
-  
-  function showPage(pageId) {
-    document.querySelectorAll('.page-section').forEach(section => {
-      section.classList.add('hidden');
-    });
-    const page = document.getElementById(pageId);
-    page.style.display = 'flex';
-    setTimeout(() => page.classList.remove('hidden'), 50);
-  }
-  
-  function togglePasswordVisibility(input, icon) {
-      const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
-      input.setAttribute('type', type);
-      icon.classList.toggle('bi-eye');
-      icon.classList.toggle('bi-eye-slash');
-  }
+        // --- Data Fetching & Rendering ---
+        const getCollectionRef = (name) => collection(db, `artifacts/${appId}/public/data/${name}`);
 
-  // Attendance Summary for TODAY (on login page)
-  async function loadTodayAttendanceSummary() {
-    const { data: userList, error: userError } = await supabase.from('users').select('username');
-    const totalEmp = userList?.length || 0;
-    summaryTotalEmp.textContent = totalEmp;
+        const loadEmployees = async () => {
+            try {
+                const q = query(getCollectionRef('employees'));
+                const querySnapshot = await getDocs(q);
+                allEmployees = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                loadEmployeeSelectOptions();
+                await loadDashboardData(selectedDate);
+                await loadReportsData(selectedMonth);
+                await loadManageEmployeesList();
+            } catch (e) {
+                console.error("Error loading employees: ", e);
+                showModal('Error', 'Failed to load employee data.', ['OK']);
+            }
+        };
 
-    const { start, end } = getISTDateRange(new Date());
-    const { data: attendanceToday, error: attError } = await supabase
-      .from('attendance')
-      .select('username, timestamp')
-      .gte('timestamp', start)
-      .lte('timestamp', end);
+        const loadStoresForAddEmployee = async () => {
+            try {
+                const q = query(getCollectionRef('stores'));
+                const querySnapshot = await getDocs(q);
+                allStores = querySnapshot.docs.map(doc => doc.data());
+                const select = document.getElementById('new-store');
+                select.innerHTML = '<option value="">Select Store</option>';
+                allStores.forEach(store => {
+                    const option = document.createElement('option');
+                    option.value = store.name;
+                    option.textContent = store.name;
+                    select.appendChild(option);
+                });
+            } catch (e) {
+                console.error("Error loading stores: ", e);
+            }
+        };
 
-    let slots = { 1: 0, 2: 0, 3: 0, 4: 0 };
-    let presentUsernames = new Set();
+        const loadDashboardData = async (date) => {
+            try {
+                const formattedDate = dayjs(date).format('YYYY-MM-DD');
+                const attendanceRef = getCollectionRef('attendance');
+                const attendanceQuery = query(attendanceRef, where('date', '==', formattedDate));
 
-    if (attendanceToday) {
-      attendanceToday.forEach(a => {
-        let istTs = toIST(new Date(a.timestamp));
-        let h = istTs.getHours();
-        if (h >= 7 && h < 9) slots[1]++;
-        else if (h >= 9 && h < 13) slots[2]++;
-        else if (h >= 13 && h < 17) slots[3]++;
-        else if (h >= 17 && h < 22) slots[4]++;
-        presentUsernames.add(a.username);
-      });
-    }
-    slot1Count.textContent = slots[1];
-    slot2Count.textContent = slots[2];
-    slot3Count.textContent = slots[3];
-    slot4Count.textContent = slots[4];
+                const attendanceSnapshot = await getDocs(attendanceQuery);
+                const attendanceRecords = attendanceSnapshot.docs.map(doc => doc.data());
 
-    const presentCount = presentUsernames.size;
-    summaryPresent.textContent = presentCount;
-    summaryAbsent.textContent = totalEmp - presentCount;
-  }
+                let filteredEmployees = allEmployees;
+                if (showRelocatedOnly) {
+                    filteredEmployees = allEmployees.filter(emp => emp.relocated);
+                }
 
-  // Login/Logout Logic
-  loginForm.onsubmit = async function(e) {
-    e.preventDefault();
-    loginError.classList.add('d-none');
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('userPassword').value;
+                const presentList = filteredEmployees.filter(emp => attendanceRecords.some(att => att.username === emp.username && att.status === 'Present'));
+                const absentList = filteredEmployees.filter(emp => !attendanceRecords.some(att => att.username === emp.username));
 
-    const { data, error } = await supabase
-      .from('users').select('*').eq('username', username).eq('password', password).single();
+                document.getElementById('totalEmployees').textContent = filteredEmployees.length;
+                document.getElementById('presentEmployees').textContent = presentList.length;
+                document.getElementById('absentEmployees').textContent = absentList.length;
 
-    if (error || !data) {
-      loginError.textContent = "Invalid username or password.";
-      loginError.classList.remove('d-none');
-      return;
-    }
-    currentEmployee = data;
-    // Populate dashboard and profile info
-    employeeName.textContent = data.name;
-    employeeLocation.textContent = data.location || 'N/A';
-    document.getElementById('updateUsername').value = data.username;
-    profileEmployeeName.textContent = data.name;
-    profileEmployeeLocation.textContent = data.location || 'N/A';
-    
-    showPage('dashboard-section');
-    
-    // Reset to home tab on login
-    navTabs.forEach(t => t.classList.remove('active'));
-    tabContents.forEach(content => content.classList.remove('active'));
-    document.querySelector('.nav-tab[data-tab="attendance-tab"]').classList.add('active');
-    document.getElementById('attendance-tab').classList.add('active');
-    
-    // Load data for all tabs
-    loadAttendance();
-    loadAttendanceCalendar();
-    loadHistory();
-    checkAttendanceStatus();
-  };
+                renderAttendanceList('present-list', presentList.map(emp => ({ ...emp, attendance: attendanceRecords.find(att => att.username === emp.username) })));
+                renderAttendanceList('absent-list', absentList.map(emp => ({ ...emp, attendance: null })));
+            } catch (e) {
+                console.error("Error loading dashboard data: ", e);
+                showModal('Error', 'Failed to load dashboard data.', ['OK']);
+            }
+        };
 
-  logoutBtn.onclick = function() {
-    currentEmployee = null; selfieDataUrl = null; webcamStream = null; currentLocation = null; canMarkAttendance = true;
-    loginForm.reset();
-    profileUpdateForm.reset();
-    attendanceRecords.innerHTML = '';
-    attendanceCalendar.innerHTML = '';
-    historyList.innerHTML = '';
-    markAttendanceBtn.disabled = false;
-    showPage('login-section');
-    loadTodayAttendanceSummary();
-  };
-  
-  // Password Toggles
-  togglePassword.addEventListener('click', () => togglePasswordVisibility(userPassword, togglePassword));
-  toggleNewPassword.addEventListener('click', () => togglePasswordVisibility(updatePasswordInput, toggleNewPassword));
+        const loadReportsData = async (month) => {
+            try {
+                const monthStart = dayjs(month).startOf('month').format('YYYY-MM-DD');
+                const monthEnd = dayjs(month).endOf('month').format('YYYY-MM-DD');
 
-  // Tab Navigation
-  navTabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-          navTabs.forEach(t => t.classList.remove('active'));
-          tab.classList.add('active');
-          
-          tabContents.forEach(content => content.classList.remove('active'));
-          document.getElementById(tab.dataset.tab).classList.add('active');
-      });
-  });
+                const attendanceRef = getCollectionRef('attendance');
+                const attendanceQuery = query(attendanceRef, where('date', '>=', monthStart), where('date', '<=', monthEnd));
+                const attendanceSnapshot = await getDocs(attendanceQuery);
+                const attendanceRecords = attendanceSnapshot.docs.map(doc => doc.data());
 
-  // Attendance Logic
-  async function checkAttendanceStatus() {
-    const { start, end } = getISTDateRange(new Date());
-    const { data, error } = await supabase
-      .from('attendance').select('id').eq('username', currentEmployee.username).gte('timestamp', start).lte('timestamp', end);
+                const employeeReportData = allEmployees.map(emp => {
+                    const presentCount = attendanceRecords.filter(att => att.username === emp.username && att.status === 'Present').length;
+                    const absentCount = attendanceRecords.filter(att => att.username === emp.username && att.status === 'Absent').length;
+                    return {
+                        username: emp.username,
+                        name: emp.name,
+                        relocated: emp.relocated ? 'Yes' : 'No',
+                        presentCount,
+                        absentCount
+                    };
+                });
+                renderReportsTable(employeeReportData);
+            } catch (e) {
+                console.error("Error loading reports data: ", e);
+                showModal('Error', 'Failed to load reports data.', ['OK']);
+            }
+        };
 
-    canMarkAttendance = !(data && data.length > 0);
-    markAttendanceBtn.disabled = !canMarkAttendance;
+        const loadEmployeeHistoryData = async (month, username) => {
+            if (!username) {
+                document.getElementById('employee-history-table').innerHTML = '';
+                return;
+            }
+            try {
+                const monthStart = dayjs(month).startOf('month').format('YYYY-MM-DD');
+                const monthEnd = dayjs(month).endOf('month').format('YYYY-MM-DD');
 
-    if (!canMarkAttendance) {
-      showAttendanceStatus("You have already marked attendance today.", "warning");
-    } else {
-        attendanceStatus.classList.add('d-none');
-    }
-  }
+                const attendanceRef = getCollectionRef('attendance');
+                const q = query(attendanceRef, where('username', '==', username), where('date', '>=', monthStart), where('date', '<=', monthEnd));
+                const querySnapshot = await getDocs(q);
+                const historyData = querySnapshot.docs.map(doc => doc.data());
+                renderEmployeeHistoryTable(historyData);
+            } catch (e) {
+                console.error("Error loading employee history: ", e);
+                showModal('Error', 'Failed to load employee history.', ['OK']);
+            }
+        };
 
-  markAttendanceBtn.onclick = async function() {
-    await checkAttendanceStatus();
-    if (!canMarkAttendance) {
-      showAttendanceStatus("You have already marked attendance today.", "warning");
-      return;
-    }
-    selfiePreviewSection.classList.add('d-none');
-    selfiePreview.src = '';
+        const loadManageEmployeesList = async () => {
+            try {
+                const employeeList = allEmployees.sort((a, b) => a.name.localeCompare(b.name));
+                renderManageEmployeesTable(employeeList);
+            } catch (e) {
+                console.error("Error loading manage employees list: ", e);
+                showModal('Error', 'Failed to load employee list.', ['OK']);
+            }
+        };
 
-    if (!navigator.geolocation) {
-      showAttendanceStatus("Geolocation is not supported by your browser.", "danger");
-      return;
-    }
-    showAttendanceStatus("Checking your location...", "info");
+        const renderAttendanceList = (tableId, data) => {
+            const tableBody = document.getElementById(tableId);
+            tableBody.innerHTML = '';
+            data.forEach(employee => {
+                const row = document.createElement('tr');
+                row.className = 'text-sm';
+                let time = '';
+                if (employee.attendance && employee.attendance.inTime) {
+                    time = dayjs(employee.attendance.inTime).format('hh:mm A');
+                }
+                if (tableId === 'present-list') {
+                    row.innerHTML = `
+                        <td class="p-3">${employee.username}</td>
+                        <td class="p-3">${employee.name}</td>
+                        <td class="p-3">${employee.store}</td>
+                    `;
+                } else {
+                    row.innerHTML = `
+                        <td class="p-3">${employee.username}</td>
+                        <td class="p-3">${employee.name}</td>
+                    `;
+                }
+                tableBody.appendChild(row);
+            });
+        };
 
-    navigator.geolocation.getCurrentPosition(async (position) => {
-      currentLocation = { latitude: position.coords.latitude, longitude: position.coords.longitude };
-      const { latitude: regLat, longitude: regLng } = currentEmployee;
+        const renderReportsTable = (data) => {
+            const tableBody = document.getElementById('report-table');
+            tableBody.innerHTML = '';
+            data.forEach(employee => {
+                const row = document.createElement('tr');
+                row.className = 'text-sm';
+                row.innerHTML = `
+                    <td class="p-3">${employee.username}</td>
+                    <td class="p-3">${employee.name}</td>
+                    <td class="p-3">${employee.relocated}</td>
+                    <td class="p-3 text-[var(--accent-green)] font-semibold">${employee.presentCount}</td>
+                    <td class="p-3 text-[var(--accent-red)] font-semibold">${employee.absentCount}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        };
 
-      if (!regLat || !regLng) {
-        showAttendanceStatus("Registered location not set. Contact admin.", "danger");
-        return;
-      }
+        const renderEmployeeHistoryTable = (data) => {
+            const tableBody = document.getElementById('employee-history-table');
+            tableBody.innerHTML = '';
+            const sortedData = data.sort((a, b) => dayjs(a.date).isBefore(dayjs(b.date)) ? 1 : -1);
+            sortedData.forEach(record => {
+                const row = document.createElement('tr');
+                row.className = 'text-sm';
+                const statusClass = record.status === 'Present' ? 'text-[var(--accent-green)]' : 'text-[var(--accent-red)]';
+                row.innerHTML = `
+                    <td class="p-3">${dayjs(record.date).format('DD-MMM-YYYY')}</td>
+                    <td class="p-3 font-semibold ${statusClass}">${record.status}</td>
+                    <td class="p-3">${record.inTime ? dayjs(record.inTime).format('hh:mm A') : '-'}</td>
+                    <td class="p-3">${record.outTime ? dayjs(record.outTime).format('hh:mm A') : '-'}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        };
 
-      const dist = haversineDistance(currentLocation.latitude, currentLocation.longitude, parseFloat(regLat), parseFloat(regLng));
-      if (dist > 20) { // Distance check in meters
-        showAttendanceStatus(`You are too far from your location (${dist.toFixed(0)}m away).`, "danger");
-        return;
-      }
-      
-      attendanceStatus.classList.add('d-none');
-      startCamera();
+        const renderManageEmployeesTable = (data) => {
+            const tableBody = document.getElementById('manage-employee-list');
+            tableBody.innerHTML = '';
+            data.forEach(employee => {
+                const statusClass = employee.status === 'Active' ? 'text-[var(--accent-green)]' : 'text-[var(--accent-red)]';
+                const buttonText = employee.status === 'Active' ? 'Deactivate' : 'Activate';
+                const row = document.createElement('tr');
+                row.className = 'text-sm';
+                row.innerHTML = `
+                    <td class="p-3">${employee.username}</td>
+                    <td class="p-3">${employee.name}</td>
+                    <td class="p-3 font-semibold ${statusClass}">${employee.status}</td>
+                    <td class="p-3">${employee.relocated ? 'Yes' : 'No'}</td>
+                    <td class="p-3">
+                        <button class="change-status-btn tally-btn-outline text-xs px-2 py-1"
+                                data-username="${employee.username}"
+                                data-name="${employee.name}"
+                                data-current-status="${employee.status}">
+                            ${buttonText}
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        };
 
-    }, (error) => {
-      showAttendanceStatus("Unable to get your location: " + error.message, "danger");
-    }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
-  };
-  
-  async function startCamera() {
-      try {
-        if (webcamStream) webcamStream.getTracks().forEach(track => track.stop());
-        webcamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: { ideal: 480 }, height: { ideal: 640 } } });
-        webcam.srcObject = webcamStream;
-        webcam.onloadedmetadata = () => webcam.play();
-        selfieModal.show();
-      } catch (err) {
-        let msg = `<strong>Could not access camera.</strong><br>Error: ${err.message || err.name}`;
-        if (err.name === 'NotAllowedError') msg = `<strong>Camera access was blocked.</strong> Please allow camera access in your browser settings and reload the page.`;
-        if (err.name === 'NotFoundError' || err.name === 'OverconstrainedError') msg = `<strong>No camera detected.</strong> Please ensure your camera is connected and not in use by another app.`;
-        cameraPermissionMsg.innerHTML = msg;
-        cameraPermissionModal.show();
-      }
-  }
+        // --- Event Handlers ---
+        const handleNavigation = (event) => {
+            event.preventDefault();
+            const targetId = event.currentTarget.getAttribute('href').substring(1);
 
-  captureBtn.onclick = function() {
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    const video = webcam;
-    
-    const targetWidth = 240;
-    const targetHeight = 320;
-    canvas.width = targetWidth;
-    canvas.height = targetHeight;
+            sidebarItems.forEach(item => item.classList.remove('active'));
+            event.currentTarget.classList.add('active');
 
-    const videoRatio = video.videoWidth / video.videoHeight;
-    const targetRatio = targetWidth / targetHeight;
-    let sWidth, sHeight, sx, sy;
+            pageSections.forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(targetId).classList.remove('hidden');
+            pageTitle.textContent = event.currentTarget.textContent.trim();
+        };
 
-    if (videoRatio > targetRatio) {
-      sHeight = video.videoHeight;
-      sWidth = sHeight * targetRatio;
-      sx = (video.videoWidth - sWidth) / 2;
-      sy = 0;
-    } else {
-      sWidth = video.videoWidth;
-      sHeight = sWidth / targetRatio;
-      sx = 0;
-      sy = (video.videoHeight - sHeight) / 2;
-    }
-    
-    context.translate(targetWidth, 0);
-    context.scale(-1, 1);
-    
-    context.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, targetWidth, targetHeight);
+        const handleManualAttendance = async (event) => {
+            event.preventDefault();
+            const form = event.target;
+            const username = form['employee-username'].value;
+            const date = form['attendance-date'].value;
+            const status = form['attendance-status'].value;
+            const time = form['attendance-time'].value;
+            const record = {
+                username: username,
+                date: date,
+                status: status,
+                inTime: time ? dayjs(`${date}T${time}`).toISOString() : null,
+                outTime: null,
+            };
+            try {
+                await addDoc(getCollectionRef('attendance'), record);
+                showModal('Success', 'Attendance record saved successfully.', ['OK']);
+                form.reset();
+                await loadDashboardData(selectedDate);
+            } catch (e) {
+                console.error("Error adding document: ", e);
+                showModal('Error', 'Failed to save attendance record.', ['OK']);
+            }
+        };
 
-    selfieDataUrl = canvas.toDataURL('image/jpeg', 0.9);
-    selfiePreview.src = selfieDataUrl;
-    selfiePreviewSection.classList.remove('d-none');
-    selfieModal.hide();
-    if (webcamStream) webcamStream.getTracks().forEach(track => track.stop());
-  };
+        const handleAddEmployee = async (event) => {
+            event.preventDefault();
+            const form = event.target;
+            const username = form['new-username'].value;
+            const name = form['new-name'].value;
+            const store = form['new-store'].value;
+            const status = form['new-status'].value;
+            const relocated = form['new-relocated'].checked;
 
-  retakeSelfieBtn.onclick = () => {
-    selfiePreviewSection.classList.add('d-none');
-    selfiePreview.src = '';
-    startCamera();
-  };
+            const newEmployee = { username, name, store, status, relocated };
+            try {
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'employees', username), newEmployee);
+                showModal('Success', `${name} has been added as a new employee.`, ['OK']);
+                form.reset();
+                await loadEmployees(); // Reload all employee data
+            } catch (e) {
+                console.error("Error adding employee: ", e);
+                showModal('Error', 'Failed to add new employee.', ['OK']);
+            }
+        };
 
-  submitAttendanceBtn.onclick = async function() {
-    if (!canMarkAttendance) { showAttendanceStatus("Already marked for today.", "warning"); return; }
-    if (!currentEmployee || !selfieDataUrl || !currentLocation) return;
-    
-    showAttendanceStatus('Uploading...', 'info');
-    const { error } = await supabase.from('attendance').insert([{
-      username: currentEmployee.username, name: currentEmployee.name, location: currentEmployee.location,
-      registered_latitude: currentEmployee.latitude, registered_longitude: currentEmployee.longitude,
-      marked_latitude: currentLocation.latitude, marked_longitude: currentLocation.longitude,
-      image: selfieDataUrl, timestamp: new Date().toISOString()
-    }]);
-
-    if (error) {
-      showAttendanceStatus("Failed to record attendance. " + error.message, 'danger');
-    } else {
-      showAttendanceStatus("Attendance marked successfully!", 'success');
-      loadAttendance();
-      loadAttendanceCalendar();
-      loadHistory();
-      checkAttendanceStatus();
-    }
-    selfiePreviewSection.classList.add('d-none');
-    selfiePreview.src = '';
-    selfieDataUrl = null;
-    currentLocation = null;
-  };
-
-  function showAttendanceStatus(msg, type) {
-    attendanceStatus.innerHTML = msg;
-    attendanceStatus.className = `alert alert-${type}`;
-    attendanceStatus.classList.remove('d-none');
-  }
-
-  async function loadAttendance() {
-    attendanceRecords.innerHTML = "<em>Loading...</em>";
-    const { data, error } = await supabase
-      .from('attendance').select('*').eq('username', currentEmployee.username).order('timestamp', { ascending: false }).limit(5);
-
-    if (error || !data || !data.length) {
-      attendanceRecords.innerHTML = "<em>No recent records found.</em>";
-      return;
-    }
-    attendanceRecords.innerHTML = data.map(r => `
-      <div class="attendance-record-row">
-        <img src="${r.image}" class="attendance-img me-3" alt="Selfie" />
-        <div class="record-info">
-          <div class="record-info-name">${currentEmployee.name}</div>
-          <div class="record-info-time">${toIST(new Date(r.timestamp)).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</div>
-        </div>
-      </div>`).join("");
-  }
-
-  async function loadAttendanceCalendar() {
-    const now = new Date();
-    const istNow = toIST(now);
-    const year = istNow.getFullYear();
-    const month = istNow.getMonth();
-    
-    const firstDayOfMonth = new Date(Date.UTC(year, month, 1));
-    const lastDayOfMonth = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59));
-
-    const { data, error } = await supabase
-      .from('attendance').select('timestamp').eq('username', currentEmployee.username)
-      .gte('timestamp', firstDayOfMonth.toISOString()).lte('timestamp', lastDayOfMonth.toISOString());
-    
-    const presentDays = new Set(data ? data.map(r => toIST(new Date(r.timestamp)).getDate()) : []);
-
-    let cal = `<table class="calendar-table"><thead><tr><th>S</th><th>M</th><th>T</th><th>W</th><th>T</th><th>F</th><th>S</th></tr></thead><tbody>`;
-    let firstDay = new Date(year, month, 1).getDay();
-    let totalDays = new Date(year, month + 1, 0).getDate();
-    let day = 1;
-
-    for (let i = 0; i < 6; i++) {
-      cal += '<tr>';
-      for (let j = 0; j < 7; j++) {
-        if ((i === 0 && j < firstDay) || day > totalDays) {
-          cal += '<td></td>';
-        } else {
-          let dayClass = '';
-          if (day < istNow.getDate()) {
-            dayClass = presentDays.has(day) ? 'day-present' : 'day-absent';
-          } else if (day === istNow.getDate()) {
-            dayClass = presentDays.has(day) ? 'day-present' : '';
-          }
-          cal += `<td><div class="calendar-day ${dayClass}">${day}</div></td>`;
-          day++;
-        }
-      }
-      cal += '</tr>';
-      if (day > totalDays) break;
-    }
-    cal += '</tbody></table>';
-    attendanceCalendar.innerHTML = cal;
-  }
-  
-  async function loadHistory() {
-      historyList.innerHTML = "<em>Loading...</em>";
-      const now = new Date();
-      const istNow = toIST(now);
-      const year = istNow.getFullYear();
-      const month = istNow.getMonth();
-      const firstDayOfMonth = new Date(Date.UTC(year, month, 1));
-      const lastDayOfMonth = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59));
-      
-      const { data, error } = await supabase
-          .from('attendance')
-          .select('*')
-          .eq('username', currentEmployee.username)
-          .gte('timestamp', firstDayOfMonth.toISOString())
-          .lte('timestamp', lastDayOfMonth.toISOString())
-          .order('timestamp', { ascending: false });
-
-      if (error || !data || !data.length) {
-          historyList.innerHTML = "<em>No records found for this month.</em>";
-          return;
-      }
-      historyList.innerHTML = data.map(r => `
-          <div class="attendance-record-row">
-              <img src="${r.image}" class="attendance-img me-3" alt="Selfie" />
-              <div class="record-info">
-                  <div class="record-info-name">${toIST(new Date(r.timestamp)).toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
-                  <div class="record-info-time">Time: ${toIST(new Date(r.timestamp)).toLocaleTimeString('en-IN', { timeStyle: 'short' })}</div>
-              </div>
-          </div>`).join("");
-  }
-  
-  if (exportPdfBtn) {
-    exportPdfBtn.onclick = async function() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
+        const updateEmployeeStatus = (username, name, currentStatus) => {
+            const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
+            showModal(
+                'Confirm Status Change',
+                `Are you sure you want to change the status of ${name} (${username}) to ${newStatus}?`,
+                ['Cancel', 'Confirm'],
+                async () => {
+                    try {
+                        const employeeDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'employees', username);
+                        await updateDoc(employeeDocRef, { status: newStatus });
+                        showModal('Success', `Employee status updated to ${newStatus}.`, ['OK']);
+                        await loadEmployees(); // Reload to reflect changes
+                    } catch (e) {
+                        console.error("Error updating employee status: ", e);
+                        showModal('Error', 'Failed to update employee status.', ['OK']);
+                    }
+                }
+            );
+        };
         
-        const now = new Date();
-        const monthName = now.toLocaleString('default', { month: 'long' });
-        const year = now.getFullYear();
+        // --- PDF & Excel Generation ---
+        const generateSummaryPDF = () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text("Daily Attendance Summary", 10, 10);
+            doc.text(`Date: ${dayjs(selectedDate).format('DD-MMM-YYYY')}`, 10, 20);
+            doc.text(`Total Employees: ${document.getElementById('totalEmployees').textContent}`, 10, 30);
+            doc.text(`Present: ${document.getElementById('presentEmployees').textContent}`, 10, 40);
+            doc.text(`Absent: ${document.getElementById('absentEmployees').textContent}`, 10, 50);
+            doc.save("attendance_summary.pdf");
+        };
 
-        doc.setFontSize(18);
-        doc.text(`Attendance Report for ${currentEmployee.name}`, 14, 22);
-        doc.setFontSize(11);
-        doc.text(`Month: ${monthName} ${year}`, 14, 30);
+        const generatePresentListPDF = () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const table = document.getElementById('present-list');
+            doc.autoTable({
+                head: [['ID', 'Name', 'Location']],
+                body: Array.from(table.rows).map(row => Array.from(row.cells).map(cell => cell.textContent)),
+                startY: 20
+            });
+            doc.text(`Present Employees List (${dayjs(selectedDate).format('DD-MMM-YYYY')})`, 10, 10);
+            doc.save("present_employees.pdf");
+        };
+        
+        const generateAbsentListPDF = () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const table = document.getElementById('absent-list');
+            doc.autoTable({
+                head: [['ID', 'Name']],
+                body: Array.from(table.rows).map(row => Array.from(row.cells).map(cell => cell.textContent)),
+                startY: 20
+            });
+            doc.text(`Absent Employees List (${dayjs(selectedDate).format('DD-MMM-YYYY')})`, 10, 10);
+            doc.save("absent_employees.pdf");
+        };
 
-        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+        const generateAttendanceSheet = (format) => {
+            const data = [];
+            const headers = ['Username', 'Name'];
+            const datesInMonth = dayjs(selectedMonth).daysInMonth();
+            for (let i = 1; i <= datesInMonth; i++) {
+                headers.push(`${dayjs(selectedMonth).date(i).format('MMM D')}`);
+            }
+            data.push(headers);
+        
+            const monthlyAttendanceRef = getCollectionRef('monthly-attendance-reports');
+            onSnapshot(query(monthlyAttendanceRef, where('month', '==', selectedMonth)), (querySnapshot) => {
+                const attendanceData = {};
+                querySnapshot.forEach(doc => {
+                    const rec = doc.data();
+                    if (!attendanceData[rec.username]) {
+                        attendanceData[rec.username] = { name: rec.name, dates: {} };
+                    }
+                    attendanceData[rec.username].dates[dayjs(rec.date).format('YYYY-MM-DD')] = rec.status;
+                });
+        
+                Object.keys(attendanceData).forEach(username => {
+                    const row = [username, attendanceData[username].name];
+                    for (let i = 1; i <= datesInMonth; i++) {
+                        const date = dayjs(selectedMonth).date(i).format('YYYY-MM-DD');
+                        row.push(attendanceData[username].dates[date] || 'N/A');
+                    }
+                    data.push(row);
+                });
+        
+                const worksheet = XLSX.utils.aoa_to_sheet(data);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance");
+                XLSX.writeFile(workbook, `attendance_sheet_${selectedMonth}.${format}`);
+            });
+        };
 
-        const { data, error } = await supabase
-            .from('attendance')
-            .select('timestamp')
-            .eq('username', currentEmployee.username)
-            .gte('timestamp', firstDayOfMonth.toISOString())
-            .lte('timestamp', lastDayOfMonth.toISOString())
-            .order('timestamp', { ascending: true });
-
-        if (error || !data || data.length === 0) {
-            doc.text("No attendance data found for this month.", 14, 40);
-            doc.save(`${currentEmployee.username}_attendance_${monthName}_${year}.pdf`);
-            return;
-        }
-
-        const tableColumn = ["Date", "Time", "Status"];
-        const tableRows = [];
-
-        data.forEach(record => {
-            const istDate = toIST(new Date(record.timestamp));
-            const rowData = [
-                istDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric'}),
-                istDate.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit'}),
-                "Present"
+        const exportAttendanceHistoryToExcel = async () => {
+            const table = document.getElementById('employee-history-table');
+            const data = [
+                ['Date', 'Status', 'In Time', 'Out Time'],
+                ...Array.from(table.rows).map(row => Array.from(row.cells).map(cell => cell.textContent))
             ];
-            tableRows.push(rowData);
-        });
+            const worksheet = XLSX.utils.aoa_to_sheet(data);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance History");
+            XLSX.writeFile(workbook, `attendance_history_${selectedEmployeeUsername}_${selectedMonth}.xlsx`);
+        };
 
-        doc.autoTable(tableColumn, tableRows, { startY: 35 });
-        doc.save(`${currentEmployee.username}_attendance_${monthName}_${year}.pdf`);
-    };
-  }
-  
-  profileUpdateForm.onsubmit = async function(e) {
-      e.preventDefault();
-      profileUpdateStatus.classList.add('d-none');
-      
-      const newPassword = document.getElementById('updatePassword').value;
-      
-      if (!newPassword) {
-          showProfileStatus("New password cannot be empty.", "danger");
-          return;
-      }
-      
-      const { data, error } = await supabase
-          .from('users')
-          .update({ password: newPassword })
-          .eq('id', currentEmployee.id)
-          .select()
-          .single();
-          
-      if (error) {
-          showProfileStatus(`Error updating password: ${error.message}`, "danger");
-      } else {
-          showProfileStatus("Password updated successfully!", "success");
-          currentEmployee.password = data.password;
-          document.getElementById('updatePassword').value = ''; // Clear password field on success
-      }
-  };
-  
-  function showProfileStatus(msg, type) {
-      profileUpdateStatus.innerHTML = msg;
-      profileUpdateStatus.className = `alert alert-${type}`;
-      profileUpdateStatus.classList.remove('d-none');
-  }
+        // --- Initial Setup and Listeners ---
+        const loadEmployeeSelectOptions = () => {
+            const select = document.getElementById('employee-select');
+            select.innerHTML = '<option value="">Select Employee</option>';
+            const sortedEmployees = allEmployees.sort((a, b) => a.name.localeCompare(b.name));
+            sortedEmployees.forEach(emp => {
+                const option = document.createElement('option');
+                option.value = emp.username;
+                option.textContent = `${emp.name} (${emp.username})`;
+                select.appendChild(option);
+            });
+        };
 
-  // Haversine formula for distance calculation
-  function haversineDistance(lat1, lon1, lat2, lon2) {
-    function toRad(x) { return x * Math.PI / 180; }
-    const R = 6371000; // Earth's radius in meters
-    const dLat = toRad(lat2 - lat1);
-    const dLon = toRad(lon2 - lon1);
-    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
-  }
-  
-  // Initial Load
-  loadTodayAttendanceSummary();
-</script>
+        const initApp = () => {
+            // Set initial dates
+            const dateFilterInput = document.getElementById('date-filter');
+            const monthFilterInput = document.getElementById('month-filter');
+            const reportMonthFilter = document.getElementById('report-month-filter');
+            dateFilterInput.value = dayjs().format('YYYY-MM-DD');
+            monthFilterInput.value = dayjs().format('YYYY-MM');
+            reportMonthFilter.value = dayjs().format('YYYY-MM');
+
+            // Set up event listeners
+            sidebarItems.forEach(item => item.addEventListener('click', handleNavigation));
+
+            dateFilterInput.addEventListener('change', (e) => {
+                selectedDate = e.target.value;
+                loadDashboardData(selectedDate);
+            });
+            document.getElementById('show-relocated-only').addEventListener('change', (e) => {
+                showRelocatedOnly = e.target.checked;
+                loadDashboardData(selectedDate);
+            });
+            reportMonthFilter.addEventListener('change', (e) => {
+                selectedMonth = e.target.value;
+                loadReportsData(selectedMonth);
+            });
+            monthFilterInput.addEventListener('change', (e) => {
+                selectedMonth = e.target.value;
+                loadEmployeeHistoryData(selectedMonth, selectedEmployeeUsername);
+            });
+            document.getElementById('employee-select').addEventListener('change', (e) => {
+                selectedEmployeeUsername = e.target.value;
+                loadEmployeeHistoryData(selectedMonth, selectedEmployeeUsername);
+            });
+            document.getElementById('manual-attendance-form').addEventListener('submit', handleManualAttendance);
+            document.getElementById('add-employee-form').addEventListener('submit', handleAddEmployee);
+            document.getElementById('manage-employee-list').addEventListener('click', (event) => {
+                const button = event.target.closest('.change-status-btn');
+                if (button) {
+                    const { username, name, currentStatus } = button.dataset;
+                    updateEmployeeStatus(username, name, currentStatus);
+                }
+            });
+
+            // PDF/Excel listeners
+            document.getElementById('download-summary-pdf').addEventListener('click', generateSummaryPDF);
+            document.getElementById('download-present-pdf').addEventListener('click', generatePresentListPDF);
+            document.getElementById('download-absent-pdf').addEventListener('click', generateAbsentListPDF);
+            document.getElementById('download-attendance-sheet-excel').addEventListener('click', () => generateAttendanceSheet('xlsx'));
+            document.getElementById('export-history-excel').addEventListener('click', exportAttendanceHistoryToExcel);
+
+            // Load initial data
+            loadStoresForAddEmployee();
+            loadEmployees();
+        };
+
+        // Start the application
+        setupFirebase();
+    </script>
 </body>
 </html>
