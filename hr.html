@@ -9,1102 +9,918 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="favicon.png">
-    
+
     <style>
         :root {
-            --primary-bg: #f8fafc;
-            --secondary-bg: #ffffff;
-            --primary-text: #1e293b;
-            --secondary-text: #64748b;
-            --accent-color: #4f46e5;
-            --accent-hover: #4338ca;
-            --success-color: #16a34a;
-            --danger-color: #dc2626;
-            --border-color: #e2e8f0;
+            --tally-blue: #011E41;
+            --tally-light-blue: #0A3C6B;
+            --tally-green: #388E3C;
+            --tally-red: #D32F2F;
+            --tally-bg-light: #F0F2F5;
+            --tally-bg-card: #FFFFFF;
+            --tally-text-dark: #212121;
+            --tally-text-light: #757575;
+            --tally-border: #E0E0E0;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--primary-bg);
-            color: var(--primary-text);
-            overscroll-behavior-y: none; /* Prevents pull-to-refresh */
+            background-color: var(--tally-bg-light);
+            color: var(--tally-text-dark);
         }
 
-        .app-card {
-            background-color: var(--secondary-bg);
-            border-radius: 1rem;
-            box-shadow: 0 4px 12px -1px rgba(0, 0, 0, 0.07);
-            border: 1px solid var(--border-color);
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
         }
 
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem;
-            font-weight: 600;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
 
-        .btn-primary {
-            background-color: var(--accent-color);
+        .tally-card {
+            background-color: var(--tally-bg-card);
+            border: 1px solid var(--tally-border);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+
+        .tally-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .tally-btn {
+            background-color: var(--tally-blue);
             color: white;
-            box-shadow: 0 2px 8px -1px rgba(79, 70, 229, 0.5);
-        }
-        .btn-primary:hover {
-            background-color: var(--accent-hover);
-        }
-
-        .input-field {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--border-color);
-            border-radius: 0.75rem;
-            background-color: #f8fafc;
-            transition: all 0.2s;
-        }
-        .input-field:focus {
-            outline: none;
-            ring-offset-2;
-            ring: 2px solid var(--accent-color);
-            background-color: white;
+            padding: 10px 16px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
         }
 
-        .bottom-nav-btn.active {
-            color: var(--accent-color);
+        .tally-btn:hover {
+            background-color: var(--tally-light-blue);
         }
 
-        .modal {
-            background-color: rgba(0,0,0,0.5);
-            backdrop-filter: blur(5px);
+        .tally-btn-outline {
+            background-color: transparent;
+            color: var(--tally-blue);
+            border: 1px solid var(--tally-blue);
+            padding: 10px 16px;
+            border-radius: 6px;
+            transition: background-color 0.2s, color 0.2s;
         }
 
-        .marquee-container {
-            overflow: hidden;
-            white-space: nowrap;
-            width: 100%;
-        }
-        .marquee-text {
-            display: inline-block;
-            animation: marquee 15s linear infinite;
-            padding-left: 100%;
-        }
-        @keyframes marquee {
-            0% { transform: translateX(0%); }
-            100% { transform: translateX(-100%); }
-        }
-
-        /* Original Desktop specific styles - some are overridden by new styles below */
-        @media (min-width: 768px) {
-            #dashboard-page {
-                flex-direction: row;
-            }
-            main {
-                flex-grow: 1;
-                /* width: calc(100% - 250px); */ /* No longer needed */
-                padding-bottom: 24px;
-            }
-            nav {
-                position: sticky;
-                top: 0;
-                left: 0;
-                bottom: 0;
-                width: 250px;
-                height: 100vh;
-                border-right: 1px solid var(--border-color);
-                border-top: none;
-                flex-shrink: 0;
-                padding-top: 2rem;
-            }
-            nav .grid {
-                grid-template-columns: 1fr !important; /* Single column for desktop nav */
-                height: auto;
-                gap: 1rem;
-            }
-            .bottom-nav-btn {
-                flex-direction: row;
-                justify-content: flex-start;
-                padding: 0.75rem 1rem;
-                border-radius: 0.75rem;
-            }
-            .bottom-nav-btn svg {
-                margin-bottom: 0;
-                margin-right: 0.75rem;
-            }
-            .bottom-nav-btn span {
-                font-size: 1rem;
-            }
-            #main-header {
-                position: sticky;
-                top: 0;
-                z-index: 50;
-                /* width: calc(100% - 250px); */ /* No longer needed */
-                /* margin-left: 250px; */ /* No longer needed */
-            }
-            footer {
-                display: none;
-            }
-            .app-card {
-                padding: 1.5rem;
-            }
-        }
-    </style>
-    <style>
-        /* Keka-inspired Desktop View Enhancements */
-        @media (min-width: 768px) {
-            body {
-                overflow: hidden; /* Prevent body scroll on desktop */
-            }
-
-            #dashboard-page {
-                display: flex;
-                flex-direction: row;
-                height: 100vh; /* Full viewport height */
-            }
-
-            /* --- Enhanced Sidebar --- */
-            nav {
-                position: static; /* Override fixed positioning from mobile */
-                height: 100vh;
-                width: 260px; /* A slightly wider sidebar */
-                flex-shrink: 0;
-                background-color: #f8fafc; /* A distinct background */
-                border-right: 1px solid var(--border-color);
-                padding: 1rem;
-                display: flex;
-                flex-direction: column;
-            }
-
-            nav .grid {
-                display: flex;
-                flex-direction: column;
-                gap: 0.5rem;
-                height: auto;
-            }
-
-            .bottom-nav-btn {
-                justify-content: flex-start;
-                font-weight: 500;
-                color: #334155; /* Slightly darker text */
-                padding: 0.75rem 1rem;
-            }
-
-            .bottom-nav-btn:hover {
-                 background-color: #f1f5f9;
-            }
-
-            .bottom-nav-btn.active {
-                background-color: var(--accent-color);
-                color: white;
-                font-weight: 600;
-                box-shadow: 0 2px 8px -1px rgba(79, 70, 229, 0.4);
-            }
-             .bottom-nav-btn.active svg {
-                color: white;
-            }
-
-            /* --- Main Content Wrapper --- */
-            #main-content-wrapper {
-                flex-grow: 1;
-                display: flex;
-                flex-direction: column;
-                height: 100vh;
-                overflow: hidden; /* Hide overflow to manage scrolling internally */
-            }
-            
-            /* --- Fixed Header --- */
-            #main-header {
-                position: static; /* Header is part of the flex column, not sticky to viewport */
-                width: 100%;
-                margin-left: 0;
-                flex-shrink: 0; /* Prevent header from shrinking */
-                background-color: white;
-                 z-index: 10;
-            }
-            
-            /* --- Scrollable Main Area --- */
-            main {
-                flex-grow: 1;
-                overflow-y: auto; /* This is the ONLY scrollable area */
-                padding: 1.5rem;
-                padding-bottom: 2rem; /* Ensure space at the bottom */
-                 width: 100%;
-            }
-
-            footer {
-                display: none; /* Hide footer on desktop */
-            }
+        .tally-btn-outline:hover {
+            background-color: var(--tally-blue);
+            color: white;
         }
     </style>
 </head>
-<body class="antialiased">
+<body class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-[var(--tally-blue)] text-white p-4 space-y-4 flex flex-col items-center">
+        <h1 class="text-2xl font-bold mb-6 text-white text-center">Tally HR</h1>
+        <nav class="w-full">
+            <ul class="space-y-2">
+                <li>
+                    <a href="#dashboard" class="sidebar-item flex items-center p-3 rounded-lg hover:bg-[var(--tally-light-blue)] transition-colors active">
+                        <i class="fa-solid fa-gauge mr-3"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#reports" class="sidebar-item flex items-center p-3 rounded-lg hover:bg-[var(--tally-light-blue)] transition-colors">
+                        <i class="fa-solid fa-chart-line mr-3"></i>
+                        <span>Reports</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#history" class="sidebar-item flex items-center p-3 rounded-lg hover:bg-[var(--tally-light-blue)] transition-colors">
+                        <i class="fa-solid fa-clock-rotate-left mr-3"></i>
+                        <span>History</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#manage-employees" class="sidebar-item flex items-center p-3 rounded-lg hover:bg-[var(--tally-light-blue)] transition-colors">
+                        <i class="fa-solid fa-users mr-3"></i>
+                        <span>Manage Employees</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#add-employee" class="sidebar-item flex items-center p-3 rounded-lg hover:bg-[var(--tally-light-blue)] transition-colors">
+                        <i class="fa-solid fa-user-plus mr-3"></i>
+                        <span>Add New Employee</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
 
-    <div id="app-container">
+    <!-- Main Content -->
+    <main class="flex-grow p-8 overflow-y-auto scrollbar-hide">
+        <header class="flex justify-between items-center mb-8 pb-4 border-b border-[var(--tally-border)]">
+            <h2 id="page-title" class="text-3xl font-bold">Dashboard</h2>
+        </header>
 
-        <div id="login-page" class="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-50">
-            <div class="w-full max-w-sm text-center">
-                <img src="./logo1.png" alt="Company Logo" onerror="this.onerror=null; this.src='https://placehold.co/80x80/E5E7EB/1F2937?text=Logo';" class="w-20 h-20 rounded-full mx-auto mb-4 shadow-md">
-                <h1 class="text-3xl font-bold text-slate-800">Welcome Back</h1>
-                <p class="text-slate-500 mb-8">Sign in to the HR Dashboard</p>
-                
-                <form id="login-form" class="space-y-4">
-                    <div>
-                        <input type="text" id="hr-username" class="input-field text-center" placeholder="Username" required>
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="page-section space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Total Employees Card -->
+                <div class="tally-card p-6 flex items-center">
+                    <div class="bg-blue-100 text-[var(--tally-blue)] rounded-full p-3 mr-4">
+                        <i class="fa-solid fa-users fa-xl"></i>
                     </div>
                     <div>
-                        <input type="password" id="hr-password" class="input-field text-center" placeholder="Password" required>
+                        <p class="text-[var(--tally-text-light)]">Total Employees</p>
+                        <p id="totalEmployees" class="text-3xl font-bold">...</p>
                     </div>
-                    <button type="submit" class="w-full btn btn-primary">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" /></svg>
-                        <span>Sign In</span>
+                </div>
+
+                <!-- Present Employees Card -->
+                <div class="tally-card p-6 flex items-center">
+                    <div class="bg-green-100 text-[var(--tally-green)] rounded-full p-3 mr-4">
+                        <i class="fa-solid fa-user-check fa-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-[var(--tally-text-light)]">Present Today</p>
+                        <p id="presentEmployees" class="text-3xl font-bold">...</p>
+                    </div>
+                </div>
+
+                <!-- Absent Employees Card -->
+                <div class="tally-card p-6 flex items-center">
+                    <div class="bg-red-100 text-[var(--tally-red)] rounded-full p-3 mr-4">
+                        <i class="fa-solid fa-user-slash fa-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-[var(--tally-text-light)]">Absent Today</p>
+                        <p id="absentEmployees" class="text-3xl font-bold">...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Controls -->
+            <div class="tally-card p-6 space-y-4">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <label for="date-filter" class="font-medium text-[var(--tally-text-dark)]">Select Date:</label>
+                        <input type="date" id="date-filter" class="rounded-md border border-[var(--tally-border)] p-2 focus:outline-none focus:ring-1 focus:ring-[var(--tally-blue)]">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="show-relocated-only" class="rounded text-[var(--tally-blue)] focus:ring-0">
+                        <label for="show-relocated-only" class="text-[var(--tally-text-dark)]">Show Relocated Only</label>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <button id="download-summary-pdf" class="tally-btn flex items-center justify-center">
+                        <i class="fa-solid fa-file-pdf mr-2"></i>
+                        <span>Summary PDF</span>
                     </button>
-                    <p id="login-error" class="pt-2 text-center text-red-500 font-medium hidden">Invalid username or password.</p>
+                    <button id="download-present-pdf" class="tally-btn flex items-center justify-center">
+                        <i class="fa-solid fa-file-pdf mr-2"></i>
+                        <span>Present List PDF</span>
+                    </button>
+                    <button id="download-absent-pdf" class="tally-btn flex items-center justify-center">
+                        <i class="fa-solid fa-file-pdf mr-2"></i>
+                        <span>Absent List PDF</span>
+                    </button>
+                    <button id="download-attendance-sheet-excel" class="tally-btn-outline flex items-center justify-center col-span-1 md:col-span-3">
+                        <i class="fa-solid fa-file-excel mr-2"></i>
+                        <span>Download Attendance Sheet (Excel)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Attendance Tables -->
+            <div id="attendance-lists" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Present List -->
+                <div class="tally-card p-6">
+                    <h3 class="text-xl font-semibold mb-4">Present Employees</h3>
+                    <div class="overflow-x-auto scrollbar-hide">
+                        <table class="w-full table-auto">
+                            <thead class="bg-[var(--tally-bg-light)]">
+                                <tr class="text-left text-sm font-semibold">
+                                    <th class="p-3">ID</th>
+                                    <th class="p-3">Name</th>
+                                    <th class="p-3">Location</th>
+                                </tr>
+                            </thead>
+                            <tbody id="present-list" class="divide-y divide-[var(--tally-border)]">
+                                <!-- Data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Absent List -->
+                <div class="tally-card p-6">
+                    <h3 class="text-xl font-semibold mb-4">Absent Employees</h3>
+                    <div class="overflow-x-auto scrollbar-hide">
+                        <table class="w-full table-auto">
+                            <thead class="bg-[var(--tally-bg-light)]">
+                                <tr class="text-left text-sm font-semibold">
+                                    <th class="p-3">ID</th>
+                                    <th class="p-3">Name</th>
+                                </tr>
+                            </thead>
+                            <tbody id="absent-list" class="divide-y divide-[var(--tally-border)]">
+                                <!-- Data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reports Section -->
+        <section id="reports" class="page-section hidden space-y-6">
+            <h2 class="text-3xl font-bold">Reports</h2>
+            <div class="tally-card p-6">
+                <h3 class="text-xl font-semibold mb-4">Employee Activity Report</h3>
+                <div class="flex items-center gap-4 mb-4">
+                    <label for="report-month-filter" class="font-medium">Select Month:</label>
+                    <input type="month" id="report-month-filter" class="rounded-md border border-[var(--tally-border)] p-2 focus:outline-none focus:ring-1 focus:ring-[var(--tally-blue)]">
+                </div>
+                <div class="overflow-x-auto scrollbar-hide">
+                    <table class="w-full table-auto">
+                        <thead class="bg-[var(--tally-bg-light)]">
+                            <tr class="text-left text-sm font-semibold">
+                                <th class="p-3">Username</th>
+                                <th class="p-3">Name</th>
+                                <th class="p-3">Relocated</th>
+                                <th class="p-3">Present Count</th>
+                                <th class="p-3">Absent Count</th>
+                            </tr>
+                        </thead>
+                        <tbody id="report-table" class="divide-y divide-[var(--tally-border)]">
+                            <!-- Data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- History Section -->
+        <section id="history" class="page-section hidden space-y-6">
+            <h2 class="text-3xl font-bold">Attendance History</h2>
+            <div class="tally-card p-6">
+                <h3 class="text-xl font-semibold mb-4">Employee Attendance History</h3>
+                <div class="flex flex-wrap items-center gap-4 mb-4">
+                    <label for="month-filter" class="font-medium">Select Month:</label>
+                    <input type="month" id="month-filter" class="rounded-md border border-[var(--tally-border)] p-2 focus:outline-none focus:ring-1 focus:ring-[var(--tally-blue)]">
+                    <label for="employee-select" class="font-medium">Select Employee:</label>
+                    <select id="employee-select" class="rounded-md border border-[var(--tally-border)] p-2 focus:outline-none focus:ring-1 focus:ring-[var(--tally-blue)]"></select>
+                    <button id="export-history-excel" class="tally-btn-outline flex items-center justify-center">
+                        <i class="fa-solid fa-file-excel mr-2"></i>
+                        <span>Export to Excel</span>
+                    </button>
+                </div>
+                <div class="overflow-x-auto scrollbar-hide">
+                    <table class="w-full table-auto">
+                        <thead class="bg-[var(--tally-bg-light)]">
+                            <tr class="text-left text-sm font-semibold">
+                                <th class="p-3">Date</th>
+                                <th class="p-3">Status</th>
+                                <th class="p-3">In Time</th>
+                                <th class="p-3">Out Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employee-history-table" class="divide-y divide-[var(--tally-border)]">
+                            <!-- Data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Manage Employees Section -->
+        <section id="manage-employees" class="page-section hidden space-y-6">
+            <h2 class="text-3xl font-bold">Manage Employees</h2>
+            <div class="tally-card p-6">
+                <h3 class="text-xl font-semibold mb-4">Employee List</h3>
+                <div class="overflow-x-auto scrollbar-hide">
+                    <table class="w-full table-auto">
+                        <thead class="bg-[var(--tally-bg-light)]">
+                            <tr class="text-left text-sm font-semibold">
+                                <th class="p-3">Username</th>
+                                <th class="p-3">Name</th>
+                                <th class="p-3">Status</th>
+                                <th class="p-3">Relocated</th>
+                                <th class="p-3">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="manage-employee-list" class="divide-y divide-[var(--tally-border)]">
+                            <!-- Data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Add Employee Section -->
+        <section id="add-employee" class="page-section hidden space-y-6">
+            <h2 class="text-3xl font-bold">Add New Employee</h2>
+            <div class="tally-card p-6">
+                <h3 class="text-xl font-semibold mb-4">Add Employee Form</h3>
+                <form id="add-employee-form" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="new-username" class="block font-medium mb-1">Username (Email):</label>
+                            <input type="email" id="new-username" required class="w-full rounded-md border border-[var(--tally-border)] p-2 focus:outline-none focus:ring-1 focus:ring-[var(--tally-blue)]">
+                        </div>
+                        <div>
+                            <label for="new-name" class="block font-medium mb-1">Full Name:</label>
+                            <input type="text" id="new-name" required class="w-full rounded-md border border-[var(--tally-border)] p-2 focus:outline-none focus:ring-1 focus:ring-[var(--tally-blue)]">
+                        </div>
+                        <div>
+                            <label for="new-store" class="block font-medium mb-1">Store Location:</label>
+                            <select id="new-store" required class="w-full rounded-md border border-[var(--tally-border)] p-2 focus:outline-none focus:ring-1 focus:ring-[var(--tally-blue)]">
+                                <option value="">Select Store</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="new-status" class="block font-medium mb-1">Status:</label>
+                            <select id="new-status" required class="w-full rounded-md border border-[var(--tally-border)] p-2 focus:outline-none focus:ring-1 focus:ring-[var(--tally-blue)]">
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" id="new-relocated" class="rounded text-[var(--tally-blue)] focus:ring-0">
+                            <label for="new-relocated" class="font-medium">Relocated Employee</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="tally-btn w-full mt-4">Add Employee</button>
                 </form>
             </div>
-        </div>
+        </section>
 
-        <div id="dashboard-page" class="hidden flex-col md:flex-row">
-            
-            <nav class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 shadow-[0_-2px_10px_-1px_rgba(0,0,0,0.05)] md:relative md:shadow-none">
-                <div class="hidden md:flex items-center space-x-3 p-2 mb-4 border-b border-slate-200">
-                    <img src="./logo1.png" alt="Company Logo" onerror="this.onerror=null; this.src='https://placehold.co/40x40/E5E7EB/1F2937?text=Logo';" class="w-10 h-10 rounded-lg">
-                    <h1 class="text-xl font-bold text-slate-800">HR Portal</h1>
+        <!-- Manual Attendance Section -->
+        <section id="manual-attendance" class="page-section hidden space-y-6">
+            <h2 class="text-3xl font-bold">Manual Attendance</h2>
+            <div class="tally-card p-6">
+                <h3 class="text-xl font-semibold mb-4">Record Attendance Manually</h3>
+                <form id="manual-attendance-form" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="employee-username" class="block font-medium mb-1">Username (Email):</label>
+                            <input type="email" id="employee-username" required class="w-full rounded-md border border-[var(--tally-border)] p-2 focus:outline-none focus:ring-1 focus:ring-[var(--tally-blue)]">
+                        </div>
+                        <div>
+                            <label for="attendance-date" class="block font-medium mb-1">Date:</label>
+                            <input type="date" id="attendance-date" required class="w-full rounded-md border border-[var(--tally-border)] p-2 focus:outline-none focus:ring-1 focus:ring-[var(--tally-blue)]">
+                        </div>
+                        <div>
+                            <label for="attendance-status" class="block font-medium mb-1">Status:</label>
+                            <select id="attendance-status" required class="w-full rounded-md border border-[var(--tally-border)] p-2 focus:outline-none focus:ring-1 focus:ring-[var(--tally-blue)]">
+                                <option value="Present">Present</option>
+                                <option value="Absent">Absent</option>
+                                <option value="Half Day">Half Day</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="attendance-time" class="block font-medium mb-1">Time (Optional):</label>
+                            <input type="time" id="attendance-time" class="w-full rounded-md border border-[var(--tally-border)] p-2 focus:outline-none focus:ring-1 focus:ring-[var(--tally-blue)]">
+                        </div>
+                    </div>
+                    <button type="submit" class="tally-btn w-full mt-4">Save Attendance</button>
+                </form>
+            </div>
+        </section>
+        
+        <!-- Custom Modal for Alerts and Confirmations -->
+        <div id="custom-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden">
+            <div class="bg-white p-6 rounded-lg shadow-xl w-96">
+                <h3 id="modal-title" class="text-lg font-semibold mb-4"></h3>
+                <p id="modal-message" class="text-sm text-gray-700 mb-6"></p>
+                <div id="modal-actions" class="flex justify-end space-x-2">
+                    <!-- Buttons will be injected here -->
                 </div>
-
-                <div class="grid h-16 max-w-lg grid-cols-4 mx-auto font-medium md:h-full md:max-w-none md:grid-cols-1 md:gap-4">
-                    <button type="button" class="bottom-nav-btn inline-flex flex-col items-center justify-center px-5 text-slate-500 hover:bg-gray-50 active" data-tab="dashboard">
-                        <svg class="w-6 h-6 mb-1 md:mb-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                        <span class="text-xs md:text-base">Home</span>
-                    </button>
-                    <button type="button" class="bottom-nav-btn inline-flex flex-col items-center justify-center px-5 text-slate-500 hover:bg-gray-50" data-tab="details">
-                        <svg class="w-6 h-6 mb-1 md:mb-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m5.231 13.481L15 17.25m-4.5-15H5.625c-.621 0-1.125.504-1.125 1.125v16.5c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Zm3.75 11.625a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
-</svg>
-                        <span class="text-xs md:text-base">Details</span>
-                    </button>
-                    <button type="button" class="bottom-nav-btn inline-flex flex-col items-center justify-center px-5 text-slate-500 hover:bg-gray-50" data-tab="employee-history">
-                        <svg class="w-6 h-6 mb-1 md:mb-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                        <span class="text-xs md:text-base">History</span>
-                    </button>
-                    <button type="button" class="bottom-nav-btn inline-flex flex-col items-center justify-center px-5 text-slate-500 hover:bg-gray-50" data-tab="report">
-                       <svg class="w-6 h-6 mb-1 md:mb-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        <span class="text-xs md:text-base">Reports</span>
-                    </button>
-                </div>
-            </nav>
-
-            <div id="main-content-wrapper" class="flex-grow flex flex-col">
-                <header id="main-header" class="sticky top-0 z-50 bg-white/80 backdrop-blur-lg p-4 border-b border-slate-200">
-                    <div class="flex justify-between items-center max-w-6xl mx-auto md:max-w-full">
-                        <div class="flex items-center space-x-3">
-                             <img src="./logo1.png" alt="Company Logo" onerror="this.onerror=null; this.src='https://placehold.co/40x40/E5E7EB/1F2937?text=Logo';" class="w-10 h-10 rounded-full md:hidden">
-                            <h1 class="text-xl font-bold text-slate-800">Dashboard</h1>
-                        </div>
-                        <button id="logout-btn" class="text-slate-500 hover:text-red-500 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                            </svg>
-                        </button>
-                    </div>
-                </header>
-
-                <main class="flex-grow p-4 overflow-y-auto pb-24 space-y-6 md:pb-4">
-                    
-                    <div id="dashboard-content" class="tab-content space-y-6">
-                        <div class="app-card p-3 flex items-center justify-between">
-                            <label for="date-filter" class="text-sm font-medium text-slate-600">Viewing Data For:</label>
-                            <input type="date" id="date-filter" class="input-field w-auto text-sm bg-transparent border-0 focus:ring-0">
-                        </div>
-                        <div class="grid grid-cols-3 gap-3 text-center">
-                            <div class="app-card p-4">
-                                <h2 class="text-sm font-semibold text-slate-500">Total</h2>
-                                <p id="total-employees" class="text-3xl font-bold mt-1">0</p>
-                            </div>
-                            <div class="app-card p-4">
-                                <h2 class="text-sm font-semibold text-green-500">Present</h2>
-                                <p id="present-count" class="text-3xl font-bold mt-1 text-green-600">0</p>
-                            </div>
-                            <div class="app-card p-4">
-                                <h2 class="text-sm font-semibold text-red-500">Absent</h2>
-                                <p id="absent-count" class="text-3xl font-bold mt-1 text-red-600">0</p>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="app-card p-6">
-                                <h2 class="text-lg font-semibold text-slate-600 mb-4">Present Percentage</h2>
-                                <div class="flex items-center justify-center">
-                                    <div class="relative w-32 h-32">
-                                        <svg class="w-full h-full" viewBox="0 0 100 100">
-                                            <circle class="text-slate-200" stroke-width="10" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50"/>
-                                            <circle id="present-circle" class="text-indigo-500" stroke-width="10" stroke-dasharray="0" stroke-dashoffset="0" stroke-linecap="round" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50" transform="rotate(-90 50 50)"/>
-                                        </svg>
-                                        <span id="present-percent" class="absolute inset-0 flex items-center justify-center text-3xl font-bold text-slate-700">0%</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="app-card p-6">
-                                <h2 class="text-lg font-semibold text-slate-600 mb-4">Store-wise Attendance</h2>
-                                <div id="store-attendance-list" class="space-y-3"></div>
-                            </div>
-                        </div>
-                        <div class="flex justify-center mt-2">
-                            <button id="download-summary-pdf" class="btn bg-slate-200 text-slate-700 hover:bg-slate-300">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" /></svg>
-                                <span>View Summary PDF</span>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div id="details-content" class="tab-content hidden space-y-6">
-                        <div class="app-card p-3 flex items-center justify-between">
-                            <label for="date-filter-details" class="text-sm font-medium text-slate-600">Viewing Data For:</label>
-                            <input type="date" id="date-filter-details" class="input-field w-auto text-sm bg-transparent border-0 focus:ring-0">
-                        </div>
-                        
-                        <div class="app-card p-4">
-                            <div class="flex justify-between items-center mb-4">
-                                <h2 class="text-xl font-bold text-slate-700">Present Employees</h2>
-                                <select id="present-sort-order" class="input-field text-sm w-auto bg-transparent border-0 focus:ring-0">
-                                    <option value="location">Sort by Store</option>
-                                    <option value="time">Sort by Time</option>
-                                </select>
-                            </div>
-                            <div class="flex items-center mb-4">
-                                <input id="show-relocated-only" type="checkbox" class="w-4 h-4 text-indigo-600 bg-gray-100 border-gray-300 rounded focus:ring-indigo-500">
-                                <label for="show-relocated-only" class="ml-2 text-sm font-medium text-gray-900">Show Relocated Only</label>
-                            </div>
-                            <div id="present-employees-list" class="grid grid-cols-1 gap-4"></div>
-                            <div class="flex justify-center mt-6">
-                                <button id="download-present-pdf" class="btn bg-slate-200 text-slate-700 hover:bg-slate-300">Download PDF</button>
-                            </div>
-                        </div>
-
-                        <div class="app-card p-4">
-                            <h2 class="text-xl font-bold text-slate-700 mb-4">Absent Employees</h2>
-                            <ul id="absent-employees-list" class="divide-y divide-slate-200"></ul>
-                            <div class="flex justify-center mt-6">
-                                <button id="download-absent-pdf" class="btn bg-slate-200 text-slate-700 hover:bg-slate-300">Download PDF</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div id="employee-history-content" class="tab-content hidden space-y-6">
-                        <div class="app-card p-4 space-y-4">
-                            <h2 class="text-xl font-bold text-slate-700">Attendance History</h2>
-                            <div>
-                                <label for="month-filter" class="text-sm font-medium">Month:</label>
-                                <input type="month" id="month-filter" class="input-field mt-1">
-                            </div>
-                            <div>
-                                <label for="employee-name-filter" class="text-sm font-medium">Employee:</label>
-                                <select id="employee-name-filter" class="input-field mt-1"></select>
-                            </div>
-                            <div>
-                                <label for="history-sort-order" class="text-sm font-medium">Sort by:</label>
-                                <select id="history-sort-order" class="input-field mt-1">
-                                    <option value="location">Store</option>
-                                    <option value="time">Time</option>
-                                </select>
-                            </div>
-                            <button id="export-history-excel" class="w-full btn bg-green-600 text-white hover:bg-green-700">Export to Excel</button>
-                        </div>
-                        <div class="app-card p-2">
-                            <div id="attendance-history-list" class="divide-y divide-slate-200"></div>
-                            <p id="history-loading-message" class="text-center text-slate-500 p-4 hidden">Loading...</p>
-                        </div>
-                    </div>
-                    
-                    <div id="report-content" class="tab-content hidden space-y-6">
-                        <div class="app-card p-4 space-y-4">
-                            <h2 class="text-xl font-bold text-slate-700">Download Reports</h2>
-                            <div>
-                                <label for="start-date-filter" class="text-sm font-medium">Start Date:</label>
-                                <input type="date" id="start-date-filter" class="input-field mt-1">
-                            </div>
-                            <div>
-                                <label for="end-date-filter" class="text-sm font-medium">End Date:</label>
-                                <input type="date" id="end-date-filter" class="input-field mt-1">
-                            </div>
-                            <div>
-                                <label for="store-filter-select" class="text-sm font-medium">Store:</label>
-                                <select id="store-filter-select" class="input-field mt-1"></select>
-                            </div>
-                            <button id="download-attendance-sheet-excel" class="w-full btn bg-green-600 text-white hover:bg-green-700">Download Attendance Sheet (Excel)</button>
-                        </div>
-                    </div>
-
-                    <div id="manual-attendance-content" class="tab-content hidden space-y-6">
-                        <div class="app-card p-4 space-y-4">
-                            <h2 class="text-xl font-bold text-slate-700">Manual Attendance</h2>
-                            <form id="manual-attendance-form" class="space-y-4">
-                                <div>
-                                    <label for="employee-select" class="text-sm font-medium">Select Employee</label>
-                                    <select id="employee-select" class="input-field mt-1" required></select>
-                                </div>
-                                <button type="submit" class="w-full btn btn-primary">Mark as Present</button>
-                                <p id="manual-attendance-message" class="text-center font-medium hidden"></p>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div id="manage-content" class="tab-content hidden space-y-6">
-                        <div class="app-card p-4 space-y-4">
-                            <h2 class="text-xl font-bold text-slate-700">Add New Employee</h2>
-                            <form id="add-employee-form" class="space-y-4">
-                                <div>
-                                    <label for="employee-name" class="text-sm font-medium">Employee Name</label>
-                                    <input type="text" id="employee-name" class="input-field mt-1" required>
-                                </div>
-                                <div>
-                                    <label for="employee-store" class="text-sm font-medium">Store Name</label>
-                                    <select id="employee-store" class="input-field mt-1" required></select>
-                                </div>
-                                <div>
-                                    <label for="new-employee-username" class="text-sm font-medium">Username</label>
-                                    <input type="text" id="new-employee-username" class="input-field mt-1" required>
-                                </div>
-                                <div>
-                                    <label for="new-employee-password" class="text-sm font-medium">Password</label>
-                                    <input type="password" id="new-employee-password" class="input-field mt-1" required>
-                                </div>
-                                <button type="submit" class="w-full btn btn-primary">Add Employee</button>
-                                <p id="add-employee-message" class="text-center font-medium hidden"></p>
-                            </form>
-                        </div>
-                        
-                        <div class="app-card p-4 space-y-4">
-                             <h2 class="text-xl font-bold text-slate-700">Manage Employee Status</h2>
-                             <div id="manage-employee-list" class="divide-y divide-slate-200">
-                                 </div>
-                             <p id="manage-list-loading" class="text-center text-slate-500 p-4 hidden">Loading employees...</p>
-                        </div>
-                    </div>
-                    
-                </main>
             </div>
         </div>
+    </main>
 
-    </div>
-    
-    <div id="app-modal" class="modal fixed inset-0 flex items-center justify-center p-4 hidden z-50">
-        <div id="modal-content-area" class="app-card p-6 w-full max-w-sm text-center">
-            <h3 id="modal-title" class="text-xl font-bold mb-3"></h3>
-            <p id="modal-message" class="mb-6 text-slate-600"></p>
-            <div id="modal-buttons" class="flex flex-col sm:flex-row-reverse gap-3">
-                 <button id="modal-confirm" class="btn btn-primary w-full">Confirm</button>
-                 <button id="modal-cancel" class="btn bg-slate-200 text-slate-700 hover:bg-slate-300 w-full">Cancel</button>
-            </div>
-        </div>
-    </div>
-    
-    <footer class="fixed bottom-0 left-0 right-0 bg-slate-800 text-white p-2 text-sm z-40 md:hidden">
-        <div class="marquee-container">
-            <p class="marquee-text">For support, contact Samir Singhsamanta: +91 76069 36790</p>
-        </div>
-    </footer>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDoc, doc, setDoc, updateDoc, getDocs, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    <script>
-  // Supabase config
-  const SUPABASE_URL = 'https://wgjtkkvgskxzjqgsykze.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnanRra3Znc2t4empxZ3N5a3plIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1MzEyODYsImV4cCI6MjA3MTEwNzI4Nn0.Hr69_1j4Ts-7d1G_RylJuRZKTaigWFBgIYlHVahIvVA';
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        // DOM elements
-        const loginPage = document.getElementById('login-page');
-        const dashboardPage = document.getElementById('dashboard-page');
-        const loginForm = document.getElementById('login-form');
-        const loginError = document.getElementById('login-error');
-        const logoutBtn = document.getElementById('logout-btn');
-        const dateFilterInput = document.getElementById('date-filter');
-        const dateFilterDetails = document.getElementById('date-filter-details'); 
-        const mainHeader = document.getElementById('main-header');
-        
-        const dashboardContent = document.getElementById('dashboard-content');
-        const detailsContent = document.getElementById('details-content');
-        const reportContent = document.getElementById('report-content');
-        const manualAttendanceContent = document.getElementById('manual-attendance-content');
-        const manageContent = document.getElementById('manage-content');
-        const employeeHistoryContent = document.getElementById('employee-history-content');
-        
-        const totalEmployeesEl = document.getElementById('total-employees');
-        const presentCountEl = document.getElementById('present-count');
-        const absentCountEl = document.getElementById('absent-count');
-        const presentPercentEl = document.getElementById('present-percent');
-        const presentCircleEl = document.getElementById('present-circle');
-        const storeAttendanceList = document.getElementById('store-attendance-list');
-        const presentEmployeesList = document.getElementById('present-employees-list');
-        const absentEmployeesList = document.getElementById('absent-employees-list');
-        
-        const employeeSelect = document.getElementById('employee-select');
-        const manualAttendanceForm = document.getElementById('manual-attendance-form');
-        const manualMessage = document.getElementById('manual-attendance-message');
+        // Global variables provided by the environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-        const addEmployeeForm = document.getElementById('add-employee-form');
-        const employeeNameInput = document.getElementById('employee-name');
-        const newEmployeeUsernameInput = document.getElementById('new-employee-username');
-        const newEmployeePasswordInput = document.getElementById('new-employee-password');
-        const employeeStoreSelect = document.getElementById('employee-store');
-        const addEmployeeMessage = document.getElementById('add-employee-message');
+        // --- Firebase Initialization and Auth ---
+        let db, auth;
+        let userId = 'anonymous';
 
-        const manageEmployeeList = document.getElementById('manage-employee-list');
-        const manageListLoading = document.getElementById('manage-list-loading');
+        const setupFirebase = async () => {
+            try {
+                if (Object.keys(firebaseConfig).length === 0) {
+                    console.error("Firebase config is empty. Please ensure it's provided.");
+                    return;
+                }
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                userId = auth.currentUser?.uid || 'anonymous';
+                console.log("Firebase initialized successfully. User ID:", userId);
+                initApp();
+            } catch (error) {
+                console.error("Error setting up Firebase:", error);
+                showModal('Error', `Failed to initialize application. Please try again.`, ['OK']);
+            }
+        };
 
-        const startDateFilter = document.getElementById('start-date-filter');
-        const endDateFilter = document.getElementById('end-date-filter');
-        const storeFilterSelect = document.getElementById('store-filter-select');
-        
-        const monthFilterInput = document.getElementById('month-filter');
-        const employeeNameFilter = document.getElementById('employee-name-filter');
-        const attendanceHistoryList = document.getElementById('attendance-history-list');
-        const exportHistoryExcelBtn = document.getElementById('export-history-excel');
-        const historyLoadingMessage = document.getElementById('history-loading-message');
+        // --- UI & State Management ---
+        const sidebarItems = document.querySelectorAll('.sidebar-item');
+        const pageSections = document.querySelectorAll('.page-section');
+        const pageTitle = document.getElementById('page-title');
 
-        const appModal = document.getElementById('app-modal');
-        const modalTitle = document.getElementById('modal-title');
-        const modalMessage = document.getElementById('modal-message');
-        const modalConfirmBtn = document.getElementById('modal-confirm');
-        const modalCancelBtn = document.getElementById('modal-cancel');
-        
-        const presentSortOrderSelect = document.getElementById('present-sort-order');
-        const historySortOrderSelect = document.getElementById('history-sort-order');
-        const showRelocatedOnlyCheckbox = document.getElementById('show-relocated-only');
-
-        // State variables
-        let allUsers = []; // IMPORTANT: This will now only store ACTIVE users
+        let allEmployees = [];
         let allStores = [];
-        let allStoresData = [];
         let selectedDate = dayjs().format('YYYY-MM-DD');
-        let storeData = {};
         let selectedMonth = dayjs().format('YYYY-MM');
-        let selectedEmployeeUsername = 'all';
-        let monthlyAttendanceData = [];
-        let presentSortOrder = 'location';
-        let historySortOrder = 'location';
+        let selectedEmployeeUsername = '';
         let showRelocatedOnly = false;
-        let isAdmin = false;
 
         // --- Utility Functions ---
-
-        function showTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
-            document.getElementById(`${tabName}-content`).classList.remove('hidden');
-
-            document.querySelectorAll('.bottom-nav-btn').forEach(btn => btn.classList.remove('active'));
-            const newActiveButton = document.querySelector(`.bottom-nav-btn[data-tab="${tabName}"]`);
-            if (newActiveButton) {
-                newActiveButton.classList.add('active');
-            }
-            if (tabName === 'details') {
-                dateFilterDetails.value = selectedDate;
-            }
-        }
-        
-        function showModal(title, message) {
-            modalTitle.textContent = title;
-            modalMessage.textContent = message;
-            modalConfirmBtn.textContent = 'Close';
-            modalConfirmBtn.onclick = () => appModal.classList.add('hidden');
-            modalCancelBtn.classList.add('hidden'); // Hide cancel button for simple alerts
-            appModal.classList.remove('hidden');
-        }
-
-        function showConfirmation(title, message, onConfirm) {
-            modalTitle.textContent = title;
-            modalMessage.textContent = message;
-            modalConfirmBtn.textContent = 'Confirm';
-            modalConfirmBtn.onclick = () => {
-                appModal.classList.add('hidden');
-                onConfirm(); // Execute the callback function
-            };
-            modalCancelBtn.classList.remove('hidden'); // Show cancel button
-            modalCancelBtn.textContent = 'Cancel';
-            modalCancelBtn.onclick = () => appModal.classList.add('hidden');
-            appModal.classList.remove('hidden');
-        }
-
-        // --- PDF Generation ---
-        async function generateSummaryPDF() {
-            try {
-                const { jsPDF } = window.jspdf;
-                if (typeof jsPDF === 'undefined') {
-                    showModal('Error', 'PDF library not loaded. Please refresh the page.');
-                    return;
-                }
-                if (!allUsers || allUsers.length === 0) {
-                    showModal('Error', 'No active employees found to generate a summary.');
-                    return;
-                }
-                const totalCount = allUsers.length;
-                const presentCount = parseInt(presentCountEl.textContent, 10) || 0;
-                const absentCount = parseInt(absentCountEl.textContent, 10) || 0;
-                const presentPercentage = totalCount > 0 ? (presentCount / totalCount) * 100 : 0;
-                const doc = new jsPDF();
-                const date = dayjs(selectedDate).format('MMMM D, YYYY');
-                doc.setFontSize(18);
-                doc.text(`Attendance Summary for ${date}`, 14, 22);
-                doc.setFontSize(12);
-                doc.text(`Total Active Employees: ${totalCount}`, 14, 35);
-                doc.text(`Present: ${presentCount}`, 14, 45);
-                doc.text(`Absent: ${absentCount}`, 14, 55);
-                doc.text(`Present Percentage: ${Math.round(presentPercentage)}%`, 14, 65);
-                doc.text('Store-wise Attendance:', 14, 80);
-                let y = 90;
-                Object.entries(storeData).sort((a, b) => a[0].localeCompare(b[0])).forEach(([storeName, data]) => {
-                    doc.text(`- ${storeName}: Present ${data.present}, Absent ${data.absent}`, 18, y);
-                    y += 10;
-                });
-                doc.save(`attendance-summary-${selectedDate}.pdf`);
-            } catch (e) {
-                console.error('An unexpected error occurred during PDF generation:', e);
-                showModal('Error', `An unexpected error occurred while generating the PDF: ${e.message}`);
-            }
-        }
-
-        async function generatePresentListPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const date = dayjs(selectedDate).format('MMMM D, YYYY');
-            doc.setFontSize(18);
-            doc.text(`Present Employees for ${date}`, 14, 22);
-            const presentEmployees = Array.from(presentEmployeesList.querySelectorAll('.app-card'));
-            let y = 35;
-            let page = 1;
-            for (const emp of presentEmployees) {
-                if (y > 280) {
-                    doc.addPage();
-                    y = 22;
-                    page++;
-                    doc.setFontSize(18);
-                    doc.text(`Present Employees for ${date} (Cont. - Page ${page})`, 14, 22);
-                    y = 35;
-                }
-                const name = emp.querySelector('.font-bold').textContent;
-                const store = emp.querySelector('p:nth-child(2)').textContent.replace('Store: ', '');
-                const time = emp.querySelector('p:nth-child(3)').textContent.replace('Time: ', '');
-                const img = emp.querySelector('img');
-                doc.setFontSize(12);
-                doc.text(`Name: ${name}`, 14, y);
-                doc.text(`Store: ${store}`, 14, y + 6);
-                doc.text(`Time: ${time}`, 14, y + 12);
-                if (img && img.src.startsWith('data:')) {
-                    try {
-                        doc.addImage(img.src, 'JPEG', 150, y, 30, 30);
-                    } catch (e) { console.error('Error adding image to PDF:', e); }
-                }
-                y += 40;
-            }
-            doc.save(`present-employees-${selectedDate}.pdf`);
-        }
-        
-        async function generateAbsentListPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const date = dayjs(selectedDate).format('MMMM D, YYYY');
-            doc.setFontSize(18);
-            doc.text(`Absent Employees for ${date}`, 14, 22);
-            const absentEmployees = Array.from(absentEmployeesList.querySelectorAll('li'));
-            let y = 35;
-            let page = 1;
-            absentEmployees.forEach(emp => {
-                if (y > 280) {
-                    doc.addPage();
-                    y = 22;
-                    page++;
-                    doc.setFontSize(18);
-                    doc.text(`Absent Employees for ${date} (Cont. - Page ${page})`, 14, 22);
-                    y = 35;
-                }
-                const name = emp.querySelector('span:nth-child(1)').textContent;
-                const store = emp.querySelector('span:nth-child(2)').textContent;
-                doc.setFontSize(12);
-                doc.text(`Name: ${name}`, 14, y);
-                doc.text(`Store: ${store}`, 14, y + 6);
-                y += 15;
-            });
-            doc.save(`absent-employees-${selectedDate}.pdf`);
-        }
-        
-        async function generateAttendanceSheet(format = 'excel') {
-            try {
-                if (typeof XLSX === 'undefined') { showModal('Error', 'Excel library not loaded.'); return; }
-                const start = startDateFilter.value;
-                const end = endDateFilter.value;
-                const store = storeFilterSelect.value;
-                if (!start || !end) { showModal('Error', 'Please select a date range.'); return; }
-                
-                let { data: users, error: userError } = await supabase.from('users').select('username, name, location').eq('status', 'active').order('location');
-                if (userError) { showModal('Error', `Failed to fetch user data: ${userError.message}`); return; }
-                if (store !== 'all') {
-                    users = users.filter(user => user.location === store);
-                }
-
-                const { data: attendanceData, error: attendanceError } = await supabase.from('attendance').select('username, timestamp').gte('timestamp', dayjs(start).startOf('day').toISOString()).lte('timestamp', dayjs(end).endOf('day').toISOString());
-                if (attendanceError) { showModal('Error', `Failed to fetch attendance data: ${attendanceError.message}`); return; }
-
-                const datesInRange = [];
-                let currentDate = dayjs(start);
-                while (currentDate.isBefore(dayjs(end).add(1, 'day'))) {
-                    datesInRange.push(currentDate.format('YYYY-MM-DD'));
-                    currentDate = currentDate.add('1', 'day');
-                }
-                const attendanceMap = new Map();
-                attendanceData.forEach(att => {
-                    const date = dayjs(att.timestamp).format('YYYY-MM-DD');
-                    if (!attendanceMap.has(att.username)) {
-                        attendanceMap.set(att.username, new Set());
+        const showModal = (title, message, buttons, callback = null) => {
+            const modal = document.getElementById('custom-modal');
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-message').innerText = message;
+            const actionsContainer = document.getElementById('modal-actions');
+            actionsContainer.innerHTML = '';
+            
+            buttons.forEach(btnText => {
+                const button = document.createElement('button');
+                button.innerText = btnText;
+                button.className = 'tally-btn';
+                button.onclick = () => {
+                    modal.classList.add('hidden');
+                    if (callback && btnText === 'Confirm') {
+                        callback();
                     }
-                    attendanceMap.get(att.username).add(date);
-                });
-                const headers = ['Name', 'Store', ...datesInRange];
-                const data = users.map(user => {
-                    const row = [user.name, user.location];
-                    const userAttendance = attendanceMap.get(user.username) || new Set();
-                    datesInRange.forEach(date => {
-                        row.push(userAttendance.has(date) ? 'P' : 'A');
-                    });
-                    return row;
-                });
-                if (format === 'excel') {
-                    const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
-                    const wb = XLSX.utils.book_new();
-                    XLSX.utils.book_append_sheet(wb, ws, "Attendance Sheet");
-                    XLSX.writeFile(wb, `attendance-sheet-${start}-to-${end}.xlsx`);
-                }
+                };
+                actionsContainer.appendChild(button);
+            });
+            modal.classList.remove('hidden');
+        };
+
+        // --- Data Fetching & Rendering ---
+        const getCollectionRef = (name) => collection(db, `artifacts/${appId}/public/data/${name}`);
+
+        const loadEmployees = async () => {
+            try {
+                const q = query(getCollectionRef('employees'));
+                const querySnapshot = await getDocs(q);
+                allEmployees = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                loadEmployeeSelectOptions();
+                await loadDashboardData(selectedDate);
+                await loadReportsData(selectedMonth);
+                await loadManageEmployeesList();
             } catch (e) {
-                showModal('Error', `An unexpected error occurred: ${e.message}`);
+                console.error("Error loading employees: ", e);
+                showModal('Error', 'Failed to load employee data.', ['OK']);
             }
-        }
-        
-        async function exportAttendanceHistoryToExcel() {
+        };
+
+        const loadStoresForAddEmployee = async () => {
             try {
-                if (typeof XLSX === 'undefined') { showModal('Error', 'Excel library not loaded.'); return; }
-                if (!monthlyAttendanceData || monthlyAttendanceData.length === 0) { showModal('Error', 'No data to export.'); return; }
-                const headers = ["Date", "Name", "Store", "Check-in Time"];
-                const data = monthlyAttendanceData.map(record => [
-                    dayjs(record.timestamp).format('YYYY-MM-DD'), record.name, record.location, dayjs(record.timestamp).format('hh:mm:ss A')
-                ]);
-                const employeeName = selectedEmployeeUsername === 'all' ? 'All_Active' : allUsers.find(u => u.username === selectedEmployeeUsername).name;
-                const fileName = `attendance-history-${employeeName}-${selectedMonth}.xlsx`;
-                const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, "Monthly Attendance");
-                XLSX.writeFile(wb, fileName);
-            } catch (e) { showModal('Error', `An unexpected error occurred: ${e.message}`); }
-        }
-
-        // --- Core Application Logic ---
-
-        async function handleLogin(event) {
-            event.preventDefault();
-            const username = document.getElementById('hr-username').value;
-            const password = document.getElementById('hr-password').value;
-            try {
-                const { data, error } = await supabase.from('hr_users').select('*, is_admin').eq('username', username).eq('password', password).single();
-                if (error || !data) { loginError.classList.remove('hidden'); return; }
-                loginPage.style.display = 'none';
-                dashboardPage.style.display = 'flex';
-                loginError.classList.add('hidden');
-                isAdmin = data.is_admin;
-                document.querySelectorAll('.admin-tab-btn').forEach(btn => btn.remove());
-                
-                const adminTabs = ['manual-attendance', 'manage']; 
-                if (isAdmin) {
-                    const navGrid = document.querySelector('nav .grid');
-                    adminTabs.forEach(tabName => {
-                        const newButton = document.createElement('button');
-                        newButton.type = 'button';
-                        newButton.classList.add('bottom-nav-btn', 'inline-flex', 'flex-col', 'items-center', 'justify-center', 'px-5', 'text-slate-500', 'hover:bg-gray-50', 'admin-tab-btn');
-                        newButton.dataset.tab = tabName;
-                        let iconSvg = ''; let labelText = '';
-                        if (tabName === 'manual-attendance') {
-                            iconSvg = `<svg class="w-6 h-6 mb-1 md:mb-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>`;
-                            labelText = `<span class="text-xs md:text-base">Manual</span>`;
-                        } else if (tabName === 'manage') {
-                            iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">   <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" /> </svg>`;
-                            labelText = `<span class="text-xs md:text-base">Manage</span>`;
-                        }
-                        newButton.innerHTML = iconSvg + labelText;
-                        navGrid.appendChild(newButton);
-                    });
-                    navGrid.classList.remove('grid-cols-4');
-                    navGrid.classList.add(`grid-cols-${4 + adminTabs.length}`);
-                    if (window.innerWidth >= 768) {
-                        navGrid.classList.remove(`grid-cols-${4 + adminTabs.length}`);
-                        navGrid.classList.add('grid-cols-1');
-                    }
-                }
-                await loadAllUsers();
-                await loadDashboardData(dayjs().format('YYYY-MM-DD'));
-                await loadStoreFilters();
-            } catch (err) {
-                console.error('Login error:', err);
-                loginError.classList.remove('hidden');
-            }
-        }
-
-        async function loadAllUsers() {
-             const { data: users, error: userError } = await supabase.from('users').select('*').eq('status', 'active').order('location');
-             if (userError) { console.error('Error fetching active users:', userError); return; }
-             allUsers = users;
-             
-             const userOptionsHTML = allUsers.map(user => `<option value="${user.username}">${user.name} (${user.location})</option>`).join('');
-             employeeSelect.innerHTML = `<option value="">-- Select an employee --</option>${userOptionsHTML}`;
-             employeeNameFilter.innerHTML = `<option value="all">All Employees</option>${userOptionsHTML}`;
-        }
-        
-        async function loadStoresForAddEmployee() {
-            const { data, error } = await supabase.from('store').select('location, latitude, longitude').order('location');
-            if (error) { console.error('Error fetching stores:', error); return; }
-            allStoresData = data;
-            employeeStoreSelect.innerHTML = `<option value="">-- Select a store --</option>` + allStoresData.map(store => `<option value="${store.location}">${store.location}</option>`).join('');
-        }
-
-        async function loadStoreFilters() {
-             const { data, error } = await supabase.from('users').select('location').eq('status', 'active');
-            if (error) { console.error('Error fetching store locations:', error); return; }
-            allStores = [...new Set(data.map(user => user.location))].sort();
-            storeFilterSelect.innerHTML = `<option value="all">All Stores</option>` + allStores.map(store => `<option value="${store}">${store}</option>`).join('');
-        }
-
-        async function loadDashboardData(date) {
-            selectedDate = date;
-            dateFilterInput.value = selectedDate;
-            dateFilterDetails.value = selectedDate;
-            const todayStart = dayjs(date).startOf('day').toISOString();
-            const todayEnd = dayjs(date).endOf('day').toISOString();
-            
-            let baseAttendanceQuery = supabase.from('attendance').select('*').gte('timestamp', todayStart).lte('timestamp', todayEnd);
-            baseAttendanceQuery = (presentSortOrder === 'location') 
-                ? baseAttendanceQuery.order('location', { ascending: true }).order('timestamp', { ascending: true })
-                : baseAttendanceQuery.order('timestamp', { ascending: true });
-
-            const { data: allDailyAttendance, error: attendanceError } = await baseAttendanceQuery;
-            if (attendanceError) { console.error('Error fetching attendance:', attendanceError); return; }
-
-            const presentUsernames = new Set(allDailyAttendance.map(att => att.username));
-            const presentUsers = allUsers.filter(user => presentUsernames.has(user.username));
-            const absentUsers = allUsers.filter(user => !presentUsernames.has(user.username));
-            
-            const totalCount = allUsers.length;
-            const presentCount = presentUsers.length;
-            const absentCount = absentUsers.length;
-            const presentPercentage = totalCount > 0 ? (presentCount / totalCount) * 100 : 0;
-            const circumference = 2 * Math.PI * 40;
-            const offset = circumference - (presentPercentage / 100) * circumference;
-
-            totalEmployeesEl.textContent = totalCount;
-            presentCountEl.textContent = presentCount;
-            absentCountEl.textContent = absentCount;
-            presentPercentEl.textContent = `${Math.round(presentPercentage)}%`;
-            presentCircleEl.style.strokeDasharray = `${circumference}`;
-            presentCircleEl.style.strokeDashoffset = `${offset}`;
-
-            storeData = {}; 
-            allUsers.forEach(user => {
-                if (!storeData[user.location]) storeData[user.location] = { total: 0, present: 0, absent: 0 };
-                storeData[user.location].total++;
-            });
-            presentUsers.forEach(user => {
-                if (storeData[user.location]) storeData[user.location].present++;
-            });
-            Object.keys(storeData).forEach(storeName => {
-                storeData[storeName].absent = storeData[storeName].total - storeData[storeName].present;
-            });
-
-            storeAttendanceList.innerHTML = Object.entries(storeData).sort((a, b) => a[0].localeCompare(b[0])).map(([store, data]) => `
-                <div class="flex justify-between items-center py-2 border-b border-slate-200 last:border-b-0">
-                    <span class="font-semibold text-slate-700">${store}</span>
-                    <div class="flex space-x-4 text-sm">
-                        <span><span class="font-bold text-green-600">${data.present}</span> P</span>
-                        <span><span class="font-bold text-red-600">${data.absent}</span> A</span>
-                    </div>
-                </div>
-            `).join('');
-            
-            absentEmployeesList.innerHTML = absentUsers.map(user => `<li class="py-3 flex justify-between items-center"><span class="font-medium text-slate-700">${user.name}</span><span class="text-sm text-slate-500 bg-slate-100 px-2 py-1 rounded-full">${user.location}</span></li>`).join('');
-            
-            let filteredAttendance = showRelocatedOnly ? allDailyAttendance.filter(att => att.location === 'Relocated') : allDailyAttendance;
-            presentEmployeesList.innerHTML = filteredAttendance.map(att => `
-                <div class="app-card p-3 flex items-center space-x-4">
-                    <img src="${att.image}" alt="Employee Selfie" class="w-12 h-12 object-cover rounded-lg">
-                    <div class="flex-grow"> <p class="font-bold text-slate-800">${att.name}</p> <p class="text-xs text-slate-500">Store: ${att.location}</p> </div>
-                    <p class="text-sm text-slate-600 font-medium">${dayjs(att.timestamp).format('hh:mm A')}</p>
-                </div>`).join('');
-        }
-        
-        async function loadEmployeeHistoryData(month, employeeUsername) {
-            selectedMonth = month; selectedEmployeeUsername = employeeUsername;
-            monthFilterInput.value = selectedMonth; employeeNameFilter.value = selectedEmployeeUsername;
-            historyLoadingMessage.classList.remove('hidden'); attendanceHistoryList.innerHTML = '';
-            
-            try {
-                let query = supabase.from('attendance').select('*').gte('timestamp', dayjs(month).startOf('month').toISOString()).lte('timestamp', dayjs(month).endOf('month').toISOString());
-                if (employeeUsername !== 'all') query = query.eq('username', employeeUsername);
-                query = (historySortOrder === 'location') ? query.order('location').order('timestamp', { ascending: false }) : query.order('timestamp', { ascending: false });
-                
-                const { data: attendance, error } = await query;
-                if (error) { throw error; }
-                monthlyAttendanceData = attendance;
-                
-                if (monthlyAttendanceData.length === 0) {
-                    attendanceHistoryList.innerHTML = '<p class="text-center text-slate-500 p-4">No attendance records found.</p>';
-                } else {
-                    attendanceHistoryList.innerHTML = monthlyAttendanceData.map(att => `
-                        <div class="p-3 flex items-center space-x-4">
-                            <img src="${att.image}" alt="Employee Selfie" class="w-12 h-12 object-cover rounded-lg">
-                            <div class="flex-grow"> <p class="font-bold text-slate-800">${att.name}</p> <p class="text-xs text-slate-500">${att.location} on ${dayjs(att.timestamp).format('MMM D')}</p> </div>
-                            <p class="text-sm text-slate-600 font-medium">${dayjs(att.timestamp).format('hh:mm A')}</p>
-                        </div>`).join('');
-                }
+                const q = query(getCollectionRef('stores'));
+                const querySnapshot = await getDocs(q);
+                allStores = querySnapshot.docs.map(doc => doc.data());
+                const select = document.getElementById('new-store');
+                select.innerHTML = '<option value="">Select Store</option>';
+                allStores.forEach(store => {
+                    const option = document.createElement('option');
+                    option.value = store.name;
+                    option.textContent = store.name;
+                    select.appendChild(option);
+                });
             } catch (e) {
-                attendanceHistoryList.innerHTML = `<p class="text-center text-red-500 p-4">Failed to load data: ${e.message}</p>`;
-            } finally {
-                historyLoadingMessage.classList.add('hidden');
+                console.error("Error loading stores: ", e);
             }
-        }
-        
-        // --- Admin Functions ---
-        
-        async function loadAndDisplayAllManageableUsers() {
-            manageListLoading.classList.remove('hidden');
-            manageEmployeeList.innerHTML = '';
-            const { data: allManageableUsers, error } = await supabase.from('users').select('*').order('name');
-            manageListLoading.classList.add('hidden');
-            if (error) {
-                manageEmployeeList.innerHTML = `<p class="text-center text-red-500 p-4">Failed to load employees: ${error.message}</p>`;
+        };
+
+        const loadDashboardData = async (date) => {
+            try {
+                const formattedDate = dayjs(date).format('YYYY-MM-DD');
+                const attendanceRef = getCollectionRef('attendance');
+                const attendanceQuery = query(attendanceRef, where('date', '==', formattedDate));
+
+                const attendanceSnapshot = await getDocs(attendanceQuery);
+                const attendanceRecords = attendanceSnapshot.docs.map(doc => doc.data());
+
+                let filteredEmployees = allEmployees;
+                if (showRelocatedOnly) {
+                    filteredEmployees = allEmployees.filter(emp => emp.relocated);
+                }
+
+                const presentList = filteredEmployees.filter(emp => attendanceRecords.some(att => att.username === emp.username && att.status === 'Present'));
+                const absentList = filteredEmployees.filter(emp => !attendanceRecords.some(att => att.username === emp.username));
+
+                document.getElementById('totalEmployees').textContent = filteredEmployees.length;
+                document.getElementById('presentEmployees').textContent = presentList.length;
+                document.getElementById('absentEmployees').textContent = absentList.length;
+
+                renderAttendanceList('present-list', presentList.map(emp => ({ ...emp, attendance: attendanceRecords.find(att => att.username === emp.username) })));
+                renderAttendanceList('absent-list', absentList.map(emp => ({ ...emp, attendance: null })));
+            } catch (e) {
+                console.error("Error loading dashboard data: ", e);
+                showModal('Error', 'Failed to load dashboard data.', ['OK']);
+            }
+        };
+
+        const loadReportsData = async (month) => {
+            try {
+                const monthStart = dayjs(month).startOf('month').format('YYYY-MM-DD');
+                const monthEnd = dayjs(month).endOf('month').format('YYYY-MM-DD');
+
+                const attendanceRef = getCollectionRef('attendance');
+                const attendanceQuery = query(attendanceRef, where('date', '>=', monthStart), where('date', '<=', monthEnd));
+                const attendanceSnapshot = await getDocs(attendanceQuery);
+                const attendanceRecords = attendanceSnapshot.docs.map(doc => doc.data());
+
+                const employeeReportData = allEmployees.map(emp => {
+                    const presentCount = attendanceRecords.filter(att => att.username === emp.username && att.status === 'Present').length;
+                    const absentCount = attendanceRecords.filter(att => att.username === emp.username && att.status === 'Absent').length;
+                    return {
+                        username: emp.username,
+                        name: emp.name,
+                        relocated: emp.relocated ? 'Yes' : 'No',
+                        presentCount,
+                        absentCount
+                    };
+                });
+                renderReportsTable(employeeReportData);
+            } catch (e) {
+                console.error("Error loading reports data: ", e);
+                showModal('Error', 'Failed to load reports data.', ['OK']);
+            }
+        };
+
+        const loadEmployeeHistoryData = async (month, username) => {
+            if (!username) {
+                document.getElementById('employee-history-table').innerHTML = '';
                 return;
             }
-            manageEmployeeList.innerHTML = allManageableUsers.map(user => {
-                const is_active = user.status === 'active';
-                const status_class = is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
-                const button_class = is_active ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600';
-                const button_text = is_active ? 'Mark Resigned' : 'Mark Active';
-                return `
-                <div class="py-3 flex justify-between items-center">
-                    <div>
-                        <p class="font-medium text-slate-700">${user.name}</p>
-                        <p class="text-sm text-slate-500">${user.location}</p>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <span class="text-xs font-semibold px-2 py-1 rounded-full ${status_class} capitalize">${user.status}</span>
-                        <button data-username="${user.username}" data-name="${user.name}" data-current-status="${user.status}" 
-                                class="change-status-btn btn text-white text-xs py-1 px-2 rounded-md ${button_class}">
-                            ${button_text}
-                        </button>
-                    </div>
-                </div>
-                `;
-            }).join('');
-        }
+            try {
+                const monthStart = dayjs(month).startOf('month').format('YYYY-MM-DD');
+                const monthEnd = dayjs(month).endOf('month').format('YYYY-MM-DD');
 
-        async function updateEmployeeStatus(username, name, currentStatus) {
-            const newStatus = currentStatus === 'active' ? 'resigned' : 'active';
-            const confirmationMessage = `Are you sure you want to mark ${name} as ${newStatus}? This will affect all dashboard calculations and reports.`;
-            
-            showConfirmation('Confirm Status Change', confirmationMessage, async () => {
-                const { error } = await supabase.from('users').update({ status: newStatus }).eq('username', username);
-                if (error) {
-                    showModal('Error', `Failed to update status: ${error.message}`);
+                const attendanceRef = getCollectionRef('attendance');
+                const q = query(attendanceRef, where('username', '==', username), where('date', '>=', monthStart), where('date', '<=', monthEnd));
+                const querySnapshot = await getDocs(q);
+                const historyData = querySnapshot.docs.map(doc => doc.data());
+                renderEmployeeHistoryTable(historyData);
+            } catch (e) {
+                console.error("Error loading employee history: ", e);
+                showModal('Error', 'Failed to load employee history.', ['OK']);
+            }
+        };
+
+        const loadManageEmployeesList = async () => {
+            try {
+                const employeeList = allEmployees.sort((a, b) => a.name.localeCompare(b.name));
+                renderManageEmployeesTable(employeeList);
+            } catch (e) {
+                console.error("Error loading manage employees list: ", e);
+                showModal('Error', 'Failed to load employee list.', ['OK']);
+            }
+        };
+
+        const renderAttendanceList = (tableId, data) => {
+            const tableBody = document.getElementById(tableId);
+            tableBody.innerHTML = '';
+            data.forEach(employee => {
+                const row = document.createElement('tr');
+                row.className = 'text-sm';
+                let time = '';
+                if (employee.attendance && employee.attendance.inTime) {
+                    time = dayjs(employee.attendance.inTime).format('hh:mm A');
+                }
+                if (tableId === 'present-list') {
+                    row.innerHTML = `
+                        <td class="p-3">${employee.username}</td>
+                        <td class="p-3">${employee.name}</td>
+                        <td class="p-3">${employee.store}</td>
+                    `;
                 } else {
-                    showModal('Success', `${name}'s status has been updated to ${newStatus}.`);
-                    await loadAndDisplayAllManageableUsers();
-                    await loadAllUsers();
-                    await loadDashboardData(selectedDate);
+                    row.innerHTML = `
+                        <td class="p-3">${employee.username}</td>
+                        <td class="p-3">${employee.name}</td>
+                    `;
+                }
+                tableBody.appendChild(row);
+            });
+        };
+
+        const renderReportsTable = (data) => {
+            const tableBody = document.getElementById('report-table');
+            tableBody.innerHTML = '';
+            data.forEach(employee => {
+                const row = document.createElement('tr');
+                row.className = 'text-sm';
+                row.innerHTML = `
+                    <td class="p-3">${employee.username}</td>
+                    <td class="p-3">${employee.name}</td>
+                    <td class="p-3">${employee.relocated}</td>
+                    <td class="p-3 text-[var(--tally-green)] font-semibold">${employee.presentCount}</td>
+                    <td class="p-3 text-[var(--tally-red)] font-semibold">${employee.absentCount}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        };
+
+        const renderEmployeeHistoryTable = (data) => {
+            const tableBody = document.getElementById('employee-history-table');
+            tableBody.innerHTML = '';
+            const sortedData = data.sort((a, b) => dayjs(a.date).isBefore(dayjs(b.date)) ? 1 : -1);
+            sortedData.forEach(record => {
+                const row = document.createElement('tr');
+                row.className = 'text-sm';
+                const statusClass = record.status === 'Present' ? 'text-[var(--tally-green)]' : 'text-[var(--tally-red)]';
+                row.innerHTML = `
+                    <td class="p-3">${dayjs(record.date).format('DD-MMM-YYYY')}</td>
+                    <td class="p-3 font-semibold ${statusClass}">${record.status}</td>
+                    <td class="p-3">${record.inTime ? dayjs(record.inTime).format('hh:mm A') : '-'}</td>
+                    <td class="p-3">${record.outTime ? dayjs(record.outTime).format('hh:mm A') : '-'}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        };
+
+        const renderManageEmployeesTable = (data) => {
+            const tableBody = document.getElementById('manage-employee-list');
+            tableBody.innerHTML = '';
+            data.forEach(employee => {
+                const statusClass = employee.status === 'Active' ? 'text-[var(--tally-green)]' : 'text-[var(--tally-red)]';
+                const buttonText = employee.status === 'Active' ? 'Deactivate' : 'Activate';
+                const row = document.createElement('tr');
+                row.className = 'text-sm';
+                row.innerHTML = `
+                    <td class="p-3">${employee.username}</td>
+                    <td class="p-3">${employee.name}</td>
+                    <td class="p-3 font-semibold ${statusClass}">${employee.status}</td>
+                    <td class="p-3">${employee.relocated ? 'Yes' : 'No'}</td>
+                    <td class="p-3">
+                        <button class="change-status-btn tally-btn-outline text-xs px-2 py-1"
+                                data-username="${employee.username}"
+                                data-name="${employee.name}"
+                                data-current-status="${employee.status}">
+                            ${buttonText}
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        };
+
+        // --- Event Handlers ---
+        const handleNavigation = (event) => {
+            event.preventDefault();
+            const targetId = event.currentTarget.getAttribute('href').substring(1);
+
+            sidebarItems.forEach(item => item.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            pageSections.forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(targetId).classList.remove('hidden');
+            pageTitle.textContent = event.currentTarget.textContent.trim();
+        };
+
+        const handleManualAttendance = async (event) => {
+            event.preventDefault();
+            const form = event.target;
+            const username = form['employee-username'].value;
+            const date = form['attendance-date'].value;
+            const status = form['attendance-status'].value;
+            const time = form['attendance-time'].value;
+            const record = {
+                username: username,
+                date: date,
+                status: status,
+                inTime: time ? dayjs(`${date}T${time}`).toISOString() : null,
+                outTime: null,
+            };
+            try {
+                await addDoc(getCollectionRef('attendance'), record);
+                showModal('Success', 'Attendance record saved successfully.', ['OK']);
+                form.reset();
+                await loadDashboardData(selectedDate);
+            } catch (e) {
+                console.error("Error adding document: ", e);
+                showModal('Error', 'Failed to save attendance record.', ['OK']);
+            }
+        };
+
+        const handleAddEmployee = async (event) => {
+            event.preventDefault();
+            const form = event.target;
+            const username = form['new-username'].value;
+            const name = form['new-name'].value;
+            const store = form['new-store'].value;
+            const status = form['new-status'].value;
+            const relocated = form['new-relocated'].checked;
+
+            const newEmployee = { username, name, store, status, relocated };
+            try {
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'employees', username), newEmployee);
+                showModal('Success', `${name} has been added as a new employee.`, ['OK']);
+                form.reset();
+                await loadEmployees(); // Reload all employee data
+            } catch (e) {
+                console.error("Error adding employee: ", e);
+                showModal('Error', 'Failed to add new employee.', ['OK']);
+            }
+        };
+
+        const updateEmployeeStatus = (username, name, currentStatus) => {
+            const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
+            showModal(
+                'Confirm Status Change',
+                `Are you sure you want to change the status of ${name} (${username}) to ${newStatus}?`,
+                ['Cancel', 'Confirm'],
+                async () => {
+                    try {
+                        const employeeDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'employees', username);
+                        await updateDoc(employeeDocRef, { status: newStatus });
+                        showModal('Success', `Employee status updated to ${newStatus}.`, ['OK']);
+                        await loadEmployees(); // Reload to reflect changes
+                    } catch (e) {
+                        console.error("Error updating employee status: ", e);
+                        showModal('Error', 'Failed to update employee status.', ['OK']);
+                    }
+                }
+            );
+        };
+        
+        // --- PDF & Excel Generation ---
+        const generateSummaryPDF = () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text("Daily Attendance Summary", 10, 10);
+            doc.text(`Date: ${dayjs(selectedDate).format('DD-MMM-YYYY')}`, 10, 20);
+            doc.text(`Total Employees: ${document.getElementById('totalEmployees').textContent}`, 10, 30);
+            doc.text(`Present: ${document.getElementById('presentEmployees').textContent}`, 10, 40);
+            doc.text(`Absent: ${document.getElementById('absentEmployees').textContent}`, 10, 50);
+            doc.save("attendance_summary.pdf");
+        };
+
+        const generatePresentListPDF = () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const table = document.getElementById('present-list');
+            doc.autoTable({
+                head: [['ID', 'Name', 'Location']],
+                body: Array.from(table.rows).map(row => Array.from(row.cells).map(cell => cell.textContent)),
+                startY: 20
+            });
+            doc.text(`Present Employees List (${dayjs(selectedDate).format('DD-MMM-YYYY')})`, 10, 10);
+            doc.save("present_employees.pdf");
+        };
+        
+        const generateAbsentListPDF = () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const table = document.getElementById('absent-list');
+            doc.autoTable({
+                head: [['ID', 'Name']],
+                body: Array.from(table.rows).map(row => Array.from(row.cells).map(cell => cell.textContent)),
+                startY: 20
+            });
+            doc.text(`Absent Employees List (${dayjs(selectedDate).format('DD-MMM-YYYY')})`, 10, 10);
+            doc.save("absent_employees.pdf");
+        };
+
+        const generateAttendanceSheet = (format) => {
+            const data = [];
+            const headers = ['Username', 'Name'];
+            const datesInMonth = dayjs(selectedMonth).daysInMonth();
+            for (let i = 1; i <= datesInMonth; i++) {
+                headers.push(`${dayjs(selectedMonth).date(i).format('MMM D')}`);
+            }
+            data.push(headers);
+        
+            const monthlyAttendanceRef = getCollectionRef('monthly-attendance-reports');
+            onSnapshot(query(monthlyAttendanceRef, where('month', '==', selectedMonth)), (querySnapshot) => {
+                const attendanceData = {};
+                querySnapshot.forEach(doc => {
+                    const rec = doc.data();
+                    if (!attendanceData[rec.username]) {
+                        attendanceData[rec.username] = { name: rec.name, dates: {} };
+                    }
+                    attendanceData[rec.username].dates[dayjs(rec.date).format('YYYY-MM-DD')] = rec.status;
+                });
+        
+                Object.keys(attendanceData).forEach(username => {
+                    const row = [username, attendanceData[username].name];
+                    for (let i = 1; i <= datesInMonth; i++) {
+                        const date = dayjs(selectedMonth).date(i).format('YYYY-MM-DD');
+                        row.push(attendanceData[username].dates[date] || 'N/A');
+                    }
+                    data.push(row);
+                });
+        
+                const worksheet = XLSX.utils.aoa_to_sheet(data);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance");
+                XLSX.writeFile(workbook, `attendance_sheet_${selectedMonth}.${format}`);
+            });
+        };
+
+        const exportAttendanceHistoryToExcel = async () => {
+            const table = document.getElementById('employee-history-table');
+            const data = [
+                ['Date', 'Status', 'In Time', 'Out Time'],
+                ...Array.from(table.rows).map(row => Array.from(row.cells).map(cell => cell.textContent))
+            ];
+            const worksheet = XLSX.utils.aoa_to_sheet(data);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance History");
+            XLSX.writeFile(workbook, `attendance_history_${selectedEmployeeUsername}_${selectedMonth}.xlsx`);
+        };
+
+        // --- Initial Setup and Listeners ---
+        const loadEmployeeSelectOptions = () => {
+            const select = document.getElementById('employee-select');
+            select.innerHTML = '<option value="">Select Employee</option>';
+            const sortedEmployees = allEmployees.sort((a, b) => a.name.localeCompare(b.name));
+            sortedEmployees.forEach(emp => {
+                const option = document.createElement('option');
+                option.value = emp.username;
+                option.textContent = `${emp.name} (${emp.username})`;
+                select.appendChild(option);
+            });
+        };
+
+        const initApp = () => {
+            // Set initial dates
+            const dateFilterInput = document.getElementById('date-filter');
+            const monthFilterInput = document.getElementById('month-filter');
+            const reportMonthFilter = document.getElementById('report-month-filter');
+            dateFilterInput.value = dayjs().format('YYYY-MM-DD');
+            monthFilterInput.value = dayjs().format('YYYY-MM');
+            reportMonthFilter.value = dayjs().format('YYYY-MM');
+
+            // Set up event listeners
+            sidebarItems.forEach(item => item.addEventListener('click', handleNavigation));
+
+            dateFilterInput.addEventListener('change', (e) => {
+                selectedDate = e.target.value;
+                loadDashboardData(selectedDate);
+            });
+            document.getElementById('show-relocated-only').addEventListener('change', (e) => {
+                showRelocatedOnly = e.target.checked;
+                loadDashboardData(selectedDate);
+            });
+            reportMonthFilter.addEventListener('change', (e) => {
+                selectedMonth = e.target.value;
+                loadReportsData(selectedMonth);
+            });
+            monthFilterInput.addEventListener('change', (e) => {
+                selectedMonth = e.target.value;
+                loadEmployeeHistoryData(selectedMonth, selectedEmployeeUsername);
+            });
+            document.getElementById('employee-select').addEventListener('change', (e) => {
+                selectedEmployeeUsername = e.target.value;
+                loadEmployeeHistoryData(selectedMonth, selectedEmployeeUsername);
+            });
+            document.getElementById('manual-attendance-form').addEventListener('submit', handleManualAttendance);
+            document.getElementById('add-employee-form').addEventListener('submit', handleAddEmployee);
+            document.getElementById('manage-employee-list').addEventListener('click', (event) => {
+                const button = event.target.closest('.change-status-btn');
+                if (button) {
+                    const { username, name, currentStatus } = button.dataset;
+                    updateEmployeeStatus(username, name, currentStatus);
                 }
             });
-        }
 
-        async function handleAddEmployee(event) {
-            event.preventDefault();
-            const name = employeeNameInput.value, location = employeeStoreSelect.value, username = newEmployeeUsernameInput.value, password = newEmployeePasswordInput.value;
-            if (!name || !location || !username || !password) { showModal('Error', 'Please fill in all fields.'); return; }
-            const selectedStore = allStoresData.find(s => s.location === location);
-            if (!selectedStore) { showModal('Error', 'Invalid store selected.'); return; }
-            const { data: existingUser } = await supabase.from('users').select('username').eq('username', username).single();
-            if (existingUser) { showModal('Error', 'Username already exists.'); return; }
-            const { error } = await supabase.from('users').insert([{ name, location, username, password, latitude: selectedStore.latitude, longitude: selectedStore.longitude }]);
-            if (error) {
-                showModal('Error', `Failed to add employee: ${error.message}`);
-            } else {
-                showModal('Success', `${name} has been added as a new employee.`);
-                addEmployeeForm.reset();
-                await loadAllUsers();
-                await loadAndDisplayAllManageableUsers();
-            }
-        }
+            // PDF/Excel listeners
+            document.getElementById('download-summary-pdf').addEventListener('click', generateSummaryPDF);
+            document.getElementById('download-present-pdf').addEventListener('click', generatePresentListPDF);
+            document.getElementById('download-absent-pdf').addEventListener('click', generateAbsentListPDF);
+            document.getElementById('download-attendance-sheet-excel').addEventListener('click', () => generateAttendanceSheet('xlsx'));
+            document.getElementById('export-history-excel').addEventListener('click', exportAttendanceHistoryToExcel);
 
-        async function handleManualAttendance(event) {
-            event.preventDefault();
-            const username = employeeSelect.value;
-            if (!username) { showModal('Error', 'Please select an employee.'); return; }
-            const employee = allUsers.find(user => user.username === username);
-            const { data: existingAttendance } = await supabase.from('attendance').select('*').eq('username', username).gte('timestamp', dayjs().startOf('day').toISOString()).lte('timestamp', dayjs().endOf('day').toISOString());
-            if (existingAttendance && existingAttendance.length > 0) { showModal('Error', 'Attendance already marked today.'); return; }
-            const attendanceRecord = {
-                username: employee.username, name: employee.name, location: 'Relocated', 
-                registered_latitude: 20.3406645, registered_longitude: 85.8079595,
-                marked_latitude: 20.3406645, marked_longitude: 85.8079595,
-                image: 'Manual Entry', timestamp: dayjs().toISOString()
-            };
-            const { error } = await supabase.from('attendance').insert([attendanceRecord]);
-            if (error) { showModal('Error', `Failed to add manual attendance: ${error.message}`);
-            } else {
-                showModal('Success', `${employee.name}'s attendance marked successfully.`);
-                await loadDashboardData(selectedDate);
-                manualAttendanceForm.reset();
-            }
-        }
-        
-        // --- Event Listeners ---
-        loginForm.addEventListener('submit', handleLogin);
-        logoutBtn.addEventListener('click', () => location.reload());
-        dateFilterInput.addEventListener('change', (e) => loadDashboardData(e.target.value));
-        dateFilterDetails.addEventListener('change', (e) => loadDashboardData(e.target.value));
+            // Load initial data
+            loadStoresForAddEmployee();
+            loadEmployees();
+        };
 
-        document.querySelector('nav').addEventListener('click', (event) => {
-            const button = event.target.closest('.bottom-nav-btn');
-            if (button) {
-                const tab = button.dataset.tab;
-                showTab(tab);
-                if (tab === 'employee-history' && monthlyAttendanceData.length === 0) {
-                    loadEmployeeHistoryData(dayjs().format('YYYY-MM'), 'all');
-                }
-                if (tab === 'manage') {
-                    loadAndDisplayAllManageableUsers();
-                }
-            }
-        });
-
-        monthFilterInput.addEventListener('change', (e) => loadEmployeeHistoryData(e.target.value, selectedEmployeeUsername));
-        employeeNameFilter.addEventListener('change', (e) => loadEmployeeHistoryData(selectedMonth, e.target.value));
-        presentSortOrderSelect.addEventListener('change', (e) => { presentSortOrder = e.target.value; loadDashboardData(selectedDate); });
-        historySortOrderSelect.addEventListener('change', (e) => { historySortOrder = e.target.value; loadEmployeeHistoryData(selectedMonth, selectedEmployeeUsername); });
-        showRelocatedOnlyCheckbox.addEventListener('change', (e) => { showRelocatedOnly = e.target.checked; loadDashboardData(selectedDate); });
-
-        manualAttendanceForm.addEventListener('submit', handleManualAttendance);
-        addEmployeeForm.addEventListener('submit', handleAddEmployee);
-
-        manageEmployeeList.addEventListener('click', (event) => {
-            const button = event.target.closest('.change-status-btn');
-            if (button) {
-                const { username, name, currentStatus } = button.dataset;
-                updateEmployeeStatus(username, name, currentStatus);
-            }
-        });
-
-        document.getElementById('download-summary-pdf').addEventListener('click', generateSummaryPDF);
-        document.getElementById('download-present-pdf').addEventListener('click', generatePresentListPDF);
-        document.getElementById('download-absent-pdf').addEventListener('click', generateAbsentListPDF);
-        document.getElementById('download-attendance-sheet-excel').addEventListener('click', () => generateAttendanceSheet('excel'));
-        document.getElementById('export-history-excel').addEventListener('click', exportAttendanceHistoryToExcel);
-
-        // Initial setup
-        dateFilterInput.value = dayjs().format('YYYY-MM-DD');
-        monthFilterInput.value = dayjs().format('YYYY-MM');
-        loadStoresForAddEmployee();
+        // Start the application
+        setupFirebase();
     </script>
 </body>
 </html>
