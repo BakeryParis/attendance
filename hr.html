@@ -318,4 +318,382 @@
             loginScreen.style.display = 'none';
             mainContent.style.display = 'block';
             bottomNav.style.display = 'block';
-            welcomeUserEl.textContent = `Welcome, ${currentUser
+            welcomeUserEl.textContent = `Welcome, ${currentUser.store}`; // <-- CHANGED THIS LINE
+            document.getElementById('store-name').value = currentUser.store;
+            
+            await populateDropdowns();
+            
+            // Set default tab to "Raise Ticket"
+            document.querySelector('[data-tab="raise-ticket"]').click();
+        }
+
+        // --- TAB NAVIGATION ---
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetTab = btn.dataset.tab;
+
+                tabBtns.forEach(b => {
+                    b.classList.remove('text-indigo-600');
+                    b.classList.add('text-gray-500');
+                });
+                btn.classList.add('text-indigo-600');
+                btn.classList.remove('text-gray-500');
+
+                tabContents.forEach(content => {
+                    if (content.id === targetTab) {
+                        content.style.display = 'block';
+                    } else {
+                        content.style.display = 'none';
+                    }
+                });
+
+                // Refresh data on tab switch
+                if (targetTab === 'ticket-status') fetchTickets();
+                if (targetTab === 'notice-board') fetchNotifications();
+            });
+        });
+        
+        // --- RAISE TICKET SECTION ---
+        async function populateDropdowns() {
+            // Fetch Issue Types
+            const { data: issues, error: issueError } = await dbClient.from('issue_types').select('*');
+            if (issueError) {
+                console.error('Error fetching issue types:', issueError);
+                return;
+            }
+            issueTypesCache = issues;
+            const issueTypeSelect = document.getElementById('issue-type');
+            issueTypeSelect.innerHTML = '<option value="">-- Select Issue Type --</option>';
+            issues.forEach(issue => {
+                const option = document.createElement('option');
+                option.value = issue.issue_type;
+                option.textContent = issue.issue_type;
+                issueTypeSelect.appendChild(option);
+            });
+
+            // Fetch Authorized Persons
+            const { data: persons, error: personError } = await dbClient.from('contact_person').select('authorized');
+            if(personError) {
+                 console.error('Error fetching authorized persons:', personError);
+                return;
+            }
+            const authorizedSelect = document.getElementById('authorized-person');
+            authorizedSelect.innerHTML = '<option value="">-- Select Authorized Person --</option>';
+            persons.forEach(person => {
+                const option = document.createElement('option');
+                option.value = person.authorized;
+                option.textContent = person.authorized;
+                authorizedSelect.appendChild(option);
+            });
+        }
+        
+        document.getElementById('issue-type').addEventListener('change', (e) => {
+            const selectedType = e.target.value;
+            const departmentInput = document.getElementById('department');
+            const issue = issueTypesCache.find(it => it.issue_type === selectedType);
+            departmentInput.value = issue ? issue.department : '';
+        });
+
+        issueDetailsTextarea.addEventListener('input', () => {
+            const count = issueDetailsTextarea.value.length;
+            charCountEl.textContent = `${count} / 300`;
+        });
+
+        ticketForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const newTicket = {
+                store_name: document.getElementById('store-name').value,
+                person_name: document.getElementById('person-name').value,
+                issue_type: document.getElementById('issue-type').value,
+                department: document.getElementById('department').value,
+                authorized: document.getElementById('authorized-person').value,
+                issue_details: document.getElementById('issue-details').value,
+                issue_status: 'PENDING', // Default status changed to PENDING
+                action_update: 'Ticket raised successfully.',
+                issue_date: new Date().toISOString()
+            };
+
+            const { data, error } = await dbClient.from('tickets').insert([newTicket]);
+            
+            if (error) {
+                alert('Failed to submit ticket. Error: ' + error.message);
+                console.error('Ticket submission error:', error);
+            } else {
+                alert('Ticket submitted successfully!');
+                ticketForm.reset();
+                charCountEl.textContent = '0 / 300';
+                document.getElementById('store-name').value = currentUser.store; // Reset store name
+                 // Switch to ticket status tab to see the new ticket
+                document.querySelector('[data-tab="ticket-status"]').click();
+            }
+        });
+
+        // --- TICKET STATUS SECTION ---
+        async function fetchTickets() {
+            const { data, error } = await dbClient
+                .from('tickets')
+                .select('*')
+                .eq('store_name', currentUser.store)
+                .order('issue_date', { ascending: false });
+
+            if (error) {
+                console.error('Error fetching tickets:', error);
+                return;
+            }
+
+            const activeTickets = data.filter(t => ['PENDING', 'ACCEPTED', 'REVIEWED', 'UNDER PROCESS'].includes(t.issue_status));
+            const closedTickets = data.filter(t => t.issue_status === 'COMPLETED');
+            
+            renderTickets('active-tickets-body', activeTickets, 'no-active-tickets', 'active');
+            renderTickets('closed-tickets-body', closedTickets, 'no-closed-tickets', 'closed');
+        }
+
+        function renderTickets(tbodyId, tickets, noDataElId, type) {
+            const tbody = document.getElementById(tbodyId);
+            const noDataEl = document.getElementById(noDataElId);
+            tbody.innerHTML = '';
+            
+            if(tickets.length === 0) {
+                noDataEl.style.display = 'block';
+                return;
+            }
+            noDataEl.style.display = 'none';
+
+            tickets.forEach(ticket => {
+                const tr = document.createElement('tr');
+                tr.className = 'bg-white border-b hover:bg-gray-50 cursor-pointer';
+                tr.setAttribute('data-ticket', JSON.stringify(ticket));
+                
+                let dateColumns = '';
+                const issueDateFormatted = ticket.issue_date ? new Date(ticket.issue_date).toLocaleDateString() : 'N/A';
+                
+                if (type === 'active') {
+                    dateColumns = `<td class="px-6 py-4 whitespace-nowrap">${issueDateFormatted}</td>`;
+                } else { // type === 'closed'
+                    const closeDateFormatted = ticket.issue_close_dt ? new Date(ticket.issue_close_dt).toLocaleDateString() : 'N/A';
+                    dateColumns = `
+                        <td class="px-6 py-4 whitespace-nowrap">${closeDateFormatted}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${issueDateFormatted}</td>
+                    `;
+                }
+
+                tr.innerHTML = `
+                    ${dateColumns}
+                    <td class="px-6 py-4">${ticket.store_name}</td>
+                    <td class="px-6 py-4">${ticket.person_name}</td>
+                    <td class="px-6 py-4 font-medium text-gray-900">${ticket.issue_type}</td>
+                    <td class="px-6 py-4">${ticket.department}</td>
+                    <td class="px-6 py-4">${ticket.authorized}</td>
+                    <td class="px-6 py-4 max-w-xs truncate" title="${ticket.issue_details}">${ticket.issue_details}</td>
+                    <td class="px-6 py-4"><span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(ticket.issue_status)}">${ticket.issue_status}</span></td>
+                    <td class="px-6 py-4 max-w-xs truncate" title="${ticket.action_update || ''}">${ticket.action_update || ''}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        function getStatusColor(status) {
+            switch (status) {
+                case 'PENDING': return 'bg-orange-100 text-orange-800';
+                case 'ACCEPTED': return 'bg-blue-100 text-blue-800';
+                case 'REVIEWED': return 'bg-yellow-100 text-yellow-800';
+                case 'UNDER PROCESS': return 'bg-purple-100 text-purple-800';
+                case 'COMPLETED': return 'bg-green-100 text-green-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        // --- NOTICE BOARD SECTION ---
+        async function fetchNotifications() {
+            const { data, error } = await dbClient
+                .from('notifications')
+                .select('*')
+                .eq('status', true) // Only fetch where status is true
+                .eq('store', currentUser.store) // Only fetch for the current user's store
+                .order('created_at', { ascending: false });
+
+            if(error) {
+                console.error("Error fetching notifications", error);
+                return;
+            }
+            
+            const container = document.getElementById('notifications-container');
+            const noNotificationsEl = document.getElementById('no-notifications');
+            container.innerHTML = '';
+
+            if (data.length === 0) {
+                noNotificationsEl.style.display = 'block';
+                return;
+            }
+            noNotificationsEl.style.display = 'none';
+
+            data.forEach(notification => {
+                const card = document.createElement('div');
+                card.id = `notification-${notification.id}`;
+                card.className = 'bg-white p-5 rounded-lg shadow flex justify-between items-start';
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center mb-2">
+                           <h3 class="font-bold text-lg text-gray-800">${notification.title}</h3>
+                           <span class="ml-3 text-xs text-gray-400">${new Date(notification.created_at).toLocaleString()}</span>
+                        </div>
+                        <p class="text-gray-600">${notification.message}</p>
+                    </div>
+                    <button data-id="${notification.id}" class="ack-btn ml-4 flex-shrink-0 bg-green-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-green-600 transition">OK</button>
+                `;
+                container.appendChild(card);
+            });
+
+            // Add event listeners after cards are created
+            document.querySelectorAll('.ack-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const notificationId = btn.dataset.id;
+                    openRemarkModal(notificationId);
+                });
+            });
+        }
+        
+        // --- REMARK MODAL ---
+        const remarkModal = document.getElementById('remark-modal');
+        const submitRemarkBtn = document.getElementById('submit-remark-btn');
+        const cancelRemarkBtn = document.getElementById('cancel-remark-btn');
+        const remarkErrorEl = document.getElementById('remark-error');
+        let currentNotificationId = null;
+
+        function openRemarkModal(id) {
+            currentNotificationId = id;
+            remarkErrorEl.textContent = '';
+            remarkModal.style.display = 'flex';
+        }
+        
+        function closeRemarkModal() {
+            document.getElementById('remark-textarea').value = '';
+            remarkErrorEl.textContent = '';
+            remarkModal.style.display = 'none';
+            currentNotificationId = null;
+        }
+
+        submitRemarkBtn.addEventListener('click', async () => {
+            const remark = document.getElementById('remark-textarea').value;
+            remarkErrorEl.textContent = '';
+
+            if (!remark.trim()) {
+                remarkErrorEl.textContent = 'Remark cannot be empty.';
+                return;
+            }
+            
+            submitRemarkBtn.disabled = true;
+            submitRemarkBtn.textContent = 'Saving...';
+
+            // Update the notification in Supabase
+            const { error } = await dbClient
+                .from('notifications')
+                .update({ 
+                    response: remark, // Corrected potential column name typo from 'respons'
+                    status: false 
+                })
+                .eq('id', currentNotificationId);
+
+            submitRemarkBtn.disabled = false;
+            submitRemarkBtn.textContent = 'OK';
+
+            if (error) {
+                remarkErrorEl.textContent = 'Failed to save. Please try again.';
+                console.error('Remark update error:', error);
+            } else {
+                // Here you would typically save the remark somewhere,
+                // for now, we'll just log it and remove the notification.
+                console.log(`Remark for notification ${currentNotificationId} saved.`);
+                
+                const cardToRemove = document.getElementById(`notification-${currentNotificationId}`);
+                if (cardToRemove) {
+                    cardToRemove.remove();
+                }
+                
+                // Check if any notifications are left
+                if (document.getElementById('notifications-container').children.length === 0) {
+                    document.getElementById('no-notifications').style.display = 'block';
+                }
+                
+                closeRemarkModal();
+            }
+        });
+
+        cancelRemarkBtn.addEventListener('click', closeRemarkModal);
+        
+        // --- TICKET DETAILS MODAL ---
+        const ticketDetailsModal = document.getElementById('ticket-details-modal');
+        const ticketDetailsContent = document.getElementById('ticket-details-content');
+        const closeDetailsModalBtn = document.getElementById('close-details-modal-btn');
+        const closeDetailsModalBtnBottom = document.getElementById('close-details-modal-btn-bottom');
+        const activeTicketsTbody = document.getElementById('active-tickets-body');
+        const closedTicketsTbody = document.getElementById('closed-tickets-body');
+
+        function showTicketDetailsModal(ticket) {
+            const issueDate = ticket.issue_date ? new Date(ticket.issue_date).toLocaleString() : 'N/A';
+            const closeDate = ticket.issue_close_dt ? new Date(ticket.issue_close_dt).toLocaleString() : 'N/A';
+
+            ticketDetailsContent.innerHTML = `
+                <div class="grid grid-cols-3 gap-y-3 gap-x-2">
+                    <p class="font-semibold text-gray-500 col-span-1">Status:</p>
+                    <p class="col-span-2"><span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(ticket.issue_status)}">${ticket.issue_status}</span></p>
+
+                    <p class="font-semibold text-gray-500 col-span-1">Issue Date:</p>
+                    <p class="col-span-2">${issueDate}</p>
+                    
+                    ${ticket.issue_status === 'COMPLETED' ? `
+                    <p class="font-semibold text-gray-500 col-span-1">Close Date:</p>
+                    <p class="col-span-2">${closeDate}</p>
+                    ` : ''}
+
+                    <p class="font-semibold text-gray-500 col-span-1">Store:</p>
+                    <p class="col-span-2">${ticket.store_name || ''}</p>
+
+                    <p class="font-semibold text-gray-500 col-span-1">Raised By:</p>
+                    <p class="col-span-2">${ticket.person_name || ''}</p>
+
+                    <p class="font-semibold text-gray-500 col-span-1">Issue Type:</p>
+                    <p class="col-span-2">${ticket.issue_type || ''}</p>
+
+                    <p class="font-semibold text-gray-500 col-span-1">Department:</p>
+                    <p class="col-span-2">${ticket.department || ''}</p>
+                    
+                    <p class="font-semibold text-gray-500 col-span-1">Authorized:</p>
+                    <p class="col-span-2">${ticket.authorized || ''}</p>
+
+                    <p class="font-semibold text-gray-500 col-span-1">Details:</p>
+                    <p class="col-span-2 break-words">${ticket.issue_details || ''}</p>
+
+                    <p class="font-semibold text-gray-500 col-span-1">Last Update:</p>
+                    <p class="col-span-2 break-words">${ticket.action_update || ''}</p>
+                </div>
+            `;
+            ticketDetailsModal.style.display = 'flex';
+        }
+
+        function closeTicketDetailsModal() {
+            ticketDetailsModal.style.display = 'none';
+        }
+        
+        closeDetailsModalBtn.addEventListener('click', closeTicketDetailsModal);
+        closeDetailsModalBtnBottom.addEventListener('click', closeTicketDetailsModal);
+
+        const tableClickHandler = (event) => {
+            const row = event.target.closest('tr');
+            if (row && row.hasAttribute('data-ticket')) {
+                const ticketData = JSON.parse(row.getAttribute('data-ticket'));
+                showTicketDetailsModal(ticketData);
+            }
+        };
+        
+        activeTicketsTbody.addEventListener('click', tableClickHandler);
+        closedTicketsTbody.addEventListener('click', tableClickHandler);
+
+
+        // --- STARTUP ---
+        checkSession();
+
+    </script>
+</body>
+</html>
