@@ -58,10 +58,19 @@
 
             <nav class="bg-white shadow-sm flex-shrink-0">
                 <div class="max-w-7xl mx-auto px-4">
-                    <div class="flex justify-start space-x-8">
-                        <button data-tab="tickets" class="tab-btn font-semibold py-4 px-1 border-b-2 border-indigo-500 text-indigo-600">Tickets</button>
-                        <button data-tab="notifications" class="tab-btn font-semibold py-4 px-1 border-b-2 border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700">Notifications</button>
-                        <button data-tab="send-notification" class="tab-btn font-semibold py-4 px-1 border-b-2 border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700">Send Notification</button>
+                    <div class="flex justify-start space-x-4 sm:space-x-8">
+                        <button data-tab="tickets" class="tab-btn font-semibold py-4 px-2 border-b-2 border-indigo-500 text-indigo-600 flex items-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm14 0H4v2h12V5zM2 11a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 01-2 2H4a2 2 0 01-2-2v-2zm14 0H4v2h12v-2z" clip-rule="evenodd" /></svg>
+                            <span>Tickets</span>
+                        </button>
+                        <button data-tab="notifications" class="tab-btn font-semibold py-4 px-2 border-b-2 border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 flex items-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" /></svg>
+                            <span>Notifications</span>
+                        </button>
+                        <button data-tab="send-notification" class="tab-btn font-semibold py-4 px-2 border-b-2 border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 flex items-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>
+                            <span>Send</span>
+                        </button>
                     </div>
                 </div>
             </nav>
@@ -171,7 +180,7 @@
                 <h2 id="modal-title" class="text-xl font-bold text-gray-800">Ticket Details</h2>
                 <button id="modal-close-btn" class="text-2xl font-bold text-gray-500 hover:text-gray-800">&times;</button>
             </div>
-            <div id="modal-body" class="p-6 space-y-4 overflow-y-auto">
+            <div id="modal-body" class="p-6 space-y-4 overflow-y-auto relative">
                 </div>
             <div id="modal-footer" class="p-4 bg-gray-50 border-t text-right space-x-2 flex-shrink-0">
                 </div>
@@ -282,12 +291,11 @@
             const fromDate = document.getElementById('from-date').value;
             const toDate = document.getElementById('to-date').value;
 
-            // Adjust date filtering to cover the entire selected day
             if (fromDate) query = query.gte('issue_date', fromDate);
             if (toDate) {
                 const toDateObj = new Date(toDate);
-                toDateObj.setDate(toDateObj.getDate() + 1); // Go to the next day
-                query = query.lt('issue_date', toDateObj.toISOString().split('T')[0]); // Use less than the next day
+                toDateObj.setDate(toDateObj.getDate() + 1);
+                query = query.lt('issue_date', toDateObj.toISOString().split('T')[0]);
             }
 
 
@@ -318,7 +326,7 @@
             tickets.forEach(ticket => {
                 const tr = document.createElement('tr');
                 tr.className = 'bg-white border-b hover:bg-gray-50 cursor-pointer';
-                tr.dataset.ticket = JSON.stringify(ticket); // Store ticket data
+                tr.dataset.ticket = JSON.stringify(ticket);
                 tr.innerHTML = `
                     <td class="px-6 py-4">${new Date(ticket.issue_date).toLocaleString()}</td>
                     <td class="px-6 py-4">${ticket.store_name}</td>
@@ -343,7 +351,7 @@
             tickets.forEach(ticket => {
                 const tr = document.createElement('tr');
                 tr.className = 'bg-white border-b hover:bg-gray-50 cursor-pointer';
-                tr.dataset.ticket = JSON.stringify(ticket); // Store ticket data
+                tr.dataset.ticket = JSON.stringify(ticket);
                 tr.innerHTML = `
                     <td class="px-6 py-4">${new Date(ticket.issue_close_dt).toLocaleString()}</td>
                     <td class="px-6 py-4">${new Date(ticket.issue_date).toLocaleString()}</td>
@@ -362,7 +370,7 @@
             const modalBody = document.getElementById('modal-body');
             const modalFooter = document.getElementById('modal-footer');
             
-            modalBody.innerHTML = `
+            let contentHTML = `
                 <div class="grid grid-cols-2 gap-4 text-sm">
                     <div><strong class="text-gray-500 block">Store:</strong> ${ticket.store_name}</div>
                     <div><strong class="text-gray-500 block">Authorized:</strong> ${ticket.authorized}</div>
@@ -377,7 +385,7 @@
             modalFooter.innerHTML = '';
 
             if (type === 'active') {
-                modalBody.innerHTML += `
+                contentHTML += `
                     <div>
                         <label for="modal-status" class="block text-sm font-medium text-gray-700">Update Status</label>
                         <select id="modal-status" class="mt-1 block w-full p-2 border rounded-md">
@@ -389,6 +397,7 @@
                         <textarea id="modal-update" class="mt-1 block w-full p-2 border rounded-md" rows="3">${ticket.action_update || ''}</textarea>
                     </div>
                 `;
+                modalBody.innerHTML = contentHTML;
                 modalFooter.innerHTML = `
                     <button id="modal-cancel-btn" class="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600">Cancel</button>
                     <button id="modal-submit-btn" class="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600">Submit Update</button>
@@ -396,13 +405,24 @@
                 document.getElementById('modal-submit-btn').addEventListener('click', () => updateTicketFromModal(ticket.id));
                 document.getElementById('modal-cancel-btn').addEventListener('click', closeModal);
             } else { // Closed ticket
-                modalBody.innerHTML += `
+                contentHTML += `
                     <div><strong class="text-gray-500 block">Close Date:</strong> ${new Date(ticket.issue_close_dt).toLocaleString()}</div>
                     <div>
                         <strong class="text-gray-500 block mb-1">Final Update:</strong>
                         <p class="bg-gray-50 p-2 rounded-md">${ticket.action_update || 'N/A'}</p>
                     </div>
                 `;
+
+                // Add stamp and content wrapper
+                modalBody.innerHTML = `
+                    <div class="absolute inset-0 flex items-center justify-center z-0 pointer-events-none">
+                        <div class="border-4 border-green-500 text-green-500 rounded-lg py-2 px-6 transform -rotate-15">
+                            <span class="text-5xl font-extrabold tracking-wider opacity-30">COMPLETED</span>
+                        </div>
+                    </div>
+                    <div class="relative z-10 space-y-4">${contentHTML}</div>
+                `;
+                
                 modalFooter.innerHTML = `<button id="modal-ok-btn" class="bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700">OK</button>`;
                 document.getElementById('modal-ok-btn').addEventListener('click', closeModal);
             }
