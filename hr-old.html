@@ -45,6 +45,7 @@
         </div>
 
         <div id="main-content" class="hidden flex-1 flex flex-col">
+            <!-- HEADER: already sticky -->
             <header class="bg-white shadow-md p-4 flex justify-between items-center z-30 flex-shrink-0 sticky top-0">
                 <div class="flex items-center space-x-3">
                     <img src="logo.png" alt="Logo" class="h-10 w-auto">
@@ -56,7 +57,12 @@
                 </div>
             </header>
             
-            <nav class="bg-white border-b z-20 flex-shrink-0">
+            <!-- MAKE NAVIGATION STICKY UNDER HEADER -->
+            <nav class="bg-white border-b z-20 flex-shrink-0 sticky top-[64px]">
+                <!-- 
+                    top-[64px] assumes header height is 64px (4*16), 
+                    adjust if your header's height is different 
+                -->
                 <div class="max-w-7xl mx-auto px-4">
                     <div class="flex justify-around">
                         <button data-tab="tickets" class="tab-btn text-indigo-600 flex items-center justify-center gap-2 py-3 w-full border-b-2 border-indigo-600">
