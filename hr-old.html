@@ -44,7 +44,7 @@
             </div>
         </div>
 
-        <div id="main-content" class="hidden h-full flex flex-col">
+        <div id="main-content" class="hidden h-full flex flex-col relative">
             <header class="bg-white shadow-md p-4 flex justify-between items-center z-10 flex-shrink-0">
                 <div class="flex items-center space-x-3">
                     <img src="logo.png" alt="Logo" class="h-10 w-auto">
@@ -56,26 +56,7 @@
                 </div>
             </header>
 
-            <nav class="bg-white shadow-sm flex-shrink-0">
-                <div class="max-w-7xl mx-auto px-4">
-                    <div class="flex justify-start space-x-4 sm:space-x-8">
-                        <button data-tab="tickets" class="tab-btn font-semibold py-4 px-2 border-b-2 border-indigo-500 text-indigo-600 flex items-center space-x-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm14 0H4v2h12V5zM2 11a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 01-2 2H4a2 2 0 01-2-2v-2zm14 0H4v2h12v-2z" clip-rule="evenodd" /></svg>
-                            <span>Tickets</span>
-                        </button>
-                        <button data-tab="notifications" class="tab-btn font-semibold py-4 px-2 border-b-2 border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 flex items-center space-x-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" /></svg>
-                            <span>Notifications</span>
-                        </button>
-                        <button data-tab="send-notification" class="tab-btn font-semibold py-4 px-2 border-b-2 border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 flex items-center space-x-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>
-                            <span>Send</span>
-                        </button>
-                    </div>
-                </div>
-            </nav>
-
-            <main class="p-4 space-y-8 flex-grow overflow-y-auto no-scrollbar">
+            <main class="p-4 space-y-8 flex-grow overflow-y-auto no-scrollbar pb-24">
                 <div id="tickets" class="tab-content space-y-8">
                     <div class="bg-white p-4 rounded-lg shadow-md">
                         <h3 class="font-bold text-lg mb-4">Filter Tickets by Issue Date</h3>
@@ -171,13 +152,35 @@
                     </div>
                 </div>
             </main>
+
+            <nav class="absolute bottom-0 left-0 right-0 bg-white border-t z-20">
+                <div class="max-w-7xl mx-auto px-4">
+                    <div class="flex justify-around">
+                        <button data-tab="tickets" class="tab-btn text-indigo-600 flex flex-col items-center space-y-1 py-2 w-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm14 0H4v2h12V5zM2 11a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 01-2 2H4a2 2 0 01-2-2v-2zm14 0H4v2h12v-2z" clip-rule="evenodd" /></svg>
+                            <span class="text-xs font-semibold">Tickets</span>
+                        </button>
+                        <button data-tab="notifications" class="tab-btn text-gray-500 flex flex-col items-center space-y-1 py-2 w-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" /></svg>
+                            <span class="text-xs font-semibold">Notifications</span>
+                        </button>
+                        <button data-tab="send-notification" class="tab-btn text-gray-500 flex flex-col items-center space-y-1 py-2 w-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>
+                            <span class="text-xs font-semibold">Send</span>
+                        </button>
+                    </div>
+                </div>
+            </nav>
+
         </div>
     </div>
 
     <div id="ticket-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col">
             <div class="p-4 border-b flex justify-between items-center flex-shrink-0">
-                <h2 id="modal-title" class="text-xl font-bold text-gray-800">Ticket Details</h2>
+                <div id="modal-title-container">
+                    <h2 class="text-xl font-bold text-gray-800">Ticket Details</h2>
+                </div>
                 <button id="modal-close-btn" class="text-2xl font-bold text-gray-500 hover:text-gray-800">&times;</button>
             </div>
             <div id="modal-body" class="p-6 space-y-4 overflow-y-auto relative">
@@ -214,6 +217,7 @@
         const tabContents = document.querySelectorAll('.tab-content');
         const modal = document.getElementById('ticket-modal');
         const modalCloseBtn = document.getElementById('modal-close-btn');
+        const modalTitleContainer = document.getElementById('modal-title-container');
 
         // --- AUTH & INITIALIZATION ---
         loginForm.addEventListener('submit', async (e) => {
@@ -248,7 +252,7 @@
 
         async function initializeApp() {
             loginScreen.style.display = 'none';
-            mainContent.style.display = 'flex'; // Changed to flex for layout
+            mainContent.style.display = 'flex';
             welcomeUserEl.textContent = `Welcome, ${currentUser.user_id}`;
             document.querySelector('[data-tab="tickets"]').click();
         }
@@ -258,11 +262,11 @@
             btn.addEventListener('click', () => {
                 const targetTab = btn.dataset.tab;
                 tabBtns.forEach(b => {
-                    b.classList.remove('border-indigo-500', 'text-indigo-600');
-                    b.classList.add('border-transparent', 'text-gray-500', 'hover:border-gray-300', 'hover:text-gray-700');
+                    b.classList.remove('text-indigo-600');
+                    b.classList.add('text-gray-500');
                 });
-                btn.classList.add('border-indigo-500', 'text-indigo-600');
-                btn.classList.remove('border-transparent', 'text-gray-500', 'hover:border-gray-300', 'hover:text-gray-700');
+                btn.classList.add('text-indigo-600');
+                btn.classList.remove('text-gray-500');
                 
                 tabContents.forEach(c => c.style.display = 'none');
                 document.getElementById(targetTab).style.display = 'block';
@@ -297,7 +301,6 @@
                 toDateObj.setDate(toDateObj.getDate() + 1);
                 query = query.lt('issue_date', toDateObj.toISOString().split('T')[0]);
             }
-
 
             const { data, error } = await query.order('issue_date', { ascending: false });
 
@@ -385,6 +388,7 @@
             modalFooter.innerHTML = '';
 
             if (type === 'active') {
+                modalTitleContainer.innerHTML = `<h2 class="text-xl font-bold text-gray-800">Ticket Details</h2>`;
                 contentHTML += `
                     <div>
                         <label for="modal-status" class="block text-sm font-medium text-gray-700">Update Status</label>
@@ -405,6 +409,12 @@
                 document.getElementById('modal-submit-btn').addEventListener('click', () => updateTicketFromModal(ticket.id));
                 document.getElementById('modal-cancel-btn').addEventListener('click', closeModal);
             } else { // Closed ticket
+                modalTitleContainer.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <h2 class="text-xl font-bold text-gray-800">Ticket Details</h2>
+                        <span class="px-2.5 py-0.5 bg-green-100 text-green-800 text-sm font-semibold rounded-full">Completed</span>
+                    </div>
+                `;
                 contentHTML += `
                     <div><strong class="text-gray-500 block">Close Date:</strong> ${new Date(ticket.issue_close_dt).toLocaleString()}</div>
                     <div>
@@ -412,16 +422,7 @@
                         <p class="bg-gray-50 p-2 rounded-md">${ticket.action_update || 'N/A'}</p>
                     </div>
                 `;
-
-                // Add stamp and content wrapper
-                modalBody.innerHTML = `
-                    <div class="absolute inset-0 flex items-center justify-center z-0 pointer-events-none">
-                        <div class="border-4 border-green-500 text-green-500 rounded-lg py-2 px-6 transform -rotate-15">
-                            <span class="text-5xl font-extrabold tracking-wider opacity-30">COMPLETED</span>
-                        </div>
-                    </div>
-                    <div class="relative z-10 space-y-4">${contentHTML}</div>
-                `;
+                modalBody.innerHTML = contentHTML;
                 
                 modalFooter.innerHTML = `<button id="modal-ok-btn" class="bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700">OK</button>`;
                 document.getElementById('modal-ok-btn').addEventListener('click', closeModal);
@@ -432,18 +433,13 @@
         async function updateTicketFromModal(ticketId) {
             const newStatus = document.getElementById('modal-status').value;
             const newUpdate = document.getElementById('modal-update').value;
-
-            let updateData = {
-                issue_status: newStatus,
-                action_update: newUpdate
-            };
+            let updateData = { issue_status: newStatus, action_update: newUpdate };
 
             if (newStatus === 'COMPLETED') {
                 updateData.issue_close_dt = new Date().toISOString();
             }
 
             const { error } = await dbClient.from('tickets').update(updateData).eq('id', ticketId);
-
             if (error) {
                 alert('Failed to update ticket.');
                 console.error('Update error:', error);
@@ -459,62 +455,34 @@
         }
 
         modalCloseBtn.addEventListener('click', closeModal);
-
         document.getElementById('active-tickets-body').addEventListener('click', (e) => {
             const row = e.target.closest('tr');
-            if (row && row.dataset.ticket) {
-                openModal(JSON.parse(row.dataset.ticket), 'active');
-            }
+            if (row && row.dataset.ticket) openModal(JSON.parse(row.dataset.ticket), 'active');
         });
-        
         document.getElementById('closed-tickets-body').addEventListener('click', (e) => {
             const row = e.target.closest('tr');
-            if (row && row.dataset.ticket) {
-                openModal(JSON.parse(row.dataset.ticket), 'closed');
-            }
+            if (row && row.dataset.ticket) openModal(JSON.parse(row.dataset.ticket), 'closed');
         });
 
         // --- NOTIFICATIONS SECTION ---
         async function fetchAllNotifications() {
             const { data, error } = await dbClient.from('notifications').select('*').order('created_at', { ascending: false });
-            if (error) {
-                console.error("Error fetching notifications", error);
-                return;
-            }
+            if (error) { console.error("Error fetching notifications", error); return; }
             const pending = data.filter(n => n.status === true);
             const responded = data.filter(n => n.status === false);
-            
             renderNotifications('pending-notifications-container', pending, 'no-pending-notifications');
             renderNotifications('responded-notifications-container', responded, 'no-responded-notifications');
         }
-        
         function renderNotifications(containerId, notifications, noDataElId) {
             const container = document.getElementById(containerId);
             const noDataEl = document.getElementById(noDataElId);
             container.innerHTML = '';
-            
-            if (notifications.length === 0) {
-                noDataEl.style.display = 'block';
-                return;
-            }
+            if (notifications.length === 0) { noDataEl.style.display = 'block'; return; }
             noDataEl.style.display = 'none';
-
             notifications.forEach(n => {
                 const card = document.createElement('div');
                 card.className = 'bg-white p-4 rounded-lg shadow';
-                card.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="font-bold text-lg">${n.title}</h3>
-                            <p class="text-sm text-gray-500">To: ${n.store} | On: ${new Date(n.created_at).toLocaleString()}</p>
-                            <p class="mt-2">${n.message}</p>
-                            ${n.response ? `<p class="mt-2 text-sm text-blue-600 bg-blue-50 p-2 rounded-md"><b>Response:</b> ${n.response}</p>` : ''}
-                        </div>
-                        <span class="text-xs font-semibold px-2 py-1 rounded-full ${n.status ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}">
-                            ${n.status ? 'Pending' : 'Responded'}
-                        </span>
-                    </div>
-                `;
+                card.innerHTML = `<div class="flex justify-between items-start"><div><h3 class="font-bold text-lg">${n.title}</h3><p class="text-sm text-gray-500">To: ${n.store} | On: ${new Date(n.created_at).toLocaleString()}</p><p class="mt-2">${n.message}</p>${n.response ? `<p class="mt-2 text-sm text-blue-600 bg-blue-50 p-2 rounded-md"><b>Response:</b> ${n.response}</p>` : ''}</div><span class="text-xs font-semibold px-2 py-1 rounded-full ${n.status ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}">${n.status ? 'Pending' : 'Responded'}</span></div>`;
                 container.appendChild(card);
             });
         }
@@ -522,49 +490,29 @@
         // --- SEND NOTIFICATION SECTION ---
         async function populateStoreDropdown() {
             const { data, error } = await dbClient.from('store_users').select('store');
-            if(error) {
-                console.error("Error fetching stores", error);
-                return;
-            }
+            if(error) { console.error("Error fetching stores", error); return; }
             const storeSelect = document.getElementById('store-select');
             storeSelect.innerHTML = '<option value="All">All Stores</option>';
-            const uniqueStores = [...new Set(data.map(item => item.store))];
-            uniqueStores.forEach(store => {
+            [...new Set(data.map(item => item.store))].forEach(store => {
                 storeSelect.innerHTML += `<option value="${store}">${store}</option>`;
             });
         }
-
         document.getElementById('notification-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const store = document.getElementById('store-select').value;
             const title = document.getElementById('notification-title').value;
             const message = document.getElementById('notification-message').value;
-
             const notification = { title, message, status: true };
-            
             if (store === 'All') {
                 const { data: stores, error: storeError } = await dbClient.from('store_users').select('store');
-                 if (storeError) {
-                    alert('Could not fetch store list to send to all.');
-                    return;
-                }
-                const uniqueStores = [...new Set(stores.map(item => item.store))];
-                const allNotifications = uniqueStores.map(s => ({...notification, store: s}));
-
+                 if (storeError) { alert('Could not fetch store list to send to all.'); return; }
+                const allNotifications = [...new Set(stores.map(item => item.store))].map(s => ({...notification, store: s}));
                 const { error } = await dbClient.from('notifications').insert(allNotifications);
-                 if (error) {
-                    alert('Failed to send notification to all stores.');
-                } else {
-                    alert('Notification sent to all stores successfully!');
-                }
+                if (error) { alert('Failed to send notification to all stores.'); } else { alert('Notification sent to all stores successfully!'); }
             } else {
                 notification.store = store;
                 const { error } = await dbClient.from('notifications').insert([notification]);
-                if (error) {
-                    alert('Failed to send notification.');
-                } else {
-                    alert('Notification sent successfully!');
-                }
+                if (error) { alert('Failed to send notification.'); } else { alert('Notification sent successfully!'); }
             }
             e.target.reset();
         });
