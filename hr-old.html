@@ -3,479 +3,389 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PB Escalation Matrix</title>
+    <title>Escalation Matrix</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="favicon.png">
     <style>
         body {
             font-family: 'Inter', sans-serif;
         }
-        .modal-backdrop {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            z-index: 50;
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background: white;
-            padding: 2rem;
-            border-radius: 0.5rem;
-            width: 90%;
-            max-width: 500px;
-        }
-        .table-container {
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-        .table-container::-webkit-scrollbar {
+        /* Hide scrollbar for cleaner look */
+        .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
-        .notification-bubble {
-            position: absolute;
-            top: 8px;
-            right: 20px;
-            min-width: 20px;
-            height: 20px;
-            background: #ef4444;
-            color: white;
-            border-radius: 9999px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: bold;
-            line-height: 1;
-            z-index: 100;
-            border: 2px solid white;
-            pointer-events: none;
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
         }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
+<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
 
-    <div id="app" class="max-w-4xl mx-auto">
+    <div id="app" class="max-w-7xl mx-auto flex-1 flex flex-col w-full">
 
         <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
-            <div class="w-full max-w-sm bg-white p-8 rounded-xl shadow-lg">
-                <div class="flex justify-center mb-6">
-                    <img src="logo1.png" alt="Logo" class="h-12 w-auto" onerror="this.style.display='none';">
-                </div>
-                <h1 class="text-3xl font-bold text-center text-gray-700 mb-2">Welcome Back</h1>
-                <p class="text-center text-gray-500 mb-6">Please login to your account</p>
+            <div class="w-full max-w-md bg-white p-8 rounded-xl shadow-lg">
+                <img src="logo.png" alt="Logo" class="mx-auto h-16 w-auto mb-4">
+                <h1 class="text-3xl font-bold text-center text-gray-700 mb-6">Escalation Matrix</h1>
                 <div id="login-error" class="text-red-500 text-sm mb-4 text-center"></div>
                 <form id="login-form">
                     <div class="mb-4">
-                        <label for="username" class="block text-sm font-medium text-gray-600 mb-1">Username</label>
-                        <input type="text" id="username" name="username" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" required>
+                        <label for="user-id" class="block text-sm font-medium text-gray-600 mb-1">User ID</label>
+                        <input type="text" id="user-id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required>
                     </div>
                     <div class="mb-6">
                         <label for="password" class="block text-sm font-medium text-gray-600 mb-1">Password</label>
-                        <input type="password" id="password" name="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" required>
+                        <input type="password" id="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required>
                     </div>
-                    <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition transform hover:scale-105">Login</button>
+                    <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-2 rounded-lg hover:bg-indigo-700 transition">Login</button>
                 </form>
             </div>
         </div>
 
-        <div id="main-content" class="hidden">
-            <header class="bg-white shadow-md p-4 flex justify-between items-center rounded-b-lg sticky top-0 z-10">
-                <div class="flex items-center">
-                    <img src="logo1.png" alt="Logo" class="h-8 w-auto mr-3" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                    <svg class="h-8 w-8 text-indigo-600 mr-2 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-12v.75m0 3v.75m0 3v.75m0 3V18m-3-12v.75m0 3v.75m0 3v.75m0 3V18m12-12h-3.375a4.125 4.125 0 00-4.125 4.125v1.5c0 .621.504 1.125 1.125 1.125H9.75v-1.5a2.625 2.625 0 012.625-2.625h3.375z" />
-                    </svg>
-                    <h1 class="text-xl font-bold text-indigo-600">PB EM</h1>
+        <div id="main-content" class="hidden flex-1 flex flex-col">
+            <header class="bg-white shadow-md p-4 flex justify-between items-center z-30 flex-shrink-0 sticky top-0">
+                <div class="flex items-center space-x-3">
+                    <img src="logo.png" alt="Logo" class="h-10 w-auto">
+                    <h2 class="text-2xl font-bold text-indigo-600">Escalation Matrix</h2>
                 </div>
                 <div class="flex items-center">
-                    <span id="welcome-user" class="text-gray-600 mr-4"></span>
+                    <span id="welcome-user" class="text-gray-600 mr-4 hidden sm:block"></span>
                     <button id="logout-btn" class="bg-red-500 text-white text-sm font-medium py-2 px-4 rounded-lg hover:bg-red-600 transition">Logout</button>
                 </div>
             </header>
+            
+            <nav class="bg-white border-b z-20 flex-shrink-0 sticky top-[64px]">
+                <div class="max-w-7xl mx-auto px-4">
+                    <div class="flex justify-around">
+                        <button data-tab="tickets" class="tab-btn text-indigo-600 flex items-center justify-center gap-2 py-3 w-full border-b-2 border-indigo-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" />
+</svg>
 
-            <main class="p-4 space-y-8 pb-24">
-                <div id="raise-ticket" class="tab-content bg-white p-6 rounded-lg shadow-md">
-                    <form id="ticket-form" class="space-y-4">
-                        <div>
-                            <label for="store-name" class="block text-sm font-medium text-gray-700">Store Name</label>
-                            <input type="text" id="store-name" class="mt-1 block w-full bg-gray-100 p-2 border border-gray-300 rounded-md shadow-sm" readonly>
-                        </div>
-                        <div>
-                            <label for="person-name" class="block text-sm font-medium text-gray-700">Person Name</label>
-                            <input type="text" id="person-name" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required>
-                        </div>
-                        <div>
-                            <label for="issue-type" class="block text-sm font-medium text-gray-700">Issue Type</label>
-                            <select id="issue-type" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required>
-                                <option value="">-- Select Issue Type --</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="department" class="block text-sm font-medium text-gray-700">Department</label>
-                            <input type="text" id="department" class="mt-1 block w-full bg-gray-100 p-2 border border-gray-300 rounded-md shadow-sm" readonly>
-                        </div>
-                         <div>
-                            <label for="authorized-person" class="block text-sm font-medium text-gray-700">Authorized Person</label>
-                            <select id="authorized-person" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required>
-                                <option value="">-- Select Authorized Person --</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="issue-details" class="block text-sm font-medium text-gray-700">Issue Details (Max 300 characters)</label>
-                            <textarea id="issue-details" rows="4" maxlength="300" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required></textarea>
-                            <p id="char-count" class="text-right text-sm text-gray-500">0 / 300</p>
-                        </div>
-                        <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition">Submit Ticket</button>
-                    </form>
+                            <span class="text-sm font-semibold">Tickets</span>
+                        </button>
+                        <button data-tab="notifications" class="tab-btn text-gray-500 flex items-center justify-center gap-2 py-3 w-full border-b-2 border-transparent">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M3.124 7.5A8.969 8.969 0 0 1 5.292 3m13.416 0a8.969 8.969 0 0 1 2.168 4.5" />
+</svg>
+
+                            <span class="text-sm font-semibold">Notifications</span>
+                        </button>
+                        <button data-tab="send-notification" class="tab-btn text-gray-500 flex items-center justify-center gap-2 py-3 w-full border-b-2 border-transparent">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+</svg>
+
+                            <span class="text-sm font-semibold">Send</span>
+                        </button>
+                    </div>
                 </div>
+            </nav>
 
-                <div id="ticket-status" class="tab-content hidden space-y-8">
+            <main class="p-4 space-y-8 flex-grow overflow-y-auto no-scrollbar pb-16">
+                <div id="tickets" class="tab-content space-y-8">
+                    <div class="bg-white p-4 rounded-lg shadow-md">
+                        <h3 class="font-bold text-lg mb-4">Filter Tickets by Issue Date</h3>
+                        <div class="flex flex-wrap items-end gap-4">
+                            <div>
+                                <label for="from-date" class="block text-sm font-medium text-gray-700">From</label>
+                                <input type="date" id="from-date" class="mt-1 p-2 border rounded-md">
+                            </div>
+                            <div>
+                                <label for="to-date" class="block text-sm font-medium text-gray-700">To</label>
+                                <input type="date" id="to-date" class="mt-1 p-2 border rounded-md">
+                            </div>
+                            <button id="filter-btn" class="bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700">Apply Filter</button>
+                            <button id="clear-filter-btn" class="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600">Clear</button>
+                        </div>
+                    </div>
                     <div>
                         <h2 class="text-2xl font-bold mb-4 text-gray-700">Active Tickets</h2>
                         <div class="bg-white p-4 rounded-lg shadow-md overflow-hidden">
-                           <div class="table-container overflow-x-auto">
-                                <table class="w-full min-w-max text-sm text-left text-gray-500">
+                           <div class="overflow-x-auto no-scrollbar">
+                                <table class="w-full min-w-max text-sm text-left">
                                     <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                                         <tr>
-                                            <th scope="col" class="px-6 py-3">Issue Date</th>
-                                            <th scope="col" class="px-6 py-3">Store</th>
-                                            <th scope="col" class="px-6 py-3">Person</th>
-                                            <th scope="col" class="px-6 py-3">Issue Type</th>
-                                            <th scope="col" class="px-6 py-3">Department</th>
-                                            <th scope="col" class="px-6 py-3">Authorized</th>
-                                            <th scope="col" class="px-6 py-3">Details</th>
-                                            <th scope="col" class="px-6 py-3">Status</th>
-                                            <th scope="col" class="px-6 py-3">Update</th>
+                                            <th class="px-6 py-3">Issue Date</th>
+                                            <th class="px-6 py-3">Store</th>
+                                            <th class="px-6 py-3">Issue Type</th>
+                                            <th class="px-6 py-3">Details</th>
+                                            <th class="px-6 py-3">Authorized</th>
+                                            <th class="px-6 py-3">Status</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="active-tickets-body">
-                                        </tbody>
+                                    <tbody id="active-tickets-body"></tbody>
                                 </table>
                            </div>
-                            <p id="no-active-tickets" class="text-center py-4 text-gray-500 hidden">No active tickets found.</p>
+                           <p id="no-active-tickets" class="text-center py-4 hidden">No active tickets found.</p>
                         </div>
                     </div>
-                     <div>
-                        <h2 class="text-2xl font-bold mb-4 text-gray-700">Closed Tickets</h2>
+                    <div>
+                        <h2 class="text-2xl font-bold mb-4 text-gray-700">Re-opened Tickets</h2>
                         <div class="bg-white p-4 rounded-lg shadow-md overflow-hidden">
-                             <div class="table-container overflow-x-auto">
-                                <table class="w-full min-w-max text-sm text-left text-gray-500">
+                           <div class="overflow-x-auto no-scrollbar">
+                                <table class="w-full min-w-max text-sm text-left">
                                     <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                                         <tr>
-                                            <th scope="col" class="px-6 py-3">Close Date</th>
-                                            <th scope="col" class="px-6 py-3">Issue Date</th>
-                                            <th scope="col" class="px-6 py-3">Store</th>
-                                            <th scope="col" class="px-6 py-3">Person</th>
-                                            <th scope="col" class="px-6 py-3">Issue Type</th>
-                                            <th scope="col" class="px-6 py-3">Department</th>
-                                            <th scope="col" class="px-6 py-3">Authorized</th>
-                                            <th scope="col" class="px-6 py-3">Details</th>
-                                            <th scope="col" class="px-6 py-3">Status</th>
-                                            <th scope="col" class="px-6 py-3">Final Update</th>
+                                            <th class="px-6 py-3">Issue Date</th>
+                                            <th class="px-6 py-3">Store</th>
+                                            <th class="px-6 py-3">Issue Type</th>
+                                            <th class="px-6 py-3">Details</th>
+                                            <th class="px-6 py-3">Authorized</th>
+                                            <th class="px-6 py-3">Status</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="closed-tickets-body">
-                                        </tbody>
+                                    <tbody id="reopened-tickets-body"></tbody>
+                                </table>
+                           </div>
+                           <p id="no-reopened-tickets" class="text-center py-4 hidden">No re-opened tickets found.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold mb-4 text-gray-700">Closed Tickets</h2>
+                        <div class="bg-white p-4 rounded-lg shadow-md overflow-hidden">
+                             <div class="overflow-x-auto no-scrollbar">
+                                <table class="w-full min-w-max text-sm text-left">
+                                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3">Close Date</th>
+                                            <th class="px-6 py-3">Issue Date</th>
+                                            <th class="px-6 py-3">Store</th>
+                                            <th class="px-6 py-3">Issue Type</th>
+                                            <th class="px-6 py-3">Details</th>
+                                            <th class="px-6 py-3">Authorized</th>
+                                            <th class="px-6 py-3">Final Update</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="closed-tickets-body"></tbody>
                                 </table>
                              </div>
-                            <p id="no-closed-tickets" class="text-center py-4 text-gray-500 hidden">No closed tickets found.</p>
+                             <p id="no-closed-tickets" class="text-center py-4 hidden">No closed tickets found.</p>
                         </div>
                     </div>
                 </div>
 
-                <div id="notice-board" class="tab-content hidden">
-                    <h2 class="text-2xl font-bold mb-4 text-gray-700">Notifications</h2>
-                    <div id="notifications-container" class="space-y-4">
-                        </div>
-                     <p id="no-notifications" class="text-center py-4 text-gray-500 hidden">No new notifications.</p>
+                <div id="notifications" class="tab-content hidden space-y-8">
+                     <div>
+                        <h2 class="text-2xl font-bold mb-4 text-gray-700">Pending Notifications</h2>
+                        <div id="pending-notifications-container" class="space-y-4"></div>
+                        <p id="no-pending-notifications" class="text-center py-4 bg-white rounded-lg shadow-md hidden">No pending notifications.</p>
+                    </div>
+                     <div>
+                        <h2 class="text-2xl font-bold mb-4 text-gray-700">Responded Notifications</h2>
+                        <div id="responded-notifications-container" class="space-y-4"></div>
+                        <p id="no-responded-notifications" class="text-center py-4 bg-white rounded-lg shadow-md hidden">No responded notifications.</p>
+                    </div>
+                </div>
+
+                <div id="send-notification" class="tab-content hidden">
+                    <div class="bg-white p-6 rounded-lg shadow-md max-w-lg mx-auto">
+                        <h2 class="text-2xl font-bold mb-4 text-gray-700">Send a New Notification</h2>
+                        <form id="notification-form" class="space-y-4">
+                            <div>
+                                <label for="store-select" class="block text-sm font-medium text-gray-700">Select Store</label>
+                                <select id="store-select" class="mt-1 block w-full p-2 border rounded-md" required></select>
+                            </div>
+                            <div>
+                                <label for="notification-title" class="block text-sm font-medium text-gray-700">Title</label>
+                                <input type="text" id="notification-title" class="mt-1 block w-full p-2 border rounded-md" required>
+                            </div>
+                            <div>
+                                <label for="notification-message" class="block text-sm font-medium text-gray-700">Message</label>
+                                <textarea id="notification-message" rows="4" class="mt-1 block w-full p-2 border rounded-md" required></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-2 rounded-lg hover:bg-indigo-700">Send Notification</button>
+                        </form>
+                    </div>
                 </div>
             </main>
         </div>
     </div>
-    
-    <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 bg-white shadow-[0_-2px_5px_rgba(0,0,0,0.1)] z-20 hidden">
-        <div class="max-w-4xl mx-auto flex justify-around">
-            <button data-tab="raise-ticket" class="tab-btn flex-1 flex flex-col items-center justify-center pt-3 pb-2 text-center font-semibold text-indigo-600">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" />
-</svg>
 
-                <span class="text-xs">Raise Ticket</span>
-            </button>
-            <button data-tab="ticket-status" class="tab-btn flex-1 flex flex-col items-center justify-center pt-3 pb-2 text-center font-semibold text-gray-500">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-</svg><span class="text-xs">Status</span>
-            </button>
-            <div class="relative flex-1 flex flex-col items-center justify-center pt-3 pb-2 text-center font-semibold">
-                <button data-tab="notice-board" class="tab-btn flex flex-col items-center justify-center text-gray-500 w-full">
-                     <svg class="w-6 h-6 mb-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" /></svg>
-                    <span class="text-xs">Notices</span>
-                </button>
-                <span id="notification-bubble" class="notification-bubble hidden"></span>
-            </div>
-        </div>
-    </nav>
-    
-    <div id="remark-modal" class="modal-backdrop">
-        <div class="modal-content">
-            <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Add Remark</h3>
-            <textarea id="remark-textarea" rows="3" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Enter your remark..."></textarea>
-            <p id="remark-error" class="text-red-500 text-sm mt-2 h-5"></p>
-            <div class="mt-4 flex justify-end space-x-2">
-                <button id="cancel-remark-btn" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Cancel</button>
-                <button id="submit-remark-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 w-20 text-center">OK</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="ticket-details-modal" class="modal-backdrop">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-medium leading-6 text-gray-900">Ticket Details</h3>
-                <button id="close-details-modal-btn" class="text-gray-400 hover:text-gray-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
-            <div id="ticket-details-content" class="space-y-2 text-sm">
+    <div id="ticket-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col">
+            <div class="p-4 border-b flex justify-between items-center flex-shrink-0">
+                <div id="modal-title-container">
+                    <h2 class="text-xl font-bold text-gray-800">Ticket Details</h2>
                 </div>
-            <div class="mt-5 text-right">
-                 <button id="close-details-modal-btn-bottom" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Close</button>
+                <button id="modal-close-btn" class="text-2xl font-bold text-gray-500 hover:text-gray-800">&times;</button>
+            </div>
+            <div id="modal-body" class="p-6 space-y-4 overflow-y-auto">
+                </div>
+            <div id="modal-footer" class="p-4 bg-gray-50 border-t text-right space-x-2 flex-shrink-0">
+                </div>
+        </div>
+    </div>
+
+    <div id="custom-alert-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-sm">
+            <div class="p-6 text-center">
+                <div id="custom-alert-icon" class="mx-auto mb-4">
+                    </div>
+                <h3 id="custom-alert-title" class="text-lg font-semibold text-gray-800 mb-2"></h3>
+                <p id="custom-alert-message" class="text-sm text-gray-600 mb-6"></p>
+                <button id="custom-alert-close-btn" class="bg-indigo-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-indigo-700 transition">OK</button>
             </div>
         </div>
     </div>
+
+    <footer class="bg-gray-200 border-t w-full">
+        <div class="max-w-7xl mx-auto px-4">
+            <p class="text-center text-xs text-gray-600 py-2">
+                design and develop by samir singhasamanta contact: 760693670
+            </p>
+        </div>
+    </footer>
 
     <script type="module">
         const SUPABASE_URL = 'https://dfepjaivpgomxsjbxnhz.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmZXBqYWl2cGdvbXhzamJ4bmh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk4MjY0NTMsImV4cCI6MjA2NTQwMjQ1M30.5ASDRBIH0CQ-4d2_1g8hfsZlotOp1EbU9v9nZXZdRIM';
-
+        
         if (SUPABASE_URL === 'YOUR_SUPABASE_URL' || SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY') {
-            const mainContent = document.getElementById('app');
-            mainContent.innerHTML = `
-                <div class="min-h-screen flex items-center justify-center p-4">
-                    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-lg" role="alert">
-                      <p class="font-bold">Configuration Needed</p>
-                      <p>Please update the <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> variables in the script section of this HTML file.</p>
-                    </div>
-                </div>
-            `;
-            throw new Error("Supabase credentials are not set.");
+            document.getElementById('app').innerHTML = `<div class="p-4 text-center text-red-700 bg-red-100">Please configure Supabase credentials in the script.</div>`;
+            throw new Error("Supabase credentials not set.");
         }
         
         const { createClient } = supabase;
         const dbClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentUser = null;
-        let escalationMatrixCache = [];
+        const statusOptions = ['PENDING', 'ACCEPTED', 'REVIEWED', 'UNDER PROCESS', 'COMPLETED'];
 
+        // DOM Elements
         const loginScreen = document.getElementById('login-screen');
         const mainContent = document.getElementById('main-content');
         const loginForm = document.getElementById('login-form');
         const loginError = document.getElementById('login-error');
         const logoutBtn = document.getElementById('logout-btn');
         const welcomeUserEl = document.getElementById('welcome-user');
-        const bottomNav = document.getElementById('bottom-nav');
         const tabBtns = document.querySelectorAll('.tab-btn');
         const tabContents = document.querySelectorAll('.tab-content');
-        const ticketForm = document.getElementById('ticket-form');
-        const issueDetailsTextarea = document.getElementById('issue-details');
-        const charCountEl = document.getElementById('char-count');
-        const notificationBubble = document.getElementById('notification-bubble');
-        let currentNotificationCount = 0;
+        const modal = document.getElementById('ticket-modal');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+        const modalTitleContainer = document.getElementById('modal-title-container');
 
+        // --- AUTH & INITIALIZATION ---
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const username = loginForm.username.value;
-            const password = loginForm.password.value;
+            const userId = document.getElementById('user-id').value.trim();
+            const password = document.getElementById('password').value.trim();
             loginError.textContent = '';
 
-            const { data, error } = await dbClient
-                .from('store_users')
-                .select('*')
-                .eq('user_name', username)
-                .eq('password', password)
-                .single();
+            const { data, error } = await dbClient.from('office_users').select('*').eq('user_id', userId).eq('password', password).single();
 
             if (error || !data) {
-                loginError.textContent = 'Invalid username or password.';
+                loginError.textContent = 'Invalid User ID or password.';
                 return;
             }
-
             currentUser = data;
-            sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+            sessionStorage.setItem('officeCurrentUser', JSON.stringify(currentUser));
             initializeApp();
         });
 
         logoutBtn.addEventListener('click', () => {
-            currentUser = null;
-            sessionStorage.removeItem('currentUser');
-            loginScreen.style.display = 'flex';
-            mainContent.style.display = 'none';
-            bottomNav.style.display = 'none';
-            loginForm.reset();
+            sessionStorage.removeItem('officeCurrentUser');
+            location.reload();
         });
 
         function checkSession() {
-            const user = sessionStorage.getItem('currentUser');
+            const user = sessionStorage.getItem('officeCurrentUser');
             if (user) {
                 currentUser = JSON.parse(user);
                 initializeApp();
             }
         }
-        
+
         async function initializeApp() {
             loginScreen.style.display = 'none';
-            mainContent.style.display = 'block';
-            bottomNav.style.display = 'block';
-            welcomeUserEl.textContent = `Welcome, ${currentUser.store}`;
-            document.getElementById('store-name').value = currentUser.store;
-            
-            await populateDropdowns();
-            updateNotificationBubble();
-            document.querySelector('[data-tab="raise-ticket"]').click();
+            mainContent.style.display = 'flex';
+            welcomeUserEl.textContent = `Welcome, ${currentUser.user_id}`;
+            document.querySelector('[data-tab="tickets"]').click();
         }
 
+        // --- TAB NAVIGATION ---
         tabBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 const targetTab = btn.dataset.tab;
-
+                
                 tabBtns.forEach(b => {
-                    b.classList.remove('text-indigo-600');
-                    b.classList.add('text-gray-500');
+                    b.classList.remove('text-indigo-600', 'border-indigo-600');
+                    b.classList.add('text-gray-500', 'border-transparent');
                 });
-                btn.classList.add('text-indigo-600');
-                btn.classList.remove('text-gray-500');
+                btn.classList.add('text-indigo-600', 'border-indigo-600');
+                btn.classList.remove('text-gray-500', 'border-transparent');
+                
+                tabContents.forEach(c => c.style.display = 'none');
+                document.getElementById(targetTab).style.display = 'block';
 
-                tabContents.forEach(content => {
-                    if (content.id === targetTab) {
-                        content.style.display = 'block';
-                    } else {
-                        content.style.display = 'none';
-                    }
-                });
-
-                if (targetTab === 'ticket-status') fetchTickets();
-                if (targetTab === 'notice-board') fetchNotifications();
+                if (targetTab === 'tickets') fetchTickets();
+                if (targetTab === 'notifications') fetchAllNotifications();
+                if (targetTab === 'send-notification') populateStoreDropdown();
             });
         });
-
-        // New: Fetch escalation matrix for dropdowns (id, issue_type, department, contact_1, contact_2, contact_3, contact_4)
-        async function populateDropdowns() {
-            // Fetch escalation matrix
-            const { data: matrix, error } = await dbClient
-                .from('escalation_matrix')
-                .select('id,issue_type,department,contact_1,contact_2,contact_3,contact_4');
-            if (error) {
-                console.error('Error fetching escalation matrix:', error);
-                return;
-            }
-            escalationMatrixCache = matrix;
-
-            // Issue type dropdown
-            const issueTypeSelect = document.getElementById('issue-type');
-            issueTypeSelect.innerHTML = '<option value="">-- Select Issue Type --</option>';
-            matrix.forEach(row => {
-                const option = document.createElement('option');
-                option.value = row.issue_type;
-                option.textContent = row.issue_type;
-                issueTypeSelect.appendChild(option);
-            });
-
-            // Reset department and authorized-person
-            document.getElementById('department').value = '';
-            const authorizedSelect = document.getElementById('authorized-person');
-            authorizedSelect.innerHTML = '<option value="">-- Select Authorized Person --</option>';
-        }
-
-        // When issue type changes, auto-fill department and populate authorized dropdown from contact_1-4
-        document.getElementById('issue-type').addEventListener('change', (e) => {
-            const selectedType = e.target.value;
-            const departmentInput = document.getElementById('department');
-            const authorizedSelect = document.getElementById('authorized-person');
-            const row = escalationMatrixCache.find(it => it.issue_type === selectedType);
-            departmentInput.value = row ? row.department : '';
-            // Populate authorized-person from non-empty contact_1-4
-            authorizedSelect.innerHTML = '<option value="">-- Select Authorized Person --</option>';
-            if (row) {
-                const contacts = [row.contact_1, row.contact_2, row.contact_3, row.contact_4]
-                    .filter(Boolean)
-                    .filter((v, i, a) => a.indexOf(v) === i); // Remove duplicates if any
-                contacts.forEach(contact => {
-                    const option = document.createElement('option');
-                    option.value = contact;
-                    option.textContent = contact;
-                    authorizedSelect.appendChild(option);
-                });
-            }
+        
+        // --- TICKETS SECTION ---
+        document.getElementById('filter-btn').addEventListener('click', fetchTickets);
+        document.getElementById('clear-filter-btn').addEventListener('click', () => {
+            document.getElementById('from-date').value = '';
+            document.getElementById('to-date').value = '';
+            fetchTickets();
         });
 
-        issueDetailsTextarea.addEventListener('input', () => {
-            const count = issueDetailsTextarea.value.length;
-            charCountEl.textContent = `${count} / 300`;
-        });
-
-        ticketForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const newTicket = {
-                store_name: document.getElementById('store-name').value,
-                person_name: document.getElementById('person-name').value,
-                issue_type: document.getElementById('issue-type').value,
-                department: document.getElementById('department').value,
-                authorized: document.getElementById('authorized-person').value,
-                issue_details: document.getElementById('issue-details').value,
-                issue_status: 'PENDING',
-                action_update: 'Ticket raised successfully.',
-                issue_date: new Date().toISOString()
-            };
-
-            const { data, error } = await dbClient.from('tickets').insert([newTicket]);
-            
-            if (error) {
-                alert('Failed to submit ticket. Error: ' + error.message);
-                console.error('Ticket submission error:', error);
-            } else {
-                alert('Ticket submitted successfully!');
-                ticketForm.reset();
-                charCountEl.textContent = '0 / 300';
-                document.getElementById('store-name').value = currentUser.store;
-                // Repopulate dropdowns so authorized-person resets as well
-                await populateDropdowns();
-                document.querySelector('[data-tab="ticket-status"]').click();
-            }
-        });
-
+        // CHANGED: Added default 7-day filter and ticket categorization
         async function fetchTickets() {
-            const { data, error } = await dbClient
-                .from('tickets')
-                .select('*')
-                .eq('store_name', currentUser.store)
-                .order('issue_date', { ascending: false });
+            let query = dbClient.from('tickets').select('*');
+
+            if (!currentUser.is_admin) {
+                query = query.eq('authorized', currentUser.user_id);
+            }
+            
+            let fromDateStr = document.getElementById('from-date').value;
+            let toDateStr = document.getElementById('to-date').value;
+
+            // Default to last 7 days if no dates are manually entered
+            if (!fromDateStr && !toDateStr) {
+                const today = new Date();
+                const sevenDaysAgo = new Date();
+                sevenDaysAgo.setDate(today.getDate() - 7);
+                fromDateStr = sevenDaysAgo.toISOString().split('T')[0];
+                document.getElementById('from-date').value = fromDateStr;
+            }
+
+            if (fromDateStr) {
+                const fromDateObj = new Date(fromDateStr + 'T00:00:00');
+                query = query.gte('issue_date', fromDateObj.toISOString());
+            }
+            if (toDateStr) {
+                const toDateObj = new Date(toDateStr + 'T23:59:59');
+                query = query.lte('issue_date', toDateObj.toISOString());
+            }
+
+            const { data, error } = await query.order('issue_date', { ascending: false });
 
             if (error) {
                 console.error('Error fetching tickets:', error);
                 return;
             }
-
-            const activeTickets = data.filter(t => ['PENDING', 'ACCEPTED', 'REVIEWED', 'UNDER PROCESS'].includes(t.issue_status));
-            const closedTickets = data.filter(t => t.issue_status === 'COMPLETED');
             
-            renderTickets('active-tickets-body', activeTickets, 'no-active-tickets', 'active');
-            renderTickets('closed-tickets-body', closedTickets, 'no-closed-tickets', 'closed');
+            // Categorize tickets into three groups
+            const closedTickets = data.filter(t => t.issue_status === 'COMPLETED');
+            const reopenedTickets = data.filter(t => t.issue_status !== 'COMPLETED' && t.reopen_reason);
+            const activeTickets = data.filter(t => t.issue_status !== 'COMPLETED' && !t.reopen_reason);
+            
+            renderActiveTickets(activeTickets);
+            renderReopenedTickets(reopenedTickets); // New render function call
+            renderClosedTickets(closedTickets);
         }
 
-        function renderTickets(tbodyId, tickets, noDataElId, type) {
-            const tbody = document.getElementById(tbodyId);
-            const noDataEl = document.getElementById(noDataElId);
+        function renderActiveTickets(tickets) {
+            const tbody = document.getElementById('active-tickets-body');
+            const noDataEl = document.getElementById('no-active-tickets');
             tbody.innerHTML = '';
-            
-            if(tickets.length === 0) {
+            if (tickets.length === 0) {
                 noDataEl.style.display = 'block';
                 return;
             }
@@ -484,252 +394,315 @@
             tickets.forEach(ticket => {
                 const tr = document.createElement('tr');
                 tr.className = 'bg-white border-b hover:bg-gray-50 cursor-pointer';
-                tr.setAttribute('data-ticket', JSON.stringify(ticket));
-                
-                let dateColumns = '';
-                const issueDateFormatted = ticket.issue_date ? new Date(ticket.issue_date).toLocaleDateString() : 'N/A';
-                
-                if (type === 'active') {
-                    dateColumns = `<td class="px-6 py-4 whitespace-nowrap">${issueDateFormatted}</td>`;
-                } else {
-                    const closeDateFormatted = ticket.issue_close_dt ? new Date(ticket.issue_close_dt).toLocaleDateString() : 'N/A';
-                    dateColumns = `
-                        <td class="px-6 py-4 whitespace-nowrap">${closeDateFormatted}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${issueDateFormatted}</td>
-                    `;
-                }
-
+                tr.dataset.ticket = JSON.stringify(ticket);
                 tr.innerHTML = `
-                    ${dateColumns}
+                    <td class="px-6 py-4">${new Date(ticket.issue_date).toLocaleString()}</td>
                     <td class="px-6 py-4">${ticket.store_name}</td>
-                    <td class="px-6 py-4">${ticket.person_name}</td>
-                    <td class="px-6 py-4 font-medium text-gray-900">${ticket.issue_type}</td>
-                    <td class="px-6 py-4">${ticket.department}</td>
-                    <td class="px-6 py-4">${ticket.authorized}</td>
+                    <td class="px-6 py-4 font-semibold">${ticket.issue_type}</td>
                     <td class="px-6 py-4 max-w-xs truncate" title="${ticket.issue_details}">${ticket.issue_details}</td>
-                    <td class="px-6 py-4"><span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(ticket.issue_status)}">${ticket.issue_status}</span></td>
-                    <td class="px-6 py-4 max-w-xs truncate" title="${ticket.action_update || ''}">${ticket.action_update || ''}</td>
+                    <td class="px-6 py-4">${ticket.authorized}</td>
+                    <td class="px-6 py-4 font-medium">${ticket.issue_status}</td>
                 `;
                 tbody.appendChild(tr);
             });
         }
         
-        function getStatusColor(status) {
-            switch (status) {
-                case 'PENDING': return 'bg-orange-100 text-orange-800';
-                case 'ACCEPTED': return 'bg-blue-100 text-blue-800';
-                case 'REVIEWED': return 'bg-yellow-100 text-yellow-800';
-                case 'UNDER PROCESS': return 'bg-purple-100 text-purple-800';
-                case 'COMPLETED': return 'bg-green-100 text-green-800';
-                default: return 'bg-gray-100 text-gray-800';
+        // ADDED: New function to render re-opened tickets
+        function renderReopenedTickets(tickets) {
+            const tbody = document.getElementById('reopened-tickets-body');
+            const noDataEl = document.getElementById('no-reopened-tickets');
+            tbody.innerHTML = '';
+            if (tickets.length === 0) {
+                noDataEl.style.display = 'block';
+                return;
+            }
+            noDataEl.style.display = 'none';
+
+            tickets.forEach(ticket => {
+                const tr = document.createElement('tr');
+                tr.className = 'bg-white border-b hover:bg-yellow-50 cursor-pointer'; // Different hover color for distinction
+                tr.dataset.ticket = JSON.stringify(ticket);
+                tr.innerHTML = `
+                    <td class="px-6 py-4">${new Date(ticket.issue_date).toLocaleString()}</td>
+                    <td class="px-6 py-4">${ticket.store_name}</td>
+                    <td class="px-6 py-4 font-semibold">${ticket.issue_type}</td>
+                    <td class="px-6 py-4 max-w-xs truncate" title="${ticket.issue_details}">${ticket.issue_details}</td>
+                    <td class="px-6 py-4">${ticket.authorized}</td>
+                    <td class="px-6 py-4 font-medium">${ticket.issue_status}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+
+        function renderClosedTickets(tickets) {
+            const tbody = document.getElementById('closed-tickets-body');
+            const noDataEl = document.getElementById('no-closed-tickets');
+            tbody.innerHTML = '';
+            if (tickets.length === 0) {
+                noDataEl.style.display = 'block';
+                return;
+            }
+            noDataEl.style.display = 'none';
+            tickets.forEach(ticket => {
+                const tr = document.createElement('tr');
+                tr.className = 'bg-white border-b hover:bg-gray-50 cursor-pointer';
+                tr.dataset.ticket = JSON.stringify(ticket);
+                tr.innerHTML = `
+                    <td class="px-6 py-4">${new Date(ticket.issue_close_dt).toLocaleString()}</td>
+                    <td class="px-6 py-4">${new Date(ticket.issue_date).toLocaleString()}</td>
+                    <td class="px-6 py-4">${ticket.store_name}</td>
+                    <td class="px-6 py-4 font-semibold">${ticket.issue_type}</td>
+                    <td class="px-6 py-4 max-w-xs truncate" title="${ticket.issue_details}">${ticket.issue_details}</td>
+                    <td class="px-6 py-4">${ticket.authorized}</td>
+                    <td class="px-6 py-4 max-w-xs truncate" title="${ticket.action_update}">${ticket.action_update}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // --- MODAL LOGIC ---
+        // CHANGED: Added logic for attachments and re-open reason
+        function openModal(ticket, type) {
+            const modalBody = document.getElementById('modal-body');
+            const modalFooter = document.getElementById('modal-footer');
+            
+            // Attachment logic
+            let attachmentHTML = '';
+            if (ticket.image_url) {
+                const url = ticket.image_url;
+                const fileName = decodeURIComponent(url.split('/').pop().split('?')[0].split('_').pop());
+                const isImage = /\.(jpe?g|png|gif|webp|svg)$/i.test(fileName);
+                
+                if (isImage) {
+                     attachmentHTML = `
+                    <div>
+                        <strong class="text-gray-500 block mb-1">Attachment:</strong>
+                        <a href="${url}" target="_blank" rel="noopener noreferrer">
+                            <img src="${url}" alt="Ticket Attachment" class="max-h-48 rounded border cursor-pointer hover:opacity-80 transition-opacity">
+                        </a>
+                    </div>`;
+                } else {
+                     attachmentHTML = `
+                    <div>
+                        <strong class="text-gray-500 block mb-1">Attachment:</strong>
+                        <a href="${url}" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:underline break-all">
+                            ${fileName}
+                        </a>
+                    </div>`;
+                }
+            }
+            
+            // Re-open reason logic
+            let reopenReasonHTML = '';
+            if (ticket.reopen_reason) {
+                reopenReasonHTML = `
+                <div>
+                    <strong class="text-gray-500 block mb-1">Re-open Reason:</strong>
+                    <p class="bg-yellow-50 text-yellow-800 p-2 rounded-md">${ticket.reopen_reason}</p>
+                </div>`;
+            }
+
+            let contentHTML = `
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div><strong class="text-gray-500 block">Store:</strong> ${ticket.store_name}</div>
+                    <div><strong class="text-gray-500 block">Authorized:</strong> ${ticket.authorized}</div>
+                    <div><strong class="text-gray-500 block">Issue Date:</strong> ${new Date(ticket.issue_date).toLocaleString()}</div>
+                    <div><strong class="text-gray-500 block">Issue Type:</strong> ${ticket.issue_type}</div>
+                </div>
+                <div>
+                    <strong class="text-gray-500 block mb-1">Details:</strong>
+                    <p class="bg-gray-50 p-2 rounded-md">${ticket.issue_details}</p>
+                </div>
+                ${reopenReasonHTML}
+                ${attachmentHTML}
+            `;
+            modalFooter.innerHTML = '';
+
+            if (type === 'active') {
+                modalTitleContainer.innerHTML = `<h2 class="text-xl font-bold text-gray-800">Ticket Details</h2>`;
+                contentHTML += `
+                    <div>
+                        <label for="modal-status" class="block text-sm font-medium text-gray-700">Update Status</label>
+                        <select id="modal-status" class="mt-1 block w-full p-2 border rounded-md">
+                            ${statusOptions.map(s => `<option value="${s}" ${s === ticket.issue_status ? 'selected' : ''}>${s}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="modal-update" class="block text-sm font-medium text-gray-700">Action Update</label>
+                        <textarea id="modal-update" class="mt-1 block w-full p-2 border rounded-md" rows="3">${ticket.action_update || ''}</textarea>
+                    </div>
+                `;
+                modalBody.innerHTML = contentHTML;
+                modalFooter.innerHTML = `
+                    <button id="modal-cancel-btn" class="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600">Cancel</button>
+                    <button id="modal-submit-btn" class="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600">Submit Update</button>
+                `;
+                document.getElementById('modal-submit-btn').addEventListener('click', () => updateTicketFromModal(ticket.id));
+                document.getElementById('modal-cancel-btn').addEventListener('click', closeModal);
+            } else { // Closed ticket
+                modalTitleContainer.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <h2 class="text-xl font-bold text-gray-800">Ticket Details</h2>
+                        <span class="px-2.5 py-0.5 bg-green-100 text-green-800 text-sm font-semibold rounded-full">Completed</span>
+                    </div>
+                `;
+                contentHTML += `
+                    <div><strong class="text-gray-500 block">Close Date:</strong> ${new Date(ticket.issue_close_dt).toLocaleString()}</div>
+                    <div>
+                        <strong class="text-gray-500 block mb-1">Final Update:</strong>
+                        <p class="bg-gray-50 p-2 rounded-md">${ticket.action_update || 'N/A'}</p>
+                    </div>
+                `;
+                modalBody.innerHTML = contentHTML;
+                
+                modalFooter.innerHTML = `<button id="modal-ok-btn" class="bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700">OK</button>`;
+                document.getElementById('modal-ok-btn').addEventListener('click', closeModal);
+            }
+            modal.style.display = 'flex';
+        }
+
+        async function updateTicketFromModal(ticketId) {
+            const newStatus = document.getElementById('modal-status').value;
+            const newUpdate = document.getElementById('modal-update').value;
+            let updateData = { issue_status: newStatus, action_update: newUpdate };
+
+            if (newStatus === 'COMPLETED') {
+                updateData.issue_close_dt = new Date().toISOString();
+            }
+
+            const { error } = await dbClient.from('tickets').update(updateData).eq('id', ticketId);
+            if (error) {
+                showCustomAlert('Failed to update ticket.', false);
+                console.error('Update error:', error);
+            } else {
+                showCustomAlert('Ticket updated successfully!', true);
+                closeModal();
+                fetchTickets();
             }
         }
 
-        async function fetchNotifications() {
-            const { data, error } = await dbClient
-                .from('notifications')
-                .select('*')
-                .eq('status', true)
-                .eq('store', currentUser.store)
-                .order('created_at', { ascending: false });
+        function closeModal() {
+            modal.style.display = 'none';
+        }
 
-            if(error) {
-                console.error("Error fetching notifications", error);
-                return;
-            }
-            
-            const container = document.getElementById('notifications-container');
-            const noNotificationsEl = document.getElementById('no-notifications');
+        modalCloseBtn.addEventListener('click', closeModal);
+        document.getElementById('active-tickets-body').addEventListener('click', (e) => {
+            const row = e.target.closest('tr');
+            if (row && row.dataset.ticket) openModal(JSON.parse(row.dataset.ticket), 'active');
+        });
+        // ADDED: Event listener for the new re-opened tickets table
+        document.getElementById('reopened-tickets-body').addEventListener('click', (e) => {
+            const row = e.target.closest('tr');
+            if (row && row.dataset.ticket) openModal(JSON.parse(row.dataset.ticket), 'active');
+        });
+        document.getElementById('closed-tickets-body').addEventListener('click', (e) => {
+            const row = e.target.closest('tr');
+            if (row && row.dataset.ticket) openModal(JSON.parse(row.dataset.ticket), 'closed');
+        });
+
+        // --- NOTIFICATIONS SECTION ---
+        async function fetchAllNotifications() {
+            const { data, error } = await dbClient.from('notifications').select('*').order('created_at', { ascending: false });
+            if (error) { console.error("Error fetching notifications", error); return; }
+            const pending = data.filter(n => n.status === true);
+            const responded = data.filter(n => n.status === false);
+            renderNotifications('pending-notifications-container', pending, 'no-pending-notifications');
+            renderNotifications('responded-notifications-container', responded, 'no-responded-notifications');
+        }
+        function renderNotifications(containerId, notifications, noDataElId) {
+            const container = document.getElementById(containerId);
+            const noDataEl = document.getElementById(noDataElId);
             container.innerHTML = '';
-            updateNotificationBubble(data.length);
-
-            if (data.length === 0) {
-                noNotificationsEl.style.display = 'block';
-                return;
-            }
-            noNotificationsEl.style.display = 'none';
-
-            data.forEach(notification => {
+            if (notifications.length === 0) { noDataEl.style.display = 'block'; return; }
+            noDataEl.style.display = 'none';
+            notifications.forEach(n => {
                 const card = document.createElement('div');
-                card.id = `notification-${notification.id}`;
-                card.className = 'bg-white p-5 rounded-lg shadow flex justify-between items-start';
-                card.innerHTML = `
-                    <div>
-                        <div class="flex items-center mb-2">
-                           <h3 class="font-bold text-lg text-gray-800">${notification.title}</h3>
-                           <span class="ml-3 text-xs text-gray-400">${new Date(notification.created_at).toLocaleString()}</span>
-                        </div>
-                        <p class="text-gray-600">${notification.message}</p>
-                    </div>
-                    <button data-id="${notification.id}" class="ack-btn ml-4 flex-shrink-0 bg-green-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-green-600 transition">OK</button>
-                `;
+                card.className = 'bg-white p-4 rounded-lg shadow';
+                card.innerHTML = `<div class="flex justify-between items-start"><div><h3 class="font-bold text-lg">${n.title}</h3><p class="text-sm text-gray-500">To: ${n.store} | On: ${new Date(n.created_at).toLocaleString()}</p><p class="mt-2">${n.message}</p>${n.response ? `<p class="mt-2 text-sm text-blue-600 bg-blue-50 p-2 rounded-md"><b>Response:</b> ${n.response}</p>` : ''}</div><span class="text-xs font-semibold px-2 py-1 rounded-full ${n.status ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}">${n.status ? 'Pending' : 'Responded'}</span></div>`;
                 container.appendChild(card);
             });
-
-            document.querySelectorAll('.ack-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const notificationId = btn.dataset.id;
-                    openRemarkModal(notificationId);
-                });
+        }
+        
+        // --- SEND NOTIFICATION SECTION ---
+        async function populateStoreDropdown() {
+            const { data, error } = await dbClient.from('store_users').select('store');
+            if(error) { console.error("Error fetching stores", error); return; }
+            const storeSelect = document.getElementById('store-select');
+            storeSelect.innerHTML = '<option value="All">All Stores</option>';
+            [...new Set(data.map(item => item.store))].forEach(store => {
+                storeSelect.innerHTML += `<option value="${store}">${store}</option>`;
             });
         }
-
-        async function updateNotificationBubble(explicitCount = null) {
-            let count = explicitCount;
-            if (count === null) {
-                if (!currentUser) {
-                    notificationBubble.classList.add('hidden');
-                    return;
+        document.getElementById('notification-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const store = document.getElementById('store-select').value;
+            const title = document.getElementById('notification-title').value;
+            const message = document.getElementById('notification-message').value;
+            const notification = { title, message, status: true };
+            if (store === 'All') {
+                const { data: stores, error: storeError } = await dbClient.from('store_users').select('store');
+                if (storeError) { 
+                    showCustomAlert('Could not fetch store list to send to all.', false); 
+                    return; 
                 }
-                const { count: notifCount, error } = await dbClient
-                    .from('notifications')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('status', true)
-                    .eq('store', currentUser.store);
-                count = notifCount || 0;
-            }
-            currentNotificationCount = count;
-            if (count > 0) {
-                notificationBubble.textContent = count > 99 ? '99+' : count;
-                notificationBubble.classList.remove('hidden');
+                const allNotifications = [...new Set(stores.map(item => item.store))].map(s => ({...notification, store: s}));
+                const { error } = await dbClient.from('notifications').insert(allNotifications);
+                if (error) { 
+                    showCustomAlert('Failed to send notification to all stores.', false); 
+                } else { 
+                    showCustomAlert('Notification sent to all stores successfully!', true); 
+                    e.target.reset();
+                }
             } else {
-                notificationBubble.textContent = '';
-                notificationBubble.classList.add('hidden');
-            }
-        }
-        
-        const remarkModal = document.getElementById('remark-modal');
-        const submitRemarkBtn = document.getElementById('submit-remark-btn');
-        const cancelRemarkBtn = document.getElementById('cancel-remark-btn');
-        const remarkErrorEl = document.getElementById('remark-error');
-        let currentNotificationId = null;
-
-        function openRemarkModal(id) {
-            currentNotificationId = id;
-            remarkErrorEl.textContent = '';
-            remarkModal.style.display = 'flex';
-        }
-        
-        function closeRemarkModal() {
-            document.getElementById('remark-textarea').value = '';
-            remarkErrorEl.textContent = '';
-            remarkModal.style.display = 'none';
-            currentNotificationId = null;
-        }
-
-        submitRemarkBtn.addEventListener('click', async () => {
-            const remark = document.getElementById('remark-textarea').value;
-            remarkErrorEl.textContent = '';
-
-            if (!remark.trim()) {
-                remarkErrorEl.textContent = 'Remark cannot be empty.';
-                return;
-            }
-            
-            submitRemarkBtn.disabled = true;
-            submitRemarkBtn.textContent = 'Saving...';
-
-            const { error } = await dbClient
-                .from('notifications')
-                .update({ 
-                    response: remark,
-                    status: false 
-                })
-                .eq('id', currentNotificationId);
-
-            submitRemarkBtn.disabled = false;
-            submitRemarkBtn.textContent = 'OK';
-
-            if (error) {
-                remarkErrorEl.textContent = 'Failed to save. Please try again.';
-                console.error('Remark update error:', error);
-            } else {
-                const cardToRemove = document.getElementById(`notification-${currentNotificationId}`);
-                if (cardToRemove) {
-                    cardToRemove.remove();
+                notification.store = store;
+                const { error } = await dbClient.from('notifications').insert([notification]);
+                if (error) { 
+                    showCustomAlert('Failed to send notification.', false); 
+                } else { 
+                    showCustomAlert('Notification sent successfully!', true); 
+                    e.target.reset();
                 }
-                currentNotificationCount = Math.max(0, currentNotificationCount - 1);
-                updateNotificationBubble(currentNotificationCount);
-                if (document.getElementById('notifications-container').children.length === 0) {
-                    document.getElementById('no-notifications').style.display = 'block';
-                }
-                closeRemarkModal();
             }
         });
 
-        cancelRemarkBtn.addEventListener('click', closeRemarkModal);
-        
-        const ticketDetailsModal = document.getElementById('ticket-details-modal');
-        const ticketDetailsContent = document.getElementById('ticket-details-content');
-        const closeDetailsModalBtn = document.getElementById('close-details-modal-btn');
-        const closeDetailsModalBtnBottom = document.getElementById('close-details-modal-btn-bottom');
-        const activeTicketsTbody = document.getElementById('active-tickets-body');
-        const closedTicketsTbody = document.getElementById('closed-tickets-body');
+        // --- CUSTOM ALERT MODAL ---
+        const customAlertModal = document.getElementById('custom-alert-modal');
+        const customAlertIcon = document.getElementById('custom-alert-icon');
+        const customAlertTitle = document.getElementById('custom-alert-title');
+        const customAlertMessage = document.getElementById('custom-alert-message');
+        const customAlertCloseBtn = document.getElementById('custom-alert-close-btn');
 
-        function showTicketDetailsModal(ticket) {
-            const issueDate = ticket.issue_date ? new Date(ticket.issue_date).toLocaleString() : 'N/A';
-            const closeDate = ticket.issue_close_dt ? new Date(ticket.issue_close_dt).toLocaleString() : 'N/A';
+        const successIconSVG = `<svg class="w-12 h-12 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+        const errorIconSVG = `<svg class="w-12 h-12 text-red-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
 
-            ticketDetailsContent.innerHTML = `
-                <div class="grid grid-cols-3 gap-y-3 gap-x-2">
-                    <p class="font-semibold text-gray-500 col-span-1">Status:</p>
-                    <p class="col-span-2"><span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(ticket.issue_status)}">${ticket.issue_status}</span></p>
-
-                    <p class="font-semibold text-gray-500 col-span-1">Issue Date:</p>
-                    <p class="col-span-2">${issueDate}</p>
-                    
-                    ${ticket.issue_status === 'COMPLETED' ? `
-                    <p class="font-semibold text-gray-500 col-span-1">Close Date:</p>
-                    <p class="col-span-2">${closeDate}</p>
-                    ` : ''}
-
-                    <p class="font-semibold text-gray-500 col-span-1">Store:</p>
-                    <p class="col-span-2">${ticket.store_name || ''}</p>
-
-                    <p class="font-semibold text-gray-500 col-span-1">Raised By:</p>
-                    <p class="col-span-2">${ticket.person_name || ''}</p>
-
-                    <p class="font-semibold text-gray-500 col-span-1">Issue Type:</p>
-                    <p class="col-span-2">${ticket.issue_type || ''}</p>
-
-                    <p class="font-semibold text-gray-500 col-span-1">Department:</p>
-                    <p class="col-span-2">${ticket.department || ''}</p>
-                    
-                    <p class="font-semibold text-gray-500 col-span-1">Authorized:</p>
-                    <p class="col-span-2">${ticket.authorized || ''}</p>
-
-                    <p class="font-semibold text-gray-500 col-span-1">Details:</p>
-                    <p class="col-span-2 break-words">${ticket.issue_details || ''}</p>
-
-                    <p class="font-semibold text-gray-500 col-span-1">Last Update:</p>
-                    <p class="col-span-2 break-words">${ticket.action_update || ''}</p>
-                </div>
-            `;
-            ticketDetailsModal.style.display = 'flex';
-        }
-
-        function closeTicketDetailsModal() {
-            ticketDetailsModal.style.display = 'none';
-        }
-        
-        closeDetailsModalBtn.addEventListener('click', closeTicketDetailsModal);
-        closeDetailsModalBtnBottom.addEventListener('click', closeTicketDetailsModal);
-
-        const tableClickHandler = (event) => {
-            const row = event.target.closest('tr');
-            if (row && row.hasAttribute('data-ticket')) {
-                const ticketData = JSON.parse(row.getAttribute('data-ticket'));
-                showTicketDetailsModal(ticketData);
+        function showCustomAlert(message, isSuccess = true) {
+            if (isSuccess) {
+                customAlertIcon.innerHTML = successIconSVG;
+                customAlertTitle.textContent = 'Success!';
+                customAlertCloseBtn.className = 'bg-indigo-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-indigo-700 transition';
+            } else {
+                customAlertIcon.innerHTML = errorIconSVG;
+                customAlertTitle.textContent = 'Error!';
+                customAlertCloseBtn.className = 'bg-red-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-red-700 transition';
             }
-        };
-        
-        activeTicketsTbody.addEventListener('click', tableClickHandler);
-        closedTicketsTbody.addEventListener('click', tableClickHandler);
+            customAlertMessage.textContent = message;
+            customAlertModal.style.display = 'flex';
+        }
 
+        function closeCustomAlert() {
+            customAlertModal.style.display = 'none';
+        }
+
+        customAlertCloseBtn.addEventListener('click', closeCustomAlert);
+        customAlertModal.addEventListener('click', (e) => {
+            if (e.target === customAlertModal) {
+                closeCustomAlert();
+            }
+        });
+
+        // --- STARTUP ---
         checkSession();
-        setInterval(() => {
-            if (currentUser) updateNotificationBubble();
-        }, 30000);
     </script>
 </body>
 </html>
