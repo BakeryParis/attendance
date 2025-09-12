@@ -61,14 +61,15 @@
             border: 2px solid white;
             pointer-events: none;
         }
+        /* Image Preview Style */
+        #image-preview {
+            max-height: 150px;
+            border-radius: 0.5rem;
+            border: 1px solid #e5e7eb;
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
-
-    <audio id="notification-sound" preload="auto">
-        <source src="data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAASAAADbWFqb3JfYnJhbmQAGGFwcGwADG1pbm9yX3ZlcnNpb24AMGNvbXBhdGlibGVfYnJhbmRzAA5pc29tZGFwcGwAAG1kYXQ8voEAAVkAAANsY//EAIQAAAEFAQABAgIGBgcFBQgJBQEAAAECAwQFBhESBxMhCBQxQRUiFzJhcZHwBkJSoRYjMzQ0U2JzdIKisSQlJic4RUY3OHB0gpWVo7f/EABoBAAMBAQEBAAAAAAAAAAAAAAABAgMEBQb/xAA5EQACAQMBBAUJBgcAAAAAAAAAAQIRAwQFEiExQVFhEyJCcYGRobHB0fAUIzLhFUNSstLxYnKCwv/aAAgBAQABPyD/AGpPz9mZ8+fR+K5+4T7h423wH6g3jHq/I077D6b7XQy+x4OPl8HwHz5n7jP3Gff6Xz63w6H6t+K+Jk+zM/cz959L4n7g9b5Gj9h9N9n5j7L/M+b7Dwcvl+n7T/2XzM/eZ+8z959L5j9RvHrfI0fsPpvtfMfZZez8x8vk+A+bM/cZ+4z95n3+h9W/G2+B9X4mnfYfTfZ+Y+y8HHy+T4D5sz9xn7jPv9L59b4dD9W/FfEyfZmfuZ+8+l8T9wes8jR+w+m+z8x9l/mfN9h4OXy/T9p/7L5mfvM/eZ+8+l8x+o3j1viP/AEf/AKP/03mZ+8z95n7z6XzH6jePW+Ro/YfTfa+Y+yy9n5j5fJ8B82Z+4z9xn7zPv9D6t+Nt8D6vyNO+w+m+z8x9l4OPl8nwHzZn7jP3Gff6Xz63w6H6t+K+Jk+zM/cz959L4n7g9b5Gj9h9N9n5j7L/M+b7Dwcvl+n7T/2XzM/eZ+8z959L5j9RvHrfE0fsPpvtfMfZZez8x8vk+A+bM/cZ+4z95n3+h9W/G2+B9X5Gnfa+Jk+zP3M/efS+J+4PW+Ro/YfTfa+Y+y/zPm+w8HL5fp+0/wDZfMz95n7zP3n0vj9RvHrfI0fsPpvtfMfZZez8x8vk+A+bM/cZ+4z7/Q+rfjbfA+r8jTvsPpvtfMfZeDj5fJ8B82Z+4z9xn3+l8+t8Oh+rfivj5PszP3M/efS+J+4PW+Ro/YfTfa+Y+y/zPm+w8HL5fp+0/wDZfMz95n7zP3n0vmP1G8et8TR+w+m+18x9ll7PzHy+T4D5sz9xn7jP3mff6H1b8bb4H1fkaf/AJX//EAEQQAQABAgMFBAcFBgYDAAAAAAABAgMEEQUhMRJBUWFxgZGh8BATIjLBIlBSscHRFEJi4UNTY3KCkiOCw9LxFWOT/9oACAECAQE/AP8AXS385/nf81t/Obfz/Lfy5+XPzW38/wA5/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/AC38ufvP3mfzW385/nf81t/Obfz/
-    </source>
-    </audio>
 
     <div id="app" class="max-w-4xl mx-auto">
 
@@ -143,10 +144,10 @@
                         </div>
                         <div>
                             <label for="issue-image" class="block text-sm font-medium text-gray-700">Attach Image (Optional)</label>
-                            <input type="file" id="issue-image" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/>
+                            <input type="file" id="issue-image" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100">
                             <div id="image-preview-container" class="mt-2 hidden">
-                                <img id="image-preview" class="max-h-40 rounded-md border border-gray-300"/>
-                                <button type="button" id="remove-image-btn" class="mt-1 text-sm text-red-600 hover:text-red-800">Remove Image</button>
+                                <img id="image-preview" src="#" alt="Image Preview" class="mt-2"/>
+                                <button type="button" id="remove-image-btn" class="mt-1 text-xs text-red-600 hover:text-red-800">Remove Image</button>
                             </div>
                         </div>
                         <button type="submit" id="submit-ticket-btn" class="w-full bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition">Submit Ticket</button>
@@ -196,7 +197,6 @@
                                             <th scope="col" class="px-6 py-3">Details</th>
                                             <th scope="col" class="px-6 py-3">Status</th>
                                             <th scope="col" class="px-6 py-3">Final Update</th>
-                                            <th scope="col" class="px-6 py-3">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody id="closed-tickets-body">
@@ -242,6 +242,8 @@
         </div>
     </nav>
     
+    <audio id="notification-sound" src="https://cdn.freesound.org/previews/219/219244_401265-lq.mp3" preload="auto"></audio>
+
     <div id="remark-modal" class="modal-backdrop">
         <div class="modal-content">
             <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Add Remark</h3>
@@ -264,7 +266,7 @@
             </div>
             <div id="ticket-details-content" class="space-y-2 text-sm">
                 </div>
-            <div class="mt-5 text-right">
+            <div id="ticket-details-footer" class="mt-5 text-right space-x-2">
                  <button id="close-details-modal-btn-bottom" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Close</button>
             </div>
         </div>
@@ -305,8 +307,9 @@
         // --- STATE MANAGEMENT ---
         let currentUser = null;
         let issueTypesCache = [];
-        let afterAlertAction = null; // To store function to run after closing custom alert
-        let currentNotificationCount = 0; // CHANGED: Initialized
+        let afterAlertAction = null; 
+        let currentNotificationCount = 0;
+        let isInitialNotifCheck = true; 
 
         // --- DOM ELEMENTS ---
         const loginScreen = document.getElementById('login-screen');
@@ -326,8 +329,11 @@
         const alertModalTitle = document.getElementById('alert-modal-title');
         const alertModalMessage = document.getElementById('alert-modal-message');
         const closeAlertModalBtn = document.getElementById('close-alert-modal-btn');
-        const notificationSound = document.getElementById('notification-sound'); // ADDED
-
+        const issueImageInput = document.getElementById('issue-image');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const imagePreview = document.getElementById('image-preview');
+        const removeImageBtn = document.getElementById('remove-image-btn');
+        
         // --- AUTHENTICATION ---
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -346,11 +352,6 @@
                 loginError.textContent = 'Invalid username or password.';
                 return;
             }
-            
-            // ADDED: Unlock audio on first user interaction
-            notificationSound.play().catch(e => console.log("Audio play failed until user interaction."));
-            notificationSound.pause();
-            notificationSound.currentTime = 0;
 
             currentUser = data;
             sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
@@ -360,6 +361,7 @@
         logoutBtn.addEventListener('click', () => {
             currentUser = null;
             sessionStorage.removeItem('currentUser');
+            isInitialNotifCheck = true; 
             loginScreen.style.display = 'flex';
             mainContent.style.display = 'none';
             bottomNav.style.display = 'none';
@@ -383,7 +385,7 @@
             document.getElementById('store-name').value = currentUser.store;
             
             await populateDropdowns();
-            await updateNotificationBubble(); // CHANGED: await this to get initial count
+            updateNotificationBubble();
             document.querySelector('[data-tab="raise-ticket"]').click();
         }
 
@@ -412,13 +414,14 @@
                 ? 'text-lg font-medium leading-6 text-green-700 mb-4' 
                 : 'text-lg font-medium leading-6 text-red-700 mb-4';
             
-            if (isSuccess) {
-                afterAlertAction = () => {
+            if (isSuccess && title === 'Success!') {
+                 afterAlertAction = () => {
                     ticketForm.reset();
-                    document.getElementById('image-preview-container').style.display = 'none'; // ADDED
                     charCountEl.textContent = '0 / 300';
                     document.getElementById('store-name').value = currentUser.store;
                     document.getElementById('authorized-person').innerHTML = '<option value="">-- Select Issue Type First --</option>';
+                    imagePreviewContainer.classList.add('hidden');
+                    issueImageInput.value = '';
                     document.querySelector('[data-tab="ticket-status"]').click();
                 };
             } else {
@@ -487,24 +490,23 @@
             const count = issueDetailsTextarea.value.length;
             charCountEl.textContent = `${count} / 300`;
         });
-
-        // ADDED: Image preview and remove logic
-        const issueImageInput = document.getElementById('issue-image');
-        const imagePreviewContainer = document.getElementById('image-preview-container');
-        const imagePreview = document.getElementById('image-preview');
-        const removeImageBtn = document.getElementById('remove-image-btn');
-
-        issueImageInput.addEventListener('change', () => {
-            const file = issueImageInput.files[0];
+        
+        issueImageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
             if (file) {
-                imagePreview.src = URL.createObjectURL(file);
-                imagePreviewContainer.style.display = 'block';
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    imagePreview.src = event.target.result;
+                    imagePreviewContainer.classList.remove('hidden');
+                }
+                reader.readAsDataURL(file);
             }
         });
+
         removeImageBtn.addEventListener('click', () => {
-            issueImageInput.value = ''; // Clear the file input
-            imagePreview.src = '';
-            imagePreviewContainer.style.display = 'none';
+            issueImageInput.value = ''; 
+            imagePreview.src = '#';
+            imagePreviewContainer.classList.add('hidden');
         });
 
         ticketForm.addEventListener('submit', async (e) => {
@@ -512,30 +514,29 @@
             const submitBtn = document.getElementById('submit-ticket-btn');
             submitBtn.disabled = true;
             submitBtn.textContent = 'Submitting...';
-            
+
             let imageUrl = null;
             const imageFile = issueImageInput.files[0];
 
-            // CHANGED: Handle image upload
             if (imageFile) {
-                const storeName = currentUser.store.replace(/\s+/g, '_'); // Sanitize store name for path
-                const filePath = `public/${storeName}/${Date.now()}-${imageFile.name}`;
-                const { data: uploadData, error: uploadError } = await dbClient.storage
+                const fileName = `${currentUser.store}_${Date.now()}`;
+                const { error: uploadError } = await dbClient.storage
                     .from('ticket-images')
-                    .upload(filePath, imageFile);
+                    .upload(fileName, imageFile);
 
                 if (uploadError) {
                     showCustomAlert('Upload Failed', 'Error uploading image: ' + uploadError.message, false);
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Submit Ticket';
-                    console.error('Image upload error:', uploadError);
                     return;
                 }
-                
-                const { data: urlData } = dbClient.storage.from('ticket-images').getPublicUrl(filePath);
+
+                const { data: urlData } = dbClient.storage
+                    .from('ticket-images')
+                    .getPublicUrl(fileName);
                 imageUrl = urlData.publicUrl;
             }
-
+            
             const newTicket = {
                 store_name: document.getElementById('store-name').value,
                 person_name: document.getElementById('person-name').value,
@@ -546,10 +547,10 @@
                 issue_status: 'PENDING',
                 action_update: 'Ticket raised successfully.',
                 issue_date: new Date().toISOString(),
-                image_url: imageUrl // ADDED
+                image_url: imageUrl,
             };
 
-            const { data, error } = await dbClient.from('tickets').insert([newTicket]);
+            const { data, error } = await dbClient.from('tickets').insert([newTicket]).select();
             
             submitBtn.disabled = false;
             submitBtn.textContent = 'Submit Ticket';
@@ -582,7 +583,6 @@
             renderTickets('closed-tickets-body', closedTickets, 'no-closed-tickets', 'closed');
         }
 
-        // CHANGED: Updated renderTickets to handle reopen button
         function renderTickets(tbodyId, tickets, noDataElId, type) {
             const tbody = document.getElementById(tbodyId);
             const noDataEl = document.getElementById(noDataElId);
@@ -596,28 +596,21 @@
 
             tickets.forEach(ticket => {
                 const tr = document.createElement('tr');
-                tr.className = 'bg-white border-b hover:bg-gray-50';
+                tr.className = 'bg-white border-b hover:bg-gray-50 cursor-pointer';
+                tr.setAttribute('data-ticket', JSON.stringify(ticket));
                 
                 let dateColumns = '';
                 const issueDateFormatted = ticket.issue_date ? new Date(ticket.issue_date).toLocaleDateString() : 'N/A';
                 
                 if (type === 'active') {
-                    tr.classList.add('cursor-pointer');
-                    tr.setAttribute('data-ticket', JSON.stringify(ticket));
                     dateColumns = `<td class="px-6 py-4 whitespace-nowrap">${issueDateFormatted}</td>`;
-                } else { // 'closed'
-                    tr.classList.add('cursor-pointer');
-                    tr.setAttribute('data-ticket', JSON.stringify(ticket));
+                } else {
                     const closeDateFormatted = ticket.issue_close_dt ? new Date(ticket.issue_close_dt).toLocaleDateString() : 'N/A';
                     dateColumns = `
                         <td class="px-6 py-4 whitespace-nowrap">${closeDateFormatted}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${issueDateFormatted}</td>
                     `;
                 }
-
-                const actionCell = type === 'closed' 
-                    ? `<td class="px-6 py-4"><button data-id="${ticket.id}" class="reopen-btn bg-blue-500 text-white text-xs font-semibold py-1 px-3 rounded-md hover:bg-blue-600 transition">Reopen</button></td>`
-                    : '';
 
                 tr.innerHTML = `
                     ${dateColumns}
@@ -629,7 +622,6 @@
                     <td class="px-6 py-4 max-w-xs truncate" title="${ticket.issue_details}">${ticket.issue_details}</td>
                     <td class="px-6 py-4"><span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(ticket.issue_status)}">${ticket.issue_status}</span></td>
                     <td class="px-6 py-4 max-w-xs truncate" title="${ticket.action_update || ''}">${ticket.action_update || ''}</td>
-                    ${actionCell}
                 `;
                 tbody.appendChild(tr);
             });
@@ -643,26 +635,6 @@
                 case 'UNDER PROCESS': return 'bg-purple-100 text-purple-800';
                 case 'COMPLETED': return 'bg-green-100 text-green-800';
                 default: return 'bg-gray-100 text-gray-800';
-            }
-        }
-        
-        // ADDED: Reopen ticket logic
-        async function reopenTicket(ticketId) {
-            const { error } = await dbClient
-                .from('tickets')
-                .update({ 
-                    issue_status: 'PENDING',
-                    action_update: 'Ticket reopened by store.',
-                    issue_close_dt: null // Clear the closing date
-                })
-                .eq('id', ticketId);
-
-            if (error) {
-                console.error('Error reopening ticket:', error);
-                showCustomAlert('Error', 'Failed to reopen the ticket. Please try again.', false);
-            } else {
-                showCustomAlert('Success', 'Ticket has been moved to Active.', true);
-                fetchTickets(); // Refresh the ticket lists
             }
         }
 
@@ -683,9 +655,7 @@
             const container = document.getElementById('notifications-container');
             const noNotificationsEl = document.getElementById('no-notifications');
             container.innerHTML = '';
-            
-            // This tab is where we clear the visual notification count
-            updateNotificationBubble(data.length); 
+            await updateNotificationBubble(data.length);
 
             if (data.length === 0) {
                 noNotificationsEl.style.display = 'block';
@@ -718,8 +688,7 @@
             });
         }
 
-        // --- NOTIFICATION BUBBLE & SOUND LOGIC ---
-        // CHANGED: Modified to handle sound
+        // --- NOTIFICATION BUBBLE LOGIC ---
         async function updateNotificationBubble(explicitCount = null) {
             let count = explicitCount;
             if (count === null) {
@@ -732,19 +701,23 @@
                     .select('*', { count: 'exact', head: true })
                     .eq('status', true)
                     .eq('store', currentUser.store);
-
                 if (error) { 
-                    console.error("Error fetching notification count", error);
-                    return;
+                    console.error("Error counting notifications:", error);
+                    return; 
                 }
                 count = notifCount || 0;
             }
 
-            // Play sound if new notifications have arrived
-            if (count > currentNotificationCount) {
-                 notificationSound.play().catch(e => console.error("Audio play failed:", e));
+            // Play sound if new notification arrived
+            if (count > currentNotificationCount && !isInitialNotifCheck) {
+                const audio = document.getElementById('notification-sound');
+                if (audio) {
+                    audio.play().catch(e => console.warn("Audio autoplay was prevented by the browser."));
+                }
             }
-            currentNotificationCount = count; // Update the global count
+
+            currentNotificationCount = count;
+            isInitialNotifCheck = false; // Mark initial check as complete
 
             if (count > 0) {
                 notificationBubble.textContent = count > 99 ? '99+' : count;
@@ -802,9 +775,7 @@
             } else {
                 const cardToRemove = document.getElementById(`notification-${currentNotificationId}`);
                 if (cardToRemove) cardToRemove.remove();
-                
-                const newCount = Math.max(0, currentNotificationCount - 1);
-                updateNotificationBubble(newCount); // Manually update bubble after acknowledgment
+                await updateNotificationBubble(Math.max(0, currentNotificationCount - 1));
 
                 if (document.getElementById('notifications-container').children.length === 0) {
                     document.getElementById('no-notifications').style.display = 'block';
@@ -818,24 +789,30 @@
         // --- TICKET DETAILS MODAL ---
         const ticketDetailsModal = document.getElementById('ticket-details-modal');
         const ticketDetailsContent = document.getElementById('ticket-details-content');
+        const ticketDetailsFooter = document.getElementById('ticket-details-footer');
         const closeDetailsModalBtn = document.getElementById('close-details-modal-btn');
         const closeDetailsModalBtnBottom = document.getElementById('close-details-modal-btn-bottom');
         const activeTicketsTbody = document.getElementById('active-tickets-body');
         const closedTicketsTbody = document.getElementById('closed-tickets-body');
 
-        // CHANGED: Updated to display the image
         function showTicketDetailsModal(ticket) {
             const issueDate = ticket.issue_date ? new Date(ticket.issue_date).toLocaleString() : 'N/A';
             const closeDate = ticket.issue_close_dt ? new Date(ticket.issue_close_dt).toLocaleString() : 'N/A';
             
-            const imageHtml = ticket.image_url 
-              ? ` <p class="font-semibold text-gray-500 col-span-1">Image:</p>
-                  <div class="col-span-2">
-                      <a href="${ticket.image_url}" target="_blank" rel="noopener noreferrer">
-                          <img src="${ticket.image_url}" alt="Ticket Image" class="max-h-48 w-auto rounded-md border border-gray-200 cursor-pointer hover:opacity-80 transition"/>
-                      </a>
-                  </div>`
-              : '';
+            // Clear previous dynamic buttons
+            const existingReopenBtn = document.getElementById('reopen-ticket-btn');
+            if (existingReopenBtn) existingReopenBtn.remove();
+            
+            let imageHTML = '';
+            if (ticket.image_url) {
+                imageHTML = `
+                <p class="font-semibold text-gray-500 col-span-1">Image:</p>
+                <div class="col-span-2">
+                    <a href="${ticket.image_url}" target="_blank" rel="noopener noreferrer">
+                        <img src="${ticket.image_url}" alt="Ticket Image" class="max-h-40 rounded border">
+                    </a>
+                </div>`;
+            }
 
             ticketDetailsContent.innerHTML = `
                 <div class="grid grid-cols-3 gap-y-3 gap-x-2">
@@ -858,9 +835,42 @@
                     <p class="col-span-2 break-words">${ticket.issue_details || ''}</p>
                     <p class="font-semibold text-gray-500 col-span-1">Last Update:</p>
                     <p class="col-span-2 break-words">${ticket.action_update || ''}</p>
-                    ${imageHtml}
+                    ${imageHTML}
                 </div>
             `;
+            
+            // Add Re-open button if ticket is COMPLETED
+            if (ticket.issue_status === 'COMPLETED') {
+                const reopenBtn = document.createElement('button');
+                reopenBtn.id = 'reopen-ticket-btn';
+                reopenBtn.textContent = 'Re-open Ticket';
+                reopenBtn.className = 'px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600';
+                reopenBtn.onclick = async () => {
+                    reopenBtn.disabled = true;
+                    reopenBtn.textContent = 'Re-opening...';
+                    const { error } = await dbClient
+                        .from('tickets')
+                        .update({ 
+                            issue_status: 'PENDING', 
+                            issue_close_dt: null,
+                            action_update: `Ticket re-opened by user on ${new Date().toLocaleDateString()}. Previous update: ${ticket.action_update}`
+                        })
+                        .eq('id', ticket.id);
+                    
+                    reopenBtn.disabled = false;
+                    reopenBtn.textContent = 'Re-open Ticket';
+
+                    if (error) {
+                         showCustomAlert('Error', 'Failed to re-open ticket: ' + error.message, false);
+                    } else {
+                        closeTicketDetailsModal();
+                        showCustomAlert('Success', 'Ticket has been moved to Active.', true, null);
+                        fetchTickets(); 
+                    }
+                };
+                ticketDetailsFooter.prepend(reopenBtn);
+            }
+
             ticketDetailsModal.style.display = 'flex';
         }
 
@@ -871,36 +881,25 @@
         closeDetailsModalBtn.addEventListener('click', closeTicketDetailsModal);
         closeDetailsModalBtnBottom.addEventListener('click', closeTicketDetailsModal);
 
-        // CHANGED: Use event delegation for both tables to handle details and reopening
-        document.getElementById('ticket-status').addEventListener('click', (event) => {
-            const target = event.target;
-            
-            // Handle clicking a reopen button
-            if (target.classList.contains('reopen-btn')) {
-                const ticketId = target.dataset.id;
-                if (confirm('Are you sure you want to reopen this ticket?')) {
-                    reopenTicket(ticketId);
-                }
-                return;
-            }
-
-            // Handle clicking a row to see details
-            const row = target.closest('tr[data-ticket]');
-            if (row) {
+        const tableClickHandler = (event) => {
+            const row = event.target.closest('tr');
+            if (row && row.hasAttribute('data-ticket')) {
                 const ticketData = JSON.parse(row.getAttribute('data-ticket'));
                 showTicketDetailsModal(ticketData);
             }
-        });
+        };
+        
+        activeTicketsTbody.addEventListener('click', tableClickHandler);
+        closedTicketsTbody.addEventListener('click', tableClickHandler);
 
         // --- STARTUP ---
         checkSession();
 
-        // CHANGED: Interval now only checks for users who are logged in
         setInterval(() => {
             if (currentUser) {
                 updateNotificationBubble();
             }
-        }, 30000); // Check for new notifications every 30 seconds
+        }, 30000); // Check every 30 seconds
     </script>
 </body>
 </html>
