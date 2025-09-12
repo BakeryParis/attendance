@@ -56,7 +56,6 @@
             border: 2px solid white;
             pointer-events: none;
         }
-         /* Style for the image preview */
         #image-preview {
             max-height: 150px;
             border-radius: 0.5rem;
@@ -137,14 +136,20 @@
                             <textarea id="issue-details" rows="4" maxlength="300" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required></textarea>
                             <p id="char-count" class="text-right text-sm text-gray-500">0 / 300</p>
                         </div>
+                        
                         <div>
-                            <label for="issue-image" class="block text-sm font-medium text-gray-700">Attach Image (Optional)</label>
-                            <input type="file" id="issue-image" accept="image/*" capture="environment" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100">
-                            <div id="image-preview-container" class="mt-2 hidden">
-                                <img id="image-preview" src="#" alt="Image Preview" class="mt-2"/>
-                                <button type="button" id="remove-image-btn" class="mt-1 text-xs text-red-600 hover:text-red-800">Remove Image</button>
+                            <label for="issue-file" class="block text-sm font-medium text-gray-700">Attach File (Optional, Max 10MB)</label>
+                            <input type="file" id="issue-file" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100">
+                            <div id="file-preview-container" class="mt-2 hidden">
+                                <img id="image-preview" src="#" alt="Image Preview" class="hidden mt-2"/>
+                                <div id="generic-file-preview" class="hidden flex items-center bg-gray-100 p-2 rounded-md mt-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                                    <span id="file-name-display" class="text-sm text-gray-800 font-semibold truncate"></span>
+                                </div>
+                                <button type="button" id="remove-file-btn" class="mt-1 text-xs text-red-600 hover:text-red-800">Remove File</button>
                             </div>
                         </div>
+
                         <button type="submit" id="submit-ticket-btn" class="w-full bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition">Submit Ticket</button>
                     </form>
                 </div>
@@ -344,10 +349,13 @@
         const submitReopenBtn = document.getElementById('submit-reopen-btn');
         const reopenReasonTextarea = document.getElementById('reopen-reason-textarea');
         const reopenErrorEl = document.getElementById('reopen-error');
-        const issueImageInput = document.getElementById('issue-image');
-        const imagePreviewContainer = document.getElementById('image-preview-container');
+        // CHANGED: Elements for conditional file preview
+        const issueFileInput = document.getElementById('issue-file');
+        const filePreviewContainer = document.getElementById('file-preview-container');
         const imagePreview = document.getElementById('image-preview');
-        const removeImageBtn = document.getElementById('remove-image-btn');
+        const genericFilePreview = document.getElementById('generic-file-preview');
+        const fileNameDisplay = document.getElementById('file-name-display');
+        const removeFileBtn = document.getElementById('remove-file-btn');
         
         // --- AUTHENTICATION ---
         loginForm.addEventListener('submit', async (e) => {
@@ -437,8 +445,8 @@
                     charCountEl.textContent = '0 / 300';
                     document.getElementById('store-name').value = currentUser.store;
                     document.getElementById('authorized-person').innerHTML = '<option value="">-- Select Issue Type First --</option>';
-                    imagePreviewContainer.classList.add('hidden');
-                    issueImageInput.value = '';
+                    filePreviewContainer.classList.add('hidden');
+                    issueFileInput.value = '';
                     document.querySelector('[data-tab="ticket-status"]').click();
                 };
             }
@@ -506,55 +514,71 @@
             charCountEl.textContent = `${count} / 300`;
         });
         
-        issueImageInput.addEventListener('change', (e) => {
+        // CHANGED: Event listener for conditional file preview
+        issueFileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
                  if (file.size > 10 * 1024 * 1024) { // 10MB limit
-                    showCustomAlert('Image Too Large', 'Please select an image smaller than 10MB.', false);
-                    issueImageInput.value = ''; // Clear the input
+                    showCustomAlert('File Too Large', 'Please select a file smaller than 10MB.', false);
+                    issueFileInput.value = '';
                     return;
                 }
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    imagePreview.src = event.target.result;
-                    imagePreviewContainer.classList.remove('hidden');
+
+                // Show the main preview container
+                filePreviewContainer.classList.remove('hidden');
+
+                // Check if the file is an image
+                if (file.type.startsWith('image/')) {
+                    genericFilePreview.classList.add('hidden');
+                    imagePreview.classList.remove('hidden');
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        imagePreview.src = event.target.result;
+                    }
+                    reader.readAsDataURL(file);
+                } else {
+                    // It's not an image, show generic preview
+                    imagePreview.classList.add('hidden');
+                    genericFilePreview.classList.remove('hidden');
+                    fileNameDisplay.textContent = file.name;
                 }
-                reader.readAsDataURL(file);
             }
         });
 
-        removeImageBtn.addEventListener('click', () => {
-            issueImageInput.value = '';
+        removeFileBtn.addEventListener('click', () => {
+            issueFileInput.value = '';
+            filePreviewContainer.classList.add('hidden');
             imagePreview.src = '#';
-            imagePreviewContainer.classList.add('hidden');
+            fileNameDisplay.textContent = '';
         });
 
+        // This function now handles any file type but uses the original bucket/column names
         ticketForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const submitBtn = document.getElementById('submit-ticket-btn');
             submitBtn.disabled = true;
             submitBtn.textContent = 'Submitting...';
 
-            let imageUrl = null;
-            const imageFile = issueImageInput.files[0];
+            let fileUrl = null;
+            const file = issueFileInput.files[0];
 
-            if (imageFile) {
-                const fileName = `${currentUser.store}_${Date.now()}`;
+            if (file) {
+                const fileName = `${currentUser.store}_${Date.now()}_${file.name}`;
                 const { error: uploadError } = await dbClient.storage
-                    .from('ticket-images')
-                    .upload(fileName, imageFile);
+                    .from('ticket-images') // Using original bucket name
+                    .upload(fileName, file);
 
                 if (uploadError) {
-                    showCustomAlert('Upload Failed', 'Error uploading image: ' + uploadError.message, false);
+                    showCustomAlert('Upload Failed', 'Error uploading file: ' + uploadError.message, false);
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Submit Ticket';
                     return;
                 }
 
                 const { data: urlData } = dbClient.storage
-                    .from('ticket-images')
+                    .from('ticket-images') // Using original bucket name
                     .getPublicUrl(fileName);
-                imageUrl = urlData.publicUrl;
+                fileUrl = urlData.publicUrl;
             }
             
             const newTicket = {
@@ -567,7 +591,7 @@
                 issue_status: 'PENDING',
                 action_update: 'Ticket raised successfully.',
                 issue_date: new Date().toISOString(),
-                image_url: imageUrl,
+                image_url: fileUrl, // Using original column name
             };
 
             const { data, error } = await dbClient.from('tickets').insert([newTicket]).select();
@@ -814,21 +838,36 @@
         const activeTicketsTbody = document.getElementById('active-tickets-body');
         const closedTicketsTbody = document.getElementById('closed-tickets-body');
 
+        // CHANGED: Logic to conditionally show image preview or file download link
         function showTicketDetailsModal(ticket) {
             const issueDate = ticket.issue_date ? new Date(ticket.issue_date).toLocaleString() : 'N/A';
             const closeDate = ticket.issue_close_dt ? new Date(ticket.issue_close_dt).toLocaleString() : 'N/A';
             
             ticketDetailsActions.innerHTML = ''; 
 
-            let imageHTML = '';
+            let attachmentHTML = '';
             if (ticket.image_url) {
-                imageHTML = `
-                <p class="font-semibold text-gray-500 col-span-1">Image:</p>
-                <div class="col-span-2">
-                    <a href="${ticket.image_url}" target="_blank" rel="noopener noreferrer">
-                        <img src="${ticket.image_url}" alt="Ticket Image" class="max-h-40 rounded border cursor-pointer">
-                    </a>
-                </div>`;
+                const url = ticket.image_url;
+                const fileName = decodeURIComponent(url.split('/').pop().split('?')[0].split('_').slice(2).join('_'));
+                const isImage = /\.(jpe?g|png|gif|webp|svg)$/i.test(fileName);
+                
+                if (isImage) {
+                    attachmentHTML = `
+                    <p class="font-semibold text-gray-500 col-span-1">Attachment:</p>
+                    <div class="col-span-2">
+                        <a href="${url}" target="_blank" rel="noopener noreferrer">
+                            <img src="${url}" alt="Ticket Attachment" class="max-h-40 rounded border cursor-pointer">
+                        </a>
+                    </div>`;
+                } else {
+                    attachmentHTML = `
+                    <p class="font-semibold text-gray-500 col-span-1">Attachment:</p>
+                    <div class="col-span-2">
+                        <a href="${url}" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:text-indigo-800 hover:underline break-all">
+                            ${fileName}
+                        </a>
+                    </div>`;
+                }
             }
 
             ticketDetailsContent.innerHTML = `
@@ -853,7 +892,7 @@
                     <p class="font-semibold text-gray-500 col-span-1">Last Update:</p>
                     <p class="col-span-2 break-words">${ticket.action_update || ''}</p>
                     ${ticket.reopen_reason ? `<p class="font-semibold text-gray-500 col-span-1">Last Re-open Reason:</p><p class="col-span-2 break-words">${ticket.reopen_reason}</p>` : ''}
-                    ${imageHTML}
+                    ${attachmentHTML}
                 </div>
             `;
             
@@ -863,9 +902,8 @@
                 reopenBtn.textContent = 'Re-open Ticket';
                 reopenBtn.className = 'w-full px-4 py-2 bg-yellow-500 text-white font-semibold rounded-md hover:bg-yellow-600';
                 reopenBtn.onclick = () => {
-                    // CHANGED: This is the new flow.
-                    closeTicketDetailsModal(); // First, close the details modal.
-                    openReopenModal(ticket);   // Then, open the reason modal.
+                    closeTicketDetailsModal();
+                    openReopenModal(ticket);
                 };
                 ticketDetailsActions.appendChild(reopenBtn);
             }
