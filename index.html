@@ -344,7 +344,6 @@
         const submitReopenBtn = document.getElementById('submit-reopen-btn');
         const reopenReasonTextarea = document.getElementById('reopen-reason-textarea');
         const reopenErrorEl = document.getElementById('reopen-error');
-        // CHANGED: Elements reverted to image upload
         const issueImageInput = document.getElementById('issue-image');
         const imagePreviewContainer = document.getElementById('image-preview-container');
         const imagePreview = document.getElementById('image-preview');
@@ -507,7 +506,6 @@
             charCountEl.textContent = `${count} / 300`;
         });
         
-        // CHANGED: Event listeners reverted to image preview
         issueImageInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
@@ -526,12 +524,11 @@
         });
 
         removeImageBtn.addEventListener('click', () => {
-            issueImageInput.value = ''; // Clear the file input
+            issueImageInput.value = '';
             imagePreview.src = '#';
             imagePreviewContainer.classList.add('hidden');
         });
 
-        // CHANGED: Reverted to uploading images to 'ticket-images' bucket
         ticketForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const submitBtn = document.getElementById('submit-ticket-btn');
@@ -544,7 +541,7 @@
             if (imageFile) {
                 const fileName = `${currentUser.store}_${Date.now()}`;
                 const { error: uploadError } = await dbClient.storage
-                    .from('ticket-images') // Using 'ticket-images' bucket
+                    .from('ticket-images')
                     .upload(fileName, imageFile);
 
                 if (uploadError) {
@@ -555,7 +552,7 @@
                 }
 
                 const { data: urlData } = dbClient.storage
-                    .from('ticket-images') // Using 'ticket-images' bucket
+                    .from('ticket-images')
                     .getPublicUrl(fileName);
                 imageUrl = urlData.publicUrl;
             }
@@ -570,7 +567,7 @@
                 issue_status: 'PENDING',
                 action_update: 'Ticket raised successfully.',
                 issue_date: new Date().toISOString(),
-                image_url: imageUrl, // Using image_url
+                image_url: imageUrl,
             };
 
             const { data, error } = await dbClient.from('tickets').insert([newTicket]).select();
@@ -817,7 +814,6 @@
         const activeTicketsTbody = document.getElementById('active-tickets-body');
         const closedTicketsTbody = document.getElementById('closed-tickets-body');
 
-        // CHANGED: Reverted to showing an image preview in the modal
         function showTicketDetailsModal(ticket) {
             const issueDate = ticket.issue_date ? new Date(ticket.issue_date).toLocaleString() : 'N/A';
             const closeDate = ticket.issue_close_dt ? new Date(ticket.issue_close_dt).toLocaleString() : 'N/A';
@@ -867,7 +863,9 @@
                 reopenBtn.textContent = 'Re-open Ticket';
                 reopenBtn.className = 'w-full px-4 py-2 bg-yellow-500 text-white font-semibold rounded-md hover:bg-yellow-600';
                 reopenBtn.onclick = () => {
-                    openReopenModal(ticket);
+                    // CHANGED: This is the new flow.
+                    closeTicketDetailsModal(); // First, close the details modal.
+                    openReopenModal(ticket);   // Then, open the reason modal.
                 };
                 ticketDetailsActions.appendChild(reopenBtn);
             }
