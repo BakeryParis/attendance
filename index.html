@@ -11,7 +11,6 @@
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* Simple modal styles */
         .modal-backdrop {
             display: none;
             position: fixed;
@@ -31,17 +30,13 @@
             width: 90%;
             max-width: 500px;
         }
-        /* Custom scrollbar for ticket tables - Hiding the scrollbar */
         .table-container {
-            /* For Firefox */
             scrollbar-width: none;
-            /* For Internet Explorer and Edge */
             -ms-overflow-style: none;
         }
         .table-container::-webkit-scrollbar {
-            display: none; /* Hide scrollbar for Chrome, Safari, and Opera */
+            display: none;
         }
-        /* Notification bubble */
         .notification-bubble {
             position: absolute;
             top: 8px;
@@ -72,7 +67,7 @@
                 <div class="flex justify-center mb-6">
                     <img src="logo1.png" alt="Logo" class="h-12 w-auto" onerror="this.style.display='none';">
                 </div>
-                <h1 class="text-3xl font-bold text-center text-gray-700 mb-2">Welcome Back</h1>
+                <h1 class="text-3xl font-bold text-center text-gray-700 mb-2">Escalation Matrix</h1>
                 <p class="text-center text-gray-500 mb-6">Please login to your account</p>
                 <div id="login-error" class="text-red-500 text-sm mb-4 text-center"></div>
                 <form id="login-form">
@@ -126,9 +121,9 @@
                             <input type="text" id="department" class="mt-1 block w-full bg-gray-100 p-2 border border-gray-300 rounded-md shadow-sm" readonly>
                         </div>
                          <div>
-                            <label for="authorized-person" class="block text-sm font-medium text-gray-700">Authorized Person</to></label>
+                            <label for="authorized-person" class="block text-sm font-medium text-gray-700">Authorized Person</label>
                             <select id="authorized-person" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required>
-                                <option value="">-- Select Authorized Person --</option>
+                                <option value="">-- Select Issue Type First --</option>
                             </select>
                         </div>
                         <div>
@@ -136,7 +131,14 @@
                             <textarea id="issue-details" rows="4" maxlength="300" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required></textarea>
                             <p id="char-count" class="text-right text-sm text-gray-500">0 / 300</p>
                         </div>
-                        <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition">Submit Ticket</button>
+
+                        <div>
+                            <label for="issue-image" class="block text-sm font-medium text-gray-700">Attach Image (Optional)</label>
+                            <input type="file" id="issue-image" name="issue-image" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/>
+                            <img id="image-preview" src="" alt="Image preview" class="mt-2 rounded-md max-h-40 hidden"/>
+                        </div>
+                        
+                        <button type="submit" id="submit-ticket-btn" class="w-full bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition">Submit Ticket</button>
                     </form>
                 </div>
 
@@ -208,15 +210,14 @@
         <div class="max-w-4xl mx-auto flex justify-around">
             <button data-tab="raise-ticket" class="tab-btn flex-1 flex flex-col items-center justify-center pt-3 pb-2 text-center font-semibold text-indigo-600">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" />
-</svg>
-
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" />
+                </svg>
                 <span class="text-xs">Raise Ticket</span>
             </button>
             <button data-tab="ticket-status" class="tab-btn flex-1 flex flex-col items-center justify-center pt-3 pb-2 text-center font-semibold text-gray-500">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-</svg><span class="text-xs">Status</span>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                </svg><span class="text-xs">Status</span>
             </button>
             <div class="relative flex-1 flex flex-col items-center justify-center pt-3 pb-2 text-center font-semibold">
                 <button data-tab="notice-board" class="tab-btn flex flex-col items-center justify-center text-gray-500 w-full">
@@ -248,19 +249,32 @@
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
-            <div id="ticket-details-content" class="space-y-2 text-sm">
-                </div>
-            <div class="mt-5 text-right">
-                 <button id="close-details-modal-btn-bottom" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Close</button>
+            <div id="ticket-details-content" class="space-y-2 text-sm"></div>
+            <div id="ticket-image-container" class="mt-4"></div>
+            <div class="mt-5 flex justify-between items-center">
+                 <button id="reopen-ticket-btn" class="hidden px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 font-semibold">Re-open Ticket</button>
+                 <button id="close-details-modal-btn-bottom" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 ml-auto">Close</button>
             </div>
         </div>
     </div>
 
+    <div id="alert-modal" class="modal-backdrop">
+        <div class="modal-content">
+            <h3 id="alert-modal-title" class="text-lg font-medium leading-6 text-gray-900 mb-4"></h3>
+            <p id="alert-modal-message" class="text-sm text-gray-600"></p>
+            <div class="mt-5 text-right">
+                 <button id="close-alert-modal-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <audio id="notification-sound" preload="auto">
+        <source src="data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAARAAADbWVsb2R5bWlyZS5jb20AUVNCAAAAAlRMQU4AAAAHZW5nVFNBVAAAAAEAAAGobWVsb2R5bWlyZS5jb20AAAAAAAAAAABJbmZvAAAAEAAAAAEAAAGgAAAAAAAAAAAAAFBSRVYAAAA4AAAATAAAAAIAAAAAQwAAAAEAAAAAAAEAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAExVTU8AAAAPAAAARVVORVMAAAAMAAAATFVORVMAAAAAAAAAAAAAAAAADVRNRUgAAAFsAAABbVRNRUgAAAFsAAABbVRNRUgAAAFsAAABbVRNRUgAAAFsAAABbVRNRUgAAAFsAAABbVRNRUgAAAFsAAABbVRNRUgAAAFsAAABbVRNRUgAAAFsAAABbVRNRUgAAAFsAAABbVRNRUgAAAFsAAABbVRNRUgAAAFsAAABbVRNRUgAAAFsAAABbVRNRUgAAAFsAAABbVRNRUgAAAFsAAAAAAAAAABJTkZPAAAAEAAAAAEAAAGgAAAAAAAAAAAAAFBSRVYAAAA4AAAATAAAAAIAAAAAQwAAAAEAAAAAAAEAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAExVTU8AAAAPAAAARVVORVMAAAAMAAAATFVORVMAAAAAAAAAAAAAAAAADVRNRUgAAAFsAAABbVRNRUgAAAFsAAABbVRNRUgAAAFsAAABbVRNRUgAAAFsAAABbVRNRUgAAAFsAAABbVRNRUgAAAFsAAABbVRNRUgAAAFsAAABbVRNRUgAAAFsAAABbVRNRUgAAAFsAAABbVRNRUgAAAFsAAABbVRNRUgAAAFsAAABbVRNRUgAAAFsAAABbVRNRUgAAAFsAAABbVRNRUgAAAFsAAABbVRNRUgAAAFsA//uAxAAAAAAAAAAAAAAAAD/8wYAAA8AAADpAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//uAxEMABAAANIAAAAABgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgY-Z" type="audio/mpeg">
+    </audio>
+
 
     <script type="module">
         // --- SUPABASE CLIENT SETUP ---
-        // IMPORTANT: Replace with your actual Supabase URL and Anon Key
-
         const SUPABASE_URL = 'https://dfepjaivpgomxsjbxnhz.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmZXBqYWl2cGdvbXhzamJ4bmh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk4MjY0NTMsImV4cCI6MjA2NTQwMjQ1M30.5ASDRBIH0CQ-4d2_1g8hfsZlotOp1EbU9v9nZXZdRIM';
 
@@ -283,6 +297,8 @@
         // --- STATE MANAGEMENT ---
         let currentUser = null;
         let issueTypesCache = [];
+        let afterAlertAction = null;
+        let previousNotificationCount = 0; // NEW: To track notification count for sound
 
         // --- DOM ELEMENTS ---
         const loginScreen = document.getElementById('login-screen');
@@ -298,7 +314,15 @@
         const issueDetailsTextarea = document.getElementById('issue-details');
         const charCountEl = document.getElementById('char-count');
         const notificationBubble = document.getElementById('notification-bubble');
-        let currentNotificationCount = 0;
+        const alertModal = document.getElementById('alert-modal');
+        const alertModalTitle = document.getElementById('alert-modal-title');
+        const alertModalMessage = document.getElementById('alert-modal-message');
+        const closeAlertModalBtn = document.getElementById('close-alert-modal-btn');
+        // NEW: Image upload elements
+        const issueImageInput = document.getElementById('issue-image');
+        const imagePreview = document.getElementById('image-preview');
+        // NEW: Notification sound element
+        const notificationSound = document.getElementById('notification-sound');
 
         // --- AUTHENTICATION ---
         loginForm.addEventListener('submit', async (e) => {
@@ -346,15 +370,11 @@
             loginScreen.style.display = 'none';
             mainContent.style.display = 'block';
             bottomNav.style.display = 'block';
-            welcomeUserEl.textContent = `Welcome, ${currentUser.store}`; // <-- CHANGED THIS LINE
+            welcomeUserEl.textContent = `Welcome, ${currentUser.store}`; 
             document.getElementById('store-name').value = currentUser.store;
             
             await populateDropdowns();
-
-            // Update notification bubble on login
-            updateNotificationBubble();
-
-            // Set default tab to "Raise Ticket"
+            updateNotificationBubble(); // Initial check
             document.querySelector('[data-tab="raise-ticket"]').click();
         }
 
@@ -362,31 +382,52 @@
         tabBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 const targetTab = btn.dataset.tab;
-
                 tabBtns.forEach(b => {
                     b.classList.remove('text-indigo-600');
                     b.classList.add('text-gray-500');
                 });
                 btn.classList.add('text-indigo-600');
                 btn.classList.remove('text-gray-500');
+                tabContents.forEach(content => content.style.display = content.id === targetTab ? 'block' : 'none');
 
-                tabContents.forEach(content => {
-                    if (content.id === targetTab) {
-                        content.style.display = 'block';
-                    } else {
-                        content.style.display = 'none';
-                    }
-                });
-
-                // Refresh data on tab switch
                 if (targetTab === 'ticket-status') fetchTickets();
                 if (targetTab === 'notice-board') fetchNotifications();
             });
         });
+
+        // --- CUSTOM ALERT MODAL LOGIC ---
+        function showCustomAlert(title, message, isSuccess = true) {
+            alertModalTitle.textContent = title;
+            alertModalMessage.textContent = message;
+            alertModalTitle.className = isSuccess 
+                ? 'text-lg font-medium leading-6 text-green-700 mb-4' 
+                : 'text-lg font-medium leading-6 text-red-700 mb-4';
+            
+            if (isSuccess && title === 'Success!') { // Only redirect on successful ticket submission
+                afterAlertAction = () => {
+                    ticketForm.reset();
+                    charCountEl.textContent = '0 / 300';
+                    imagePreview.classList.add('hidden'); // NEW: hide image preview on reset
+                    document.getElementById('store-name').value = currentUser.store;
+                    document.getElementById('authorized-person').innerHTML = '<option value="">-- Select Issue Type First --</option>';
+                    document.querySelector('[data-tab="ticket-status"]').click();
+                };
+            } else {
+                afterAlertAction = null;
+            }
+            alertModal.style.display = 'flex';
+        }
+
+        closeAlertModalBtn.addEventListener('click', () => {
+            alertModal.style.display = 'none';
+            if (typeof afterAlertAction === 'function') {
+                afterAlertAction();
+                afterAlertAction = null;
+            }
+        });
         
         // --- RAISE TICKET SECTION ---
         async function populateDropdowns() {
-            // Fetch Issue Types
             const { data: issues, error: issueError } = await dbClient.from('issue_types').select('*');
             if (issueError) {
                 console.error('Error fetching issue types:', issueError);
@@ -401,38 +442,90 @@
                 option.textContent = issue.issue_type;
                 issueTypeSelect.appendChild(option);
             });
-
-            // Fetch Authorized Persons
-            const { data: persons, error: personError } = await dbClient.from('contact_person').select('authorized');
-            if(personError) {
-                 console.error('Error fetching authorized persons:', personError);
-                return;
-            }
-            const authorizedSelect = document.getElementById('authorized-person');
-            authorizedSelect.innerHTML = '<option value="">-- Select Authorized Person --</option>';
-            persons.forEach(person => {
-                const option = document.createElement('option');
-                option.value = person.authorized;
-                option.textContent = person.authorized;
-                authorizedSelect.appendChild(option);
-            });
         }
         
         document.getElementById('issue-type').addEventListener('change', (e) => {
             const selectedType = e.target.value;
             const departmentInput = document.getElementById('department');
-            const issue = issueTypesCache.find(it => it.issue_type === selectedType);
-            departmentInput.value = issue ? issue.department : '';
+            const authorizedSelect = document.getElementById('authorized-person');
+
+            departmentInput.value = '';
+            authorizedSelect.innerHTML = '<option value="">-- Select Authorized Person --</option>';
+            
+            if (selectedType) {
+                const issue = issueTypesCache.find(it => it.issue_type === selectedType);
+                if (issue) {
+                    departmentInput.value = issue.department || '';
+                    const contacts = [issue.contact_1, issue.contact_2, issue.contact_3, issue.contact_4].filter(Boolean);
+                    
+                    if (contacts.length === 0) {
+                         authorizedSelect.innerHTML = '<option value="">-- No contacts available --</option>';
+                    } else {
+                        contacts.forEach(person => {
+                            const option = document.createElement('option');
+                            option.value = person;
+                            option.textContent = person;
+                            authorizedSelect.appendChild(option);
+                        });
+                    }
+                }
+            } else {
+                 authorizedSelect.innerHTML = '<option value="">-- Select Issue Type First --</option>';
+            }
         });
 
         issueDetailsTextarea.addEventListener('input', () => {
             const count = issueDetailsTextarea.value.length;
             charCountEl.textContent = `${count} / 300`;
         });
+        
+        // NEW: Image Preview Handler
+        issueImageInput.addEventListener('change', () => {
+            const file = issueImageInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    imagePreview.src = e.target.result;
+                    imagePreview.classList.remove('hidden');
+                }
+                reader.readAsDataURL(file);
+            } else {
+                imagePreview.src = "";
+                imagePreview.classList.add('hidden');
+            }
+        });
 
         ticketForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+            const submitBtn = document.getElementById('submit-ticket-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
+            let imageUrl = null;
+            const file = issueImageInput.files[0];
+
+            // NEW: Upload image if selected
+            if (file) {
+                const fileName = `${currentUser.store}/${Date.now()}-${file.name}`;
+                const { error: uploadError } = await dbClient.storage
+                    .from('ticket-images')
+                    .upload(fileName, file);
+                
+                if (uploadError) {
+                    showCustomAlert('Upload Failed', 'Error uploading image: ' + uploadError.message, false);
+                    console.error('Image upload error:', uploadError);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit Ticket';
+                    return;
+                }
+                
+                const { data: publicUrlData } = dbClient.storage
+                    .from('ticket-images')
+                    .getPublicUrl(fileName);
+                
+                imageUrl = publicUrlData.publicUrl;
+            }
+
             const newTicket = {
                 store_name: document.getElementById('store-name').value,
                 person_name: document.getElementById('person-name').value,
@@ -440,23 +533,22 @@
                 department: document.getElementById('department').value,
                 authorized: document.getElementById('authorized-person').value,
                 issue_details: document.getElementById('issue-details').value,
-                issue_status: 'PENDING', // Default status changed to PENDING
+                issue_status: 'PENDING',
                 action_update: 'Ticket raised successfully.',
-                issue_date: new Date().toISOString()
+                issue_date: new Date().toISOString(),
+                image_url: imageUrl, // NEW: Add image_url to the ticket object
             };
 
             const { data, error } = await dbClient.from('tickets').insert([newTicket]);
             
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Ticket';
+            
             if (error) {
-                alert('Failed to submit ticket. Error: ' + error.message);
+                showCustomAlert('Submission Failed', 'Error: ' + error.message, false);
                 console.error('Ticket submission error:', error);
             } else {
-                alert('Ticket submitted successfully!');
-                ticketForm.reset();
-                charCountEl.textContent = '0 / 300';
-                document.getElementById('store-name').value = currentUser.store; // Reset store name
-                 // Switch to ticket status tab to see the new ticket
-                document.querySelector('[data-tab="ticket-status"]').click();
+                showCustomAlert('Success!', 'Your ticket has been submitted successfully.', true);
             }
         });
 
@@ -473,7 +565,7 @@
                 return;
             }
 
-            const activeTickets = data.filter(t => ['PENDING', 'ACCEPTED', 'REVIEWED', 'UNDER PROCESS'].includes(t.issue_status));
+            const activeTickets = data.filter(t => t.issue_status !== 'COMPLETED');
             const closedTickets = data.filter(t => t.issue_status === 'COMPLETED');
             
             renderTickets('active-tickets-body', activeTickets, 'no-active-tickets', 'active');
@@ -501,7 +593,7 @@
                 
                 if (type === 'active') {
                     dateColumns = `<td class="px-6 py-4 whitespace-nowrap">${issueDateFormatted}</td>`;
-                } else { // type === 'closed'
+                } else {
                     const closeDateFormatted = ticket.issue_close_dt ? new Date(ticket.issue_close_dt).toLocaleDateString() : 'N/A';
                     dateColumns = `
                         <td class="px-6 py-4 whitespace-nowrap">${closeDateFormatted}</td>
@@ -540,8 +632,8 @@
             const { data, error } = await dbClient
                 .from('notifications')
                 .select('*')
-                .eq('status', true) // Only fetch where status is true
-                .eq('store', currentUser.store) // Only fetch for the current user's store
+                .eq('status', true) 
+                .eq('store', currentUser.store) 
                 .order('created_at', { ascending: false });
 
             if(error) {
@@ -552,8 +644,6 @@
             const container = document.getElementById('notifications-container');
             const noNotificationsEl = document.getElementById('no-notifications');
             container.innerHTML = '';
-
-            // Update bubble
             updateNotificationBubble(data.length);
 
             if (data.length === 0) {
@@ -579,7 +669,6 @@
                 container.appendChild(card);
             });
 
-            // Add event listeners after cards are created
             document.querySelectorAll('.ack-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const notificationId = btn.dataset.id;
@@ -590,14 +679,12 @@
 
         // --- NOTIFICATION BUBBLE LOGIC ---
         async function updateNotificationBubble(explicitCount = null) {
-            // explicitCount is used when we already have the count (as in fetchNotifications)
             let count = explicitCount;
             if (count === null) {
                 if (!currentUser) {
                     notificationBubble.classList.add('hidden');
                     return;
                 }
-                // Query only if count not provided
                 const { count: notifCount, error } = await dbClient
                     .from('notifications')
                     .select('*', { count: 'exact', head: true })
@@ -605,7 +692,17 @@
                     .eq('store', currentUser.store);
                 count = notifCount || 0;
             }
-            currentNotificationCount = count;
+            
+            // NEW: Play sound if new notification arrives
+            if (count > 0 && count > previousNotificationCount) {
+                notificationSound.currentTime = 0; // Rewind to start
+                notificationSound.play();
+                setTimeout(() => {
+                    notificationSound.pause();
+                }, 5000); // Stop after 5 seconds
+            }
+            previousNotificationCount = count; // Update the count
+
             if (count > 0) {
                 notificationBubble.textContent = count > 99 ? '99+' : count;
                 notificationBubble.classList.remove('hidden');
@@ -638,20 +735,17 @@
         submitRemarkBtn.addEventListener('click', async () => {
             const remark = document.getElementById('remark-textarea').value;
             remarkErrorEl.textContent = '';
-
             if (!remark.trim()) {
                 remarkErrorEl.textContent = 'Remark cannot be empty.';
                 return;
             }
-            
             submitRemarkBtn.disabled = true;
             submitRemarkBtn.textContent = 'Saving...';
 
-            // Update the notification in Supabase
             const { error } = await dbClient
                 .from('notifications')
                 .update({ 
-                    response: remark, // Corrected potential column name typo from 'respons'
+                    response: remark, 
                     status: false 
                 })
                 .eq('id', currentNotificationId);
@@ -663,24 +757,15 @@
                 remarkErrorEl.textContent = 'Failed to save. Please try again.';
                 console.error('Remark update error:', error);
             } else {
-                // Here you would typically save the remark somewhere,
-                // for now, we'll just log it and remove the notification.
-                console.log(`Remark for notification ${currentNotificationId} saved.`);
-                
                 const cardToRemove = document.getElementById(`notification-${currentNotificationId}`);
-                if (cardToRemove) {
-                    cardToRemove.remove();
-                }
+                if (cardToRemove) cardToRemove.remove();
                 
-                // Update bubble
-                currentNotificationCount = Math.max(0, currentNotificationCount - 1);
-                updateNotificationBubble(currentNotificationCount);
+                // Fetch the new count directly to ensure accuracy
+                updateNotificationBubble(null);
 
-                // Check if any notifications are left
                 if (document.getElementById('notifications-container').children.length === 0) {
                     document.getElementById('no-notifications').style.display = 'block';
                 }
-                
                 closeRemarkModal();
             }
         });
@@ -690,52 +775,86 @@
         // --- TICKET DETAILS MODAL ---
         const ticketDetailsModal = document.getElementById('ticket-details-modal');
         const ticketDetailsContent = document.getElementById('ticket-details-content');
+        const ticketImageContainer = document.getElementById('ticket-image-container');
         const closeDetailsModalBtn = document.getElementById('close-details-modal-btn');
         const closeDetailsModalBtnBottom = document.getElementById('close-details-modal-btn-bottom');
+        const reopenTicketBtn = document.getElementById('reopen-ticket-btn');
         const activeTicketsTbody = document.getElementById('active-tickets-body');
         const closedTicketsTbody = document.getElementById('closed-tickets-body');
 
         function showTicketDetailsModal(ticket) {
             const issueDate = ticket.issue_date ? new Date(ticket.issue_date).toLocaleString() : 'N/A';
             const closeDate = ticket.issue_close_dt ? new Date(ticket.issue_close_dt).toLocaleString() : 'N/A';
+            
+            reopenTicketBtn.classList.add('hidden'); // Hide button by default
+            ticketImageContainer.innerHTML = ''; // Clear previous image
+
+            // NEW: Display image if URL exists
+            if (ticket.image_url) {
+                ticketImageContainer.innerHTML = `
+                    <p class="font-semibold text-gray-500 col-span-1 mb-2">Attached Image:</p>
+                    <a href="${ticket.image_url}" target="_blank" rel="noopener noreferrer">
+                        <img src="${ticket.image_url}" alt="Ticket attachment" class="rounded-lg max-h-60 border">
+                    </a>
+                `;
+            }
+
+            // NEW: Show Re-open button for completed tickets
+            if (ticket.issue_status === 'COMPLETED') {
+                reopenTicketBtn.classList.remove('hidden');
+                reopenTicketBtn.onclick = () => reopenTicket(ticket.id); // Assign click handler
+            }
 
             ticketDetailsContent.innerHTML = `
                 <div class="grid grid-cols-3 gap-y-3 gap-x-2">
                     <p class="font-semibold text-gray-500 col-span-1">Status:</p>
                     <p class="col-span-2"><span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(ticket.issue_status)}">${ticket.issue_status}</span></p>
-
                     <p class="font-semibold text-gray-500 col-span-1">Issue Date:</p>
                     <p class="col-span-2">${issueDate}</p>
-                    
-                    ${ticket.issue_status === 'COMPLETED' ? `
-                    <p class="font-semibold text-gray-500 col-span-1">Close Date:</p>
-                    <p class="col-span-2">${closeDate}</p>
-                    ` : ''}
-
+                    ${ticket.issue_status === 'COMPLETED' ? `<p class="font-semibold text-gray-500 col-span-1">Close Date:</p><p class="col-span-2">${closeDate}</p>` : ''}
                     <p class="font-semibold text-gray-500 col-span-1">Store:</p>
                     <p class="col-span-2">${ticket.store_name || ''}</p>
-
                     <p class="font-semibold text-gray-500 col-span-1">Raised By:</p>
                     <p class="col-span-2">${ticket.person_name || ''}</p>
-
                     <p class="font-semibold text-gray-500 col-span-1">Issue Type:</p>
                     <p class="col-span-2">${ticket.issue_type || ''}</p>
-
                     <p class="font-semibold text-gray-500 col-span-1">Department:</p>
                     <p class="col-span-2">${ticket.department || ''}</p>
-                    
                     <p class="font-semibold text-gray-500 col-span-1">Authorized:</p>
                     <p class="col-span-2">${ticket.authorized || ''}</p>
-
                     <p class="font-semibold text-gray-500 col-span-1">Details:</p>
                     <p class="col-span-2 break-words">${ticket.issue_details || ''}</p>
-
                     <p class="font-semibold text-gray-500 col-span-1">Last Update:</p>
                     <p class="col-span-2 break-words">${ticket.action_update || ''}</p>
                 </div>
             `;
             ticketDetailsModal.style.display = 'flex';
         }
+        
+        // NEW: Function to re-open a ticket
+        async function reopenTicket(ticketId) {
+            const reason = prompt("Please provide a reason for re-opening this ticket:");
+            if (reason && reason.trim() !== '') {
+                const { error } = await dbClient
+                    .from('tickets')
+                    .update({
+                        issue_status: 'PENDING',
+                        action_update: `Ticket re-opened by user. Reason: ${reason.trim()}`
+                    })
+                    .eq('id', ticketId);
+
+                if (error) {
+                    showCustomAlert('Error', 'Failed to re-open ticket: ' + error.message, false);
+                } else {
+                    closeTicketDetailsModal();
+                    showCustomAlert('Ticket Re-opened', 'The ticket has been moved to the active list.', true);
+                    fetchTickets();
+                }
+            } else if (reason !== null) { // User clicked OK but left it empty
+                alert("A reason is required to re-open a ticket.");
+            }
+        }
+
 
         function closeTicketDetailsModal() {
             ticketDetailsModal.style.display = 'none';
@@ -755,14 +874,12 @@
         activeTicketsTbody.addEventListener('click', tableClickHandler);
         closedTicketsTbody.addEventListener('click', tableClickHandler);
 
-
         // --- STARTUP ---
         checkSession();
 
-        // Poll for notification count every 30 sec (optional: remove/comment if not wanted)
         setInterval(() => {
-            if (currentUser) updateNotificationBubble();
-        }, 30000);
+            if (currentUser) updateNotificationBubble(null);
+        }, 30000); // Check every 30 seconds
     </script>
 </body>
 </html>
