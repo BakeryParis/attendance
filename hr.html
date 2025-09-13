@@ -11,42 +11,57 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #ECE5DD; /* WhatsApp-like background */
         }
-        /* Custom colors for WhatsApp theme */
-        .bg-whatsapp-dark { background-color: #075E54; }
-        .bg-whatsapp-light { background-color: #128C7E; }
-        .text-whatsapp-accent { color: #25D366; }
-        .border-whatsapp-accent { border-color: #25D366; }
-        .bg-whatsapp-accent { background-color: #25D366; }
-        .hover\:bg-whatsapp-accent-dark:hover { background-color: #1EBE57; }
+        /* Custom colors for Paris Bakery theme */
+        .bg-theme-primary { background-color: #E5007E; }
+        .hover\:bg-theme-primary-dark:hover { background-color: #C20069; }
+        .text-theme-primary { color: #E5007E; }
+        .border-theme-primary { border-color: #E5007E; }
+        .ring-theme-primary:focus { --tw-ring-color: #E5007E; }
+        .bg-theme-light { background-color: #FDE7F2; }
+
+        /* Marquee Animation */
+        @keyframes marquee {
+            0%   { transform: translateX(100%); }
+            100% { transform: translateX(-120%); }
+        }
+        .marquee-container {
+            overflow: hidden;
+            width: 100%;
+            white-space: nowrap;
+        }
+        .marquee-text {
+            display: inline-block;
+            white-space: nowrap;
+            padding-left: 100%;
+            animation: marquee 12s linear infinite;
+        }
 
         /* Hide scrollbar for cleaner look */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="bg-gray-100 min-h-screen flex flex-col">
 
     <div id="app" class="max-w-7xl mx-auto flex-1 flex flex-col w-full shadow-lg">
 
-        <div id="login-screen" class="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
-            <div class="absolute top-0 left-0 w-full h-32 bg-whatsapp-dark"></div>
-            <div class="w-full max-w-md bg-white p-8 rounded-xl shadow-lg z-10">
-                <img src="logo.png" alt="Logo" class="mx-auto h-16 w-auto mb-4">
+        <div id="login-screen" class="min-h-screen flex flex-col items-center justify-center bg-theme-light p-4">
+            <div class="w-full max-w-md bg-white p-8 rounded-xl shadow-2xl">
+                <img src="logo.png" alt="Logo" class="mx-auto h-20 w-auto mb-4">
                 <h1 class="text-3xl font-bold text-center text-gray-700 mb-2">Escalation Matrix</h1>
                 <p class="text-center text-sm text-gray-500 mb-6">(Administrative Login)</p>
                 <div id="login-error" class="text-red-500 text-sm mb-4 text-center"></div>
                 <form id="login-form">
                     <div class="mb-4">
                         <label for="user-id" class="block text-sm font-medium text-gray-600 mb-1">User ID</label>
-                        <input type="text" id="user-id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-whatsapp-light" required>
+                        <input type="text" id="user-id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 ring-theme-primary" required>
                     </div>
                     <div class="mb-6">
                         <label for="password" class="block text-sm font-medium text-gray-600 mb-1">Password</label>
-                        <input type="password" id="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-whatsapp-light" required>
+                        <input type="password" id="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 ring-theme-primary" required>
                     </div>
-                    <button type="submit" class="w-full bg-whatsapp-light text-white font-semibold py-2 rounded-lg hover:bg-whatsapp-dark transition">Login</button>
+                    <button type="submit" class="w-full bg-theme-primary text-white font-semibold py-2 rounded-lg hover:bg-theme-primary-dark transition">Login</button>
                 </form>
                  <div class="text-center mt-4">
                     <a href="index.html" class="w-full inline-block bg-gray-200 text-gray-700 font-semibold py-2 rounded-lg hover:bg-gray-300 transition text-sm">Store Login</a>
@@ -54,14 +69,14 @@
             </div>
         </div>
 
-        <div id="main-content" class="hidden flex-1 flex flex-col bg-whatsapp-chat-bg">
-            <header class="bg-whatsapp-dark p-3 flex justify-between items-center z-30 flex-shrink-0 sticky top-0 text-white shadow-md">
+        <div id="main-content" class="hidden flex-1 flex flex-col bg-gray-100">
+            <header class="bg-theme-primary p-3 flex justify-between items-center z-30 flex-shrink-0 sticky top-0 text-white shadow-md">
                 <div class="flex items-center space-x-3">
-                    <img src="logo.png" alt="Logo" class="h-10 w-10 rounded-full">
+                    <img src="logo.png" alt="Logo" class="h-10 w-auto">
                     <h2 class="text-xl font-semibold">Admin Panel</h2>
                 </div>
                 <div class="flex items-center">
-                    <span id="welcome-user" class="text-gray-300 mr-4 hidden sm:block text-sm"></span>
+                    <span id="welcome-user" class="text-white/90 mr-4 hidden sm:block text-sm"></span>
                     <button id="logout-btn" class="text-white p-2 rounded-full hover:bg-white/10 transition">
                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
@@ -70,10 +85,10 @@
                 </div>
             </header>
             
-            <nav class="bg-whatsapp-dark z-20 flex-shrink-0 sticky top-[64px] text-gray-300 uppercase text-sm font-bold">
+            <nav class="bg-theme-primary z-20 flex-shrink-0 sticky top-[64px] text-white/80 uppercase text-sm font-bold">
                 <div class="max-w-7xl mx-auto">
                     <div class="flex justify-around">
-                        <button data-tab="tickets" class="tab-btn text-white flex items-center justify-center gap-2 py-3 w-full border-b-4 border-whatsapp-accent">Tickets</button>
+                        <button data-tab="tickets" class="tab-btn text-white flex items-center justify-center gap-2 py-3 w-full border-b-4 border-white">Tickets</button>
                         <button data-tab="notifications" class="tab-btn flex items-center justify-center gap-2 py-3 w-full border-b-4 border-transparent">Notifications</button>
                         <button data-tab="send-notification" class="tab-btn flex items-center justify-center gap-2 py-3 w-full border-b-4 border-transparent">Send</button>
                     </div>
@@ -87,13 +102,13 @@
                         <div class="flex flex-wrap items-end gap-3">
                             <div>
                                 <label for="from-date" class="block text-xs font-medium text-gray-600">From</label>
-                                <input type="date" id="from-date" class="mt-1 p-2 text-sm border rounded-md focus:ring-1 focus:ring-whatsapp-light">
+                                <input type="date" id="from-date" class="mt-1 p-2 text-sm border rounded-md focus:ring-1 ring-theme-primary">
                             </div>
                             <div>
                                 <label for="to-date" class="block text-xs font-medium text-gray-600">To</label>
-                                <input type="date" id="to-date" class="mt-1 p-2 text-sm border rounded-md focus:ring-1 focus:ring-whatsapp-light">
+                                <input type="date" id="to-date" class="mt-1 p-2 text-sm border rounded-md focus:ring-1 ring-theme-primary">
                             </div>
-                            <button id="filter-btn" class="bg-whatsapp-light text-white py-2 px-4 rounded-md hover:bg-whatsapp-dark text-sm">Filter</button>
+                            <button id="filter-btn" class="bg-theme-primary text-white py-2 px-4 rounded-md hover:bg-theme-primary-dark text-sm">Filter</button>
                             <button id="clear-filter-btn" class="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 text-sm">Clear</button>
                         </div>
                     </div>
@@ -112,17 +127,17 @@
                         <form id="notification-form" class="space-y-4">
                             <div>
                                 <label for="store-select" class="block text-sm font-medium text-gray-700">Select Store</label>
-                                <select id="store-select" class="mt-1 block w-full p-2 border rounded-md focus:ring-1 focus:ring-whatsapp-light" required></select>
+                                <select id="store-select" class="mt-1 block w-full p-2 border rounded-md focus:ring-1 ring-theme-primary" required></select>
                             </div>
                             <div>
                                 <label for="notification-title" class="block text-sm font-medium text-gray-700">Title</label>
-                                <input type="text" id="notification-title" class="mt-1 block w-full p-2 border rounded-md focus:ring-1 focus:ring-whatsapp-light" required>
+                                <input type="text" id="notification-title" class="mt-1 block w-full p-2 border rounded-md focus:ring-1 ring-theme-primary" required>
                             </div>
                             <div>
                                 <label for="notification-message" class="block text-sm font-medium text-gray-700">Message</label>
-                                <textarea id="notification-message" rows="4" class="mt-1 block w-full p-2 border rounded-md focus:ring-1 focus:ring-whatsapp-light" required></textarea>
+                                <textarea id="notification-message" rows="4" class="mt-1 block w-full p-2 border rounded-md focus:ring-1 ring-theme-primary" required></textarea>
                             </div>
-                            <button type="submit" class="w-full bg-whatsapp-accent text-white font-semibold py-2 rounded-lg hover:bg-whatsapp-accent-dark transition">Send Notification</button>
+                            <button type="submit" class="w-full bg-theme-primary text-white font-semibold py-2 rounded-lg hover:bg-theme-primary-dark transition">Send Notification</button>
                         </form>
                     </div>
                 </div>
@@ -132,7 +147,7 @@
 
     <div id="ticket-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col">
-            <div class="p-4 bg-whatsapp-dark text-white flex justify-between items-center flex-shrink-0">
+            <div class="p-4 bg-theme-primary text-white flex justify-between items-center flex-shrink-0">
                 <div id="modal-title-container">
                     <h2 class="text-xl font-bold">Ticket Details</h2>
                 </div>
@@ -233,11 +248,11 @@
                 const targetTab = btn.dataset.tab;
                 
                 tabBtns.forEach(b => {
-                    b.classList.remove('text-white', 'border-whatsapp-accent');
-                    b.classList.add('text-gray-300', 'border-transparent');
+                    b.classList.remove('text-white', 'border-white');
+                    b.classList.add('text-white/80', 'border-transparent');
                 });
-                btn.classList.add('text-white', 'border-whatsapp-accent');
-                btn.classList.remove('text-gray-300', 'border-transparent');
+                btn.classList.add('text-white', 'border-white');
+                btn.classList.remove('text-white/80', 'border-transparent');
                 
                 tabContents.forEach(c => c.style.display = 'none');
                 document.getElementById(targetTab).style.display = 'block';
@@ -301,15 +316,15 @@
 
             let contentHTML = '';
             if (reopened.length > 0) {
-                contentHTML += `<h3 class="p-3 text-sm font-semibold text-whatsapp-light bg-gray-100">Re-opened Tickets</h3>`;
+                contentHTML += `<h3 class="p-3 text-sm font-semibold text-theme-primary bg-gray-100">Re-opened Tickets</h3>`;
                 reopened.forEach(ticket => { contentHTML += createTicketListItem(ticket, 'reopened'); });
             }
             if (active.length > 0) {
-                contentHTML += `<h3 class="p-3 text-sm font-semibold text-whatsapp-light bg-gray-100">Active Tickets</h3>`;
+                contentHTML += `<h3 class="p-3 text-sm font-semibold text-theme-primary bg-gray-100">Active Tickets</h3>`;
                 active.forEach(ticket => { contentHTML += createTicketListItem(ticket, 'active'); });
             }
             if (closed.length > 0) {
-                contentHTML += `<h3 class="p-3 text-sm font-semibold text-whatsapp-light bg-gray-100">Closed Tickets</h3>`;
+                contentHTML += `<h3 class="p-3 text-sm font-semibold text-theme-primary bg-gray-100">Closed Tickets</h3>`;
                 closed.forEach(ticket => { contentHTML += createTicketListItem(ticket, 'closed'); });
             }
             listContainer.innerHTML = contentHTML;
@@ -322,15 +337,18 @@
             else statusHTML = `<span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span>`;
 
             return `
-            <div class="ticket-item p-3 flex items-center space-x-4 hover:bg-gray-100 cursor-pointer border-b" data-ticket='${JSON.stringify(ticket)}' data-type="${type === 'closed' ? 'closed' : 'active'}">
+            <div class="ticket-item p-3 flex items-start space-x-4 hover:bg-gray-100 cursor-pointer border-b" data-ticket='${JSON.stringify(ticket)}' data-type="${type === 'closed' ? 'closed' : 'active'}">
                 <div class="flex-shrink-0 h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h2.64m-13.5 0L12 14.25" /></svg>
                 </div>
                 <div class="flex-1 min-w-0">
                     <p class="text-md font-semibold text-gray-900 truncate">${ticket.store_name}</p>
-                    <p class="text-sm text-gray-500 truncate">${ticket.issue_type}</p>
+                    <p class="text-sm font-semibold text-gray-600 truncate">${ticket.issue_type} | ${ticket.authorized}</p>
+                    <div class="marquee-container text-sm text-gray-500">
+                        <p class="marquee-text">${ticket.issue_details}</p>
+                    </div>
                 </div>
-                <div class="inline-flex flex-col items-end text-xs space-y-1">
+                <div class="inline-flex flex-col items-end text-xs space-y-1 flex-shrink-0">
                     <p class="text-gray-600">${new Date(ticket.issue_date).toLocaleDateString()}</p>
                     ${statusHTML}
                 </div>
@@ -354,7 +372,11 @@
                 const url = ticket.image_url;
                 const fileName = decodeURIComponent(url.split('/').pop().split('?')[0].split('_').pop());
                 const isImage = /\.(jpe?g|png|gif|webp|svg)$/i.test(fileName);
-                attachmentHTML = `<div><strong class="text-gray-500 block mb-1">Attachment:</strong><a href="${url}" target="_blank" rel="noopener noreferrer" class="text-whatsapp-light hover:underline break-all">${fileName}</a></div>`;
+                if (isImage) {
+                     attachmentHTML = `<div class="mb-4"><a href="${url}" target="_blank" rel="noopener noreferrer"><img src="${url}" alt="Ticket Attachment" class="w-full max-h-72 object-contain rounded-lg border bg-gray-100"></a></div>`;
+                } else {
+                     attachmentHTML = `<div><strong class="text-gray-500 block mb-1">Attachment:</strong><a href="${url}" target="_blank" rel="noopener noreferrer" class="text-theme-primary hover:underline break-all">${fileName}</a></div>`;
+                }
             }
             
             let reopenReasonHTML = '';
@@ -363,6 +385,7 @@
             }
 
             let contentHTML = `
+                ${attachmentHTML}
                 <div class="grid grid-cols-2 gap-4 text-sm">
                     <div><strong class="text-gray-500 block">Store:</strong> ${ticket.store_name}</div>
                     <div><strong class="text-gray-500 block">Authorized:</strong> ${ticket.authorized}</div>
@@ -370,7 +393,7 @@
                     <div><strong class="text-gray-500 block">Issue Type:</strong> ${ticket.issue_type}</div>
                 </div>
                 <div><strong class="text-gray-500 block mb-1">Details:</strong><p class="bg-gray-50 p-2 rounded-md">${ticket.issue_details}</p></div>
-                ${reopenReasonHTML} ${attachmentHTML}`;
+                ${reopenReasonHTML}`;
             modalFooter.innerHTML = '';
 
             if (type === 'active') {
@@ -381,7 +404,7 @@
                 modalBody.innerHTML = contentHTML;
                 modalFooter.innerHTML = `
                     <button id="modal-cancel-btn" class="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600">Cancel</button>
-                    <button id="modal-submit-btn" class="bg-whatsapp-accent text-white py-2 px-4 rounded-md hover:bg-whatsapp-accent-dark">Submit Update</button>`;
+                    <button id="modal-submit-btn" class="bg-theme-primary text-white py-2 px-4 rounded-md hover:bg-theme-primary-dark">Submit Update</button>`;
                 document.getElementById('modal-submit-btn').addEventListener('click', () => updateTicketFromModal(ticket.id));
                 document.getElementById('modal-cancel-btn').addEventListener('click', closeModal);
             } else { // Closed ticket
@@ -390,7 +413,7 @@
                     <div><strong class="text-gray-500 block">Close Date:</strong> ${new Date(ticket.issue_close_dt).toLocaleString()}</div>
                     <div><strong class="text-gray-500 block mb-1">Final Update:</strong><p class="bg-gray-50 p-2 rounded-md">${ticket.action_update || 'N/A'}</p></div>`;
                 modalBody.innerHTML = contentHTML;
-                modalFooter.innerHTML = `<button id="modal-ok-btn" class="bg-whatsapp-light text-white py-2 px-4 rounded-md hover:bg-whatsapp-dark">OK</button>`;
+                modalFooter.innerHTML = `<button id="modal-ok-btn" class="bg-theme-primary text-white py-2 px-4 rounded-md hover:bg-theme-primary-dark">OK</button>`;
                 document.getElementById('modal-ok-btn').addEventListener('click', closeModal);
             }
             modal.style.display = 'flex';
@@ -436,11 +459,11 @@
 
             let contentHTML = '';
             if (pending.length > 0) {
-                contentHTML += `<h3 class="p-3 text-sm font-semibold text-whatsapp-light bg-gray-100">Pending Notifications</h3>`;
+                contentHTML += `<h3 class="p-3 text-sm font-semibold text-theme-primary bg-gray-100">Pending Notifications</h3>`;
                 pending.forEach(n => { contentHTML += createNotificationListItem(n); });
             }
             if (responded.length > 0) {
-                contentHTML += `<h3 class="p-3 text-sm font-semibold text-whatsapp-light bg-gray-100">Responded Notifications</h3>`;
+                contentHTML += `<h3 class="p-3 text-sm font-semibold text-theme-primary bg-gray-100">Responded Notifications</h3>`;
                 responded.forEach(n => { contentHTML += createNotificationListItem(n); });
             }
             listContainer.innerHTML = contentHTML;
@@ -507,7 +530,7 @@
             if (isSuccess) {
                 customAlertIcon.innerHTML = successIconSVG;
                 customAlertTitle.textContent = 'Success!';
-                customAlertCloseBtn.className = 'bg-whatsapp-light text-white font-semibold py-2 px-6 rounded-lg hover:bg-whatsapp-dark transition';
+                customAlertCloseBtn.className = 'bg-theme-primary text-white font-semibold py-2 px-6 rounded-lg hover:bg-theme-primary-dark transition';
             } else {
                 customAlertIcon.innerHTML = errorIconSVG;
                 customAlertTitle.textContent = 'Error!';
