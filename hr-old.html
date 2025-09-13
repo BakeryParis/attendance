@@ -19,7 +19,7 @@
         .text-theme-primary { color: #e91e63; }
         .border-theme-primary { border-color: #e91e63; }
         .ring-theme-primary:focus { --tw-ring-color: #e91e63; }
-        .bg-theme-light { background-color: #fff0f5; }
+        .bg-theme-light { background-color: #f3f4f6; }
 
         /* Marquee Animation */
         @keyframes marquee {
@@ -50,8 +50,8 @@
         <div id="login-screen" class="min-h-screen flex flex-col items-center justify-center bg-theme-light p-4">
             <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-xl">
                 <img src="logo.png" alt="Logo" class="mx-auto h-20 w-auto mb-6">
-                <h1 class="text-3xl font-bold text-gray-800 mb-2">Welcome,</h1>
-                <p class="text-gray-500 mb-8">Sign in to continue!</p>
+                <h1 class="text-3xl font-bold text-gray-800 mb-2 text-center">Escalation Matrix</h1>
+                <p class="text-gray-500 mb-8 text-center">Administrative Login</p>
                 <div id="login-error" class="text-red-500 text-sm mb-4 text-center"></div>
                 <form id="login-form">
                     <div class="mb-4">
@@ -89,9 +89,18 @@
             <nav class="bg-white z-20 flex-shrink-0 sticky top-[64px] uppercase text-sm font-bold border-b">
                 <div class="max-w-7xl mx-auto">
                     <div class="flex justify-around">
-                        <button data-tab="tickets" class="tab-btn text-theme-primary flex items-center justify-center gap-2 py-3 w-full border-b-4 border-theme-primary">Tickets</button>
-                        <button data-tab="notifications" class="tab-btn text-gray-500 flex items-center justify-center gap-2 py-3 w-full border-b-4 border-transparent">Notifications</button>
-                        <button data-tab="send-notification" class="tab-btn text-gray-500 flex items-center justify-center gap-2 py-3 w-full border-b-4 border-transparent">Send</button>
+                        <button data-tab="tickets" class="tab-btn text-theme-primary flex items-center justify-center gap-2 py-3 w-full border-b-4 border-theme-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" /></svg>
+                            <span>Tickets</span>
+                        </button>
+                        <button data-tab="notifications" class="tab-btn text-gray-500 flex items-center justify-center gap-2 py-3 w-full border-b-4 border-transparent">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M3.124 7.5A8.969 8.969 0 0 1 5.292 3m13.416 0a8.969 8.969 0 0 1 2.168 4.5" /></svg>
+                            <span>Notifications</span>
+                        </button>
+                        <button data-tab="send-notification" class="tab-btn text-gray-500 flex items-center justify-center gap-2 py-3 w-full border-b-4 border-transparent">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" /></svg>
+                            <span>Send</span>
+                        </button>
                     </div>
                 </div>
             </nav>
@@ -243,7 +252,7 @@
             document.querySelector('[data-tab="tickets"]').click();
         }
 
-        // --- TAB NAVIGATION: LOGIC UPDATED FOR INVERTED COLORS ---
+        // --- TAB NAVIGATION ---
         tabBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 const targetTab = btn.dataset.tab;
