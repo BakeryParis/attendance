@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escalation Matrix</title>
+    <title>Admin Panel - Escalation Matrix</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -12,196 +12,140 @@
         body {
             font-family: 'Inter', sans-serif;
         }
+        /* Custom colors from reference image */
+        .bg-theme-primary { background-color: #FF6B6B; }
+        .hover\:bg-theme-primary-dark:hover { background-color: #FF4F4F; }
+        .text-theme-primary { color: #FF6B6B; }
+        .border-theme-primary { border-color: #FF6B6B; }
+        .ring-theme-primary:focus { --tw-ring-color: #FF6B6B; }
+        .bg-theme-light { background-color: #FFF5F5; }
+
+        /* Gradient for buttons */
+        .bg-theme-gradient {
+            background-image: linear-gradient(to right, #FF6B6B, #FF8E72);
+        }
+        .hover\:bg-theme-gradient-dark:hover {
+            background-image: linear-gradient(to right, #FF4F4F, #FF6B6B);
+        }
+
+        /* Marquee Animation */
+        @keyframes marquee {
+            0%   { transform: translateX(100%); }
+            100% { transform: translateX(-120%); }
+        }
+        .marquee-container {
+            overflow: hidden;
+            width: 100%;
+            white-space: nowrap;
+        }
+        .marquee-text {
+            display: inline-block;
+            white-space: nowrap;
+            padding-left: 100%;
+            animation: marquee 12s linear infinite;
+        }
+
         /* Hide scrollbar for cleaner look */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
-        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
+<body class="bg-gray-50 min-h-screen flex flex-col">
 
-    <div id="app" class="max-w-7xl mx-auto flex-1 flex flex-col w-full">
+    <div id="app" class="max-w-7xl mx-auto flex-1 flex flex-col w-full shadow-lg">
 
-        <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
-            <div class="w-full max-w-md bg-white p-8 rounded-xl shadow-lg">
-                <img src="logo.png" alt="Logo" class="mx-auto h-16 w-auto mb-4">
-                <h1 class="text-3xl font-bold text-center text-gray-700 mb-2">Escalation Matrix</h1>
-                <p class="text-center text-sm text-gray-500 mb-6">(Administrative Login)</p>
+        <div id="login-screen" class="min-h-screen flex flex-col items-center justify-center bg-white p-4">
+            <div class="w-full max-w-md bg-white p-8">
+                <img src="logo.png" alt="Logo" class="mx-auto h-20 w-auto mb-6">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">Welcome,</h1>
+                <p class="text-gray-500 mb-8">Sign in to continue!</p>
                 <div id="login-error" class="text-red-500 text-sm mb-4 text-center"></div>
                 <form id="login-form">
                     <div class="mb-4">
                         <label for="user-id" class="block text-sm font-medium text-gray-600 mb-1">User ID</label>
-                        <input type="text" id="user-id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+                        <input type="text" id="user-id" class="w-full px-4 py-3 bg-gray-100 border-transparent rounded-lg focus:ring-2 ring-theme-primary" required>
                     </div>
                     <div class="mb-6">
                         <label for="password" class="block text-sm font-medium text-gray-600 mb-1">Password</label>
-                        <input type="password" id="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+                        <input type="password" id="password" class="w-full px-4 py-3 bg-gray-100 border-transparent rounded-lg focus:ring-2 ring-theme-primary" required>
                     </div>
-                    <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-2 rounded-lg hover:bg-indigo-700 transition">Login</button>
+                    <button type="submit" class="w-full bg-theme-gradient text-white font-semibold py-3 rounded-lg hover:bg-theme-gradient-dark transition shadow-lg hover:shadow-none">Login</button>
                 </form>
-                <div class="text-center mt-4">
-                    <a href="index.html" class="w-full inline-block bg-gray-200 text-gray-700 font-semibold py-2 rounded-lg hover:bg-gray-300 transition text-sm">Store Login</a>
+                 <div class="text-center mt-6">
+                    <a href="index.html" class="w-full inline-block bg-gray-200 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-300 transition text-sm">Switch to Store Login</a>
                 </div>
             </div>
         </div>
 
-        <div id="main-content" class="hidden flex-1 flex flex-col">
-            <header class="bg-white shadow-md p-4 flex justify-between items-center z-30 flex-shrink-0 sticky top-0">
+        <div id="main-content" class="hidden flex-1 flex flex-col bg-gray-50">
+            <header class="bg-theme-primary p-3 flex justify-between items-center z-30 flex-shrink-0 sticky top-0 text-white shadow-md">
                 <div class="flex items-center space-x-3">
                     <img src="logo.png" alt="Logo" class="h-10 w-auto">
-                    <h2 class="text-2xl font-bold text-indigo-600">Escalation Matrix</h2>
+                    <h2 class="text-xl font-semibold">Admin Panel</h2>
                 </div>
                 <div class="flex items-center">
-                    <span id="welcome-user" class="text-gray-600 mr-4 hidden sm:block"></span>
-                    <button id="logout-btn" class="bg-red-500 text-white text-sm font-medium py-2 px-4 rounded-lg hover:bg-red-600 transition">Logout</button>
+                    <span id="welcome-user" class="text-white/90 mr-4 hidden sm:block text-sm"></span>
+                    <button id="logout-btn" class="text-white p-2 rounded-full hover:bg-white/10 transition">
+                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+                        </svg>
+                    </button>
                 </div>
             </header>
             
-            <nav class="bg-white border-b z-20 flex-shrink-0 sticky top-[64px]">
-                <div class="max-w-7xl mx-auto px-4">
+            <nav class="bg-theme-primary z-20 flex-shrink-0 sticky top-[64px] text-white/80 uppercase text-sm font-bold">
+                <div class="max-w-7xl mx-auto">
                     <div class="flex justify-around">
-                        <button data-tab="tickets" class="tab-btn text-indigo-600 flex items-center justify-center gap-2 py-3 w-full border-b-2 border-indigo-600">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" />
-</svg>
-
-                            <span class="text-sm font-semibold">Tickets</span>
-                        </button>
-                        <button data-tab="notifications" class="tab-btn text-gray-500 flex items-center justify-center gap-2 py-3 w-full border-b-2 border-transparent">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M3.124 7.5A8.969 8.969 0 0 1 5.292 3m13.416 0a8.969 8.969 0 0 1 2.168 4.5" />
-</svg>
-
-                            <span class="text-sm font-semibold">Notifications</span>
-                        </button>
-                        <button data-tab="send-notification" class="tab-btn text-gray-500 flex items-center justify-center gap-2 py-3 w-full border-b-2 border-transparent">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
-</svg>
-
-                            <span class="text-sm font-semibold">Send</span>
-                        </button>
+                        <button data-tab="tickets" class="tab-btn text-white flex items-center justify-center gap-2 py-3 w-full border-b-4 border-white">Tickets</button>
+                        <button data-tab="notifications" class="tab-btn flex items-center justify-center gap-2 py-3 w-full border-b-4 border-transparent">Notifications</button>
+                        <button data-tab="send-notification" class="tab-btn flex items-center justify-center gap-2 py-3 w-full border-b-4 border-transparent">Send</button>
                     </div>
                 </div>
             </nav>
 
-            <main class="p-4 space-y-8 flex-grow overflow-y-auto no-scrollbar pb-16">
-                <div id="tickets" class="tab-content space-y-8">
-                    <div class="bg-white p-4 rounded-lg shadow-md">
-                        <h3 class="font-bold text-lg mb-4">Filter Tickets by Issue Date</h3>
-                        <div class="flex flex-wrap items-end gap-4">
+            <main class="flex-grow overflow-y-auto no-scrollbar">
+                <div id="tickets" class="tab-content">
+                    <div class="bg-white p-3 border-b">
+                        <h3 class="font-bold text-md mb-3 text-gray-700">Filter Tickets</h3>
+                        <div class="flex flex-wrap items-end gap-3">
                             <div>
-                                <label for="from-date" class="block text-sm font-medium text-gray-700">From</label>
-                                <input type="date" id="from-date" class="mt-1 p-2 border rounded-md">
+                                <label for="from-date" class="block text-xs font-medium text-gray-600">From</label>
+                                <input type="date" id="from-date" class="mt-1 p-2 text-sm border rounded-md focus:ring-1 ring-theme-primary">
                             </div>
                             <div>
-                                <label for="to-date" class="block text-sm font-medium text-gray-700">To</label>
-                                <input type="date" id="to-date" class="mt-1 p-2 border rounded-md">
+                                <label for="to-date" class="block text-xs font-medium text-gray-600">To</label>
+                                <input type="date" id="to-date" class="mt-1 p-2 text-sm border rounded-md focus:ring-1 ring-theme-primary">
                             </div>
-                            <button id="filter-btn" class="bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700">Apply Filter</button>
-                            <button id="clear-filter-btn" class="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600">Clear</button>
+                            <button id="filter-btn" class="bg-theme-primary text-white py-2 px-4 rounded-md hover:bg-theme-primary-dark text-sm">Filter</button>
+                            <button id="clear-filter-btn" class="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 text-sm">Clear</button>
                         </div>
                     </div>
-                    <div>
-                        <h2 class="text-2xl font-bold mb-4 text-gray-700">Active Tickets</h2>
-                        <div class="bg-white p-4 rounded-lg shadow-md overflow-hidden">
-                           <div class="overflow-x-auto no-scrollbar">
-                                <table class="w-full min-w-max text-sm text-left">
-                                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
-                                        <tr>
-                                            <th class="px-6 py-3">Issue Date</th>
-                                            <th class="px-6 py-3">Store</th>
-                                            <th class="px-6 py-3">Issue Type</th>
-                                            <th class="px-6 py-3">Details</th>
-                                            <th class="px-6 py-3">Authorized</th>
-                                            <th class="px-6 py-3">Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="active-tickets-body"></tbody>
-                                </table>
-                           </div>
-                           <p id="no-active-tickets" class="text-center py-4 hidden">No active tickets found.</p>
-                        </div>
-                    </div>
-                    <div>
-                        <h2 class="text-2xl font-bold mb-4 text-gray-700">Re-opened Tickets</h2>
-                        <div class="bg-white p-4 rounded-lg shadow-md overflow-hidden">
-                           <div class="overflow-x-auto no-scrollbar">
-                                <table class="w-full min-w-max text-sm text-left">
-                                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
-                                        <tr>
-                                            <th class="px-6 py-3">Issue Date</th>
-                                            <th class="px-6 py-3">Store</th>
-                                            <th class="px-6 py-3">Issue Type</th>
-                                            <th class="px-6 py-3">Details</th>
-                                            <th class="px-6 py-3">Authorized</th>
-                                            <th class="px-6 py-3">Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="reopened-tickets-body"></tbody>
-                                </table>
-                           </div>
-                           <p id="no-reopened-tickets" class="text-center py-4 hidden">No re-opened tickets found.</p>
-                        </div>
-                    </div>
-                    <div>
-                        <h2 class="text-2xl font-bold mb-4 text-gray-700">Closed Tickets</h2>
-                        <div class="bg-white p-4 rounded-lg shadow-md overflow-hidden">
-                             <div class="overflow-x-auto no-scrollbar">
-                                <table class="w-full min-w-max text-sm text-left">
-                                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
-                                        <tr>
-                                            <th class="px-6 py-3">Close Date</th>
-                                            <th class="px-6 py-3">Issue Date</th>
-                                            <th class="px-6 py-3">Store</th>
-                                            <th class="px-6 py-3">Issue Type</th>
-                                            <th class="px-6 py-3">Details</th>
-                                            <th class="px-6 py-3">Authorized</th>
-                                            <th class="px-6 py-3">Final Update</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="closed-tickets-body"></tbody>
-                                </table>
-                             </div>
-                             <p id="no-closed-tickets" class="text-center py-4 hidden">No closed tickets found.</p>
-                        </div>
-                    </div>
+                    <div id="tickets-list" class="bg-white"></div>
+                    <p id="no-tickets" class="text-center py-8 bg-white hidden">No tickets found for the selected period.</p>
                 </div>
 
-                <div id="notifications" class="tab-content hidden space-y-8">
-                     <div>
-                        <h2 class="text-2xl font-bold mb-4 text-gray-700">Pending Notifications</h2>
-                        <div id="pending-notifications-container" class="space-y-4"></div>
-                        <p id="no-pending-notifications" class="text-center py-4 bg-white rounded-lg shadow-md hidden">No pending notifications.</p>
-                    </div>
-                     <div>
-                        <h2 class="text-2xl font-bold mb-4 text-gray-700">Responded Notifications</h2>
-                        <div id="responded-notifications-container" class="space-y-4"></div>
-                        <p id="no-responded-notifications" class="text-center py-4 bg-white rounded-lg shadow-md hidden">No responded notifications.</p>
-                    </div>
+                <div id="notifications" class="tab-content hidden">
+                    <div id="notifications-list" class="bg-white"></div>
+                     <p id="no-notifications" class="text-center py-8 bg-white hidden">No notifications found.</p>
                 </div>
 
-                <div id="send-notification" class="tab-content hidden">
+                <div id="send-notification" class="tab-content hidden p-4">
                     <div class="bg-white p-6 rounded-lg shadow-md max-w-lg mx-auto">
                         <h2 class="text-2xl font-bold mb-4 text-gray-700">Send a New Notification</h2>
                         <form id="notification-form" class="space-y-4">
                             <div>
                                 <label for="store-select" class="block text-sm font-medium text-gray-700">Select Store</label>
-                                <select id="store-select" class="mt-1 block w-full p-2 border rounded-md" required></select>
+                                <select id="store-select" class="mt-1 block w-full p-2 border rounded-md focus:ring-1 ring-theme-primary" required></select>
                             </div>
                             <div>
                                 <label for="notification-title" class="block text-sm font-medium text-gray-700">Title</label>
-                                <input type="text" id="notification-title" class="mt-1 block w-full p-2 border rounded-md" required>
+                                <input type="text" id="notification-title" class="mt-1 block w-full p-2 border rounded-md focus:ring-1 ring-theme-primary" required>
                             </div>
                             <div>
                                 <label for="notification-message" class="block text-sm font-medium text-gray-700">Message</label>
-                                <textarea id="notification-message" rows="4" class="mt-1 block w-full p-2 border rounded-md" required></textarea>
+                                <textarea id="notification-message" rows="4" class="mt-1 block w-full p-2 border rounded-md focus:ring-1 ring-theme-primary" required></textarea>
                             </div>
-                            <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-2 rounded-lg hover:bg-indigo-700">Send Notification</button>
+                            <button type="submit" class="w-full bg-theme-gradient text-white font-semibold py-2 rounded-lg hover:bg-theme-gradient-dark transition">Send Notification</button>
                         </form>
                     </div>
                 </div>
@@ -209,37 +153,34 @@
         </div>
     </div>
 
-    <div id="ticket-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+    <div id="ticket-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col">
-            <div class="p-4 border-b flex justify-between items-center flex-shrink-0">
+            <div class="p-4 bg-theme-primary text-white flex justify-between items-center flex-shrink-0">
                 <div id="modal-title-container">
-                    <h2 class="text-xl font-bold text-gray-800">Ticket Details</h2>
+                    <h2 class="text-xl font-bold">Ticket Details</h2>
                 </div>
-                <button id="modal-close-btn" class="text-2xl font-bold text-gray-500 hover:text-gray-800">&times;</button>
+                <button id="modal-close-btn" class="text-2xl font-bold text-white/80 hover:text-white">&times;</button>
             </div>
-            <div id="modal-body" class="p-6 space-y-4 overflow-y-auto">
-                </div>
-            <div id="modal-footer" class="p-4 bg-gray-50 border-t text-right space-x-2 flex-shrink-0">
-                </div>
+            <div id="modal-body" class="p-6 space-y-4 overflow-y-auto no-scrollbar"></div>
+            <div id="modal-footer" class="p-4 bg-gray-50 border-t text-right space-x-2 flex-shrink-0"></div>
         </div>
     </div>
 
-    <div id="custom-alert-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+    <div id="custom-alert-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-lg shadow-xl w-full max-w-sm">
             <div class="p-6 text-center">
-                <div id="custom-alert-icon" class="mx-auto mb-4">
-                    </div>
+                <div id="custom-alert-icon" class="mx-auto mb-4"></div>
                 <h3 id="custom-alert-title" class="text-lg font-semibold text-gray-800 mb-2"></h3>
                 <p id="custom-alert-message" class="text-sm text-gray-600 mb-6"></p>
-                <button id="custom-alert-close-btn" class="bg-indigo-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-indigo-700 transition">OK</button>
+                <button id="custom-alert-close-btn" class="text-white font-semibold py-2 px-6 rounded-lg transition">OK</button>
             </div>
         </div>
     </div>
 
-    <footer class="bg-gray-200 border-t w-full">
+     <footer class="bg-gray-200 border-t w-full">
         <div class="max-w-7xl mx-auto px-4">
             <p class="text-center text-xs text-gray-600 py-2">
-                design and develop by samir singhasamanta contact: 760693670
+                Designed and developed by Samir Singhasamanta | Contact: 760693670
             </p>
         </div>
     </footer>
@@ -282,8 +223,7 @@
             const { data, error } = await dbClient.from('office_users').select('*').eq('user_id', userId).eq('password', password).single();
 
             if (error || !data) {
-                loginError.textContent = 'Invalid User ID or password.';
-                return;
+                loginError.textContent = 'Invalid User ID or password.'; return;
             }
             currentUser = data;
             sessionStorage.setItem('officeCurrentUser', JSON.stringify(currentUser));
@@ -316,11 +256,11 @@
                 const targetTab = btn.dataset.tab;
                 
                 tabBtns.forEach(b => {
-                    b.classList.remove('text-indigo-600', 'border-indigo-600');
-                    b.classList.add('text-gray-500', 'border-transparent');
+                    b.classList.remove('text-white', 'border-white');
+                    b.classList.add('text-white/80', 'border-transparent');
                 });
-                btn.classList.add('text-indigo-600', 'border-indigo-600');
-                btn.classList.remove('text-gray-500', 'border-transparent');
+                btn.classList.add('text-white', 'border-white');
+                btn.classList.remove('text-white/80', 'border-transparent');
                 
                 tabContents.forEach(c => c.style.display = 'none');
                 document.getElementById(targetTab).style.display = 'block';
@@ -339,7 +279,6 @@
             fetchTickets();
         });
 
-        // CHANGED: Added default 7-day filter and ticket categorization
         async function fetchTickets() {
             let query = dbClient.from('tickets').select('*');
 
@@ -350,7 +289,6 @@
             let fromDateStr = document.getElementById('from-date').value;
             let toDateStr = document.getElementById('to-date').value;
 
-            // Default to last 7 days if no dates are manually entered
             if (!fromDateStr && !toDateStr) {
                 const today = new Date();
                 const sevenDaysAgo = new Date();
@@ -359,208 +297,137 @@
                 document.getElementById('from-date').value = fromDateStr;
             }
 
-            if (fromDateStr) {
-                const fromDateObj = new Date(fromDateStr + 'T00:00:00');
-                query = query.gte('issue_date', fromDateObj.toISOString());
-            }
-            if (toDateStr) {
-                const toDateObj = new Date(toDateStr + 'T23:59:59');
-                query = query.lte('issue_date', toDateObj.toISOString());
-            }
-
+            if (fromDateStr) query = query.gte('issue_date', new Date(fromDateStr + 'T00:00:00').toISOString());
+            if (toDateStr) query = query.lte('issue_date', new Date(toDateStr + 'T23:59:59').toISOString());
+            
             const { data, error } = await query.order('issue_date', { ascending: false });
 
-            if (error) {
-                console.error('Error fetching tickets:', error);
-                return;
-            }
+            if (error) { console.error('Error fetching tickets:', error); return; }
             
-            // Categorize tickets into three groups
             const closedTickets = data.filter(t => t.issue_status === 'COMPLETED');
             const reopenedTickets = data.filter(t => t.issue_status !== 'COMPLETED' && t.reopen_reason);
             const activeTickets = data.filter(t => t.issue_status !== 'COMPLETED' && !t.reopen_reason);
             
-            renderActiveTickets(activeTickets);
-            renderReopenedTickets(reopenedTickets); // New render function call
-            renderClosedTickets(closedTickets);
+            renderTicketsAsList(activeTickets, reopenedTickets, closedTickets);
         }
 
-        function renderActiveTickets(tickets) {
-            const tbody = document.getElementById('active-tickets-body');
-            const noDataEl = document.getElementById('no-active-tickets');
-            tbody.innerHTML = '';
-            if (tickets.length === 0) {
-                noDataEl.style.display = 'block';
+        function renderTicketsAsList(active, reopened, closed) {
+            const listContainer = document.getElementById('tickets-list');
+            const noTicketsEl = document.getElementById('no-tickets');
+            listContainer.innerHTML = '';
+            
+            if (active.length === 0 && reopened.length === 0 && closed.length === 0) {
+                noTicketsEl.style.display = 'block';
                 return;
             }
-            noDataEl.style.display = 'none';
+            noTicketsEl.style.display = 'none';
 
-            tickets.forEach(ticket => {
-                const tr = document.createElement('tr');
-                tr.className = 'bg-white border-b hover:bg-gray-50 cursor-pointer';
-                tr.dataset.ticket = JSON.stringify(ticket);
-                tr.innerHTML = `
-                    <td class="px-6 py-4">${new Date(ticket.issue_date).toLocaleString()}</td>
-                    <td class="px-6 py-4">${ticket.store_name}</td>
-                    <td class="px-6 py-4 font-semibold">${ticket.issue_type}</td>
-                    <td class="px-6 py-4 max-w-xs truncate" title="${ticket.issue_details}">${ticket.issue_details}</td>
-                    <td class="px-6 py-4">${ticket.authorized}</td>
-                    <td class="px-6 py-4 font-medium">${ticket.issue_status}</td>
-                `;
-                tbody.appendChild(tr);
-            });
+            let contentHTML = '';
+            if (reopened.length > 0) {
+                contentHTML += `<h3 class="p-3 text-sm font-semibold text-theme-primary bg-gray-100">Re-opened Tickets</h3>`;
+                reopened.forEach(ticket => { contentHTML += createTicketListItem(ticket, 'reopened'); });
+            }
+            if (active.length > 0) {
+                contentHTML += `<h3 class="p-3 text-sm font-semibold text-theme-primary bg-gray-100">Active Tickets</h3>`;
+                active.forEach(ticket => { contentHTML += createTicketListItem(ticket, 'active'); });
+            }
+            if (closed.length > 0) {
+                contentHTML += `<h3 class="p-3 text-sm font-semibold text-theme-primary bg-gray-100">Closed Tickets</h3>`;
+                closed.forEach(ticket => { contentHTML += createTicketListItem(ticket, 'closed'); });
+            }
+            listContainer.innerHTML = contentHTML;
+        }
+
+        function createTicketListItem(ticket, type) {
+            const initial = ticket.store_name ? ticket.store_name.charAt(0).toUpperCase() : '?';
+            let statusHTML = '';
+            if (type === 'reopened') statusHTML = `<span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-red-100 text-red-800">Re-opened</span>`;
+            else if (type === 'active') statusHTML = `<span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">${ticket.issue_status}</span>`;
+            else statusHTML = `<span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span>`;
+
+            return `
+            <div class="ticket-item p-3 flex items-start space-x-4 hover:bg-gray-100 cursor-pointer border-b" data-ticket='${JSON.stringify(ticket)}' data-type="${type === 'closed' ? 'closed' : 'active'}">
+                <div class="flex-shrink-0 h-12 w-12 rounded-full bg-theme-light flex items-center justify-center text-xl font-bold text-theme-primary">
+                   <span>${initial}</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-md font-semibold text-gray-900 truncate">${ticket.store_name}</p>
+                    <p class="text-sm font-semibold text-gray-600 truncate">${ticket.issue_type} | ${ticket.authorized}</p>
+                    <div class="marquee-container text-sm text-gray-500">
+                        <p class="marquee-text">${ticket.issue_details}</p>
+                    </div>
+                </div>
+                <div class="inline-flex flex-col items-end text-xs space-y-1 flex-shrink-0">
+                    <p class="text-gray-600">${new Date(ticket.issue_date).toLocaleDateString()}</p>
+                    ${statusHTML}
+                </div>
+            </div>`;
         }
         
-        // ADDED: New function to render re-opened tickets
-        function renderReopenedTickets(tickets) {
-            const tbody = document.getElementById('reopened-tickets-body');
-            const noDataEl = document.getElementById('no-reopened-tickets');
-            tbody.innerHTML = '';
-            if (tickets.length === 0) {
-                noDataEl.style.display = 'block';
-                return;
+        document.getElementById('tickets-list').addEventListener('click', (e) => {
+            const item = e.target.closest('.ticket-item');
+            if (item && item.dataset.ticket) {
+                openModal(JSON.parse(item.dataset.ticket), item.dataset.type);
             }
-            noDataEl.style.display = 'none';
-
-            tickets.forEach(ticket => {
-                const tr = document.createElement('tr');
-                tr.className = 'bg-white border-b hover:bg-yellow-50 cursor-pointer'; // Different hover color for distinction
-                tr.dataset.ticket = JSON.stringify(ticket);
-                tr.innerHTML = `
-                    <td class="px-6 py-4">${new Date(ticket.issue_date).toLocaleString()}</td>
-                    <td class="px-6 py-4">${ticket.store_name}</td>
-                    <td class="px-6 py-4 font-semibold">${ticket.issue_type}</td>
-                    <td class="px-6 py-4 max-w-xs truncate" title="${ticket.issue_details}">${ticket.issue_details}</td>
-                    <td class="px-6 py-4">${ticket.authorized}</td>
-                    <td class="px-6 py-4 font-medium">${ticket.issue_status}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-
-        function renderClosedTickets(tickets) {
-            const tbody = document.getElementById('closed-tickets-body');
-            const noDataEl = document.getElementById('no-closed-tickets');
-            tbody.innerHTML = '';
-            if (tickets.length === 0) {
-                noDataEl.style.display = 'block';
-                return;
-            }
-            noDataEl.style.display = 'none';
-            tickets.forEach(ticket => {
-                const tr = document.createElement('tr');
-                tr.className = 'bg-white border-b hover:bg-gray-50 cursor-pointer';
-                tr.dataset.ticket = JSON.stringify(ticket);
-                tr.innerHTML = `
-                    <td class="px-6 py-4">${new Date(ticket.issue_close_dt).toLocaleString()}</td>
-                    <td class="px-6 py-4">${new Date(ticket.issue_date).toLocaleString()}</td>
-                    <td class="px-6 py-4">${ticket.store_name}</td>
-                    <td class="px-6 py-4 font-semibold">${ticket.issue_type}</td>
-                    <td class="px-6 py-4 max-w-xs truncate" title="${ticket.issue_details}">${ticket.issue_details}</td>
-                    <td class="px-6 py-4">${ticket.authorized}</td>
-                    <td class="px-6 py-4 max-w-xs truncate" title="${ticket.action_update}">${ticket.action_update}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
+        });
 
         // --- MODAL LOGIC ---
-        // CHANGED: Added logic for attachments and re-open reason
         function openModal(ticket, type) {
             const modalBody = document.getElementById('modal-body');
             const modalFooter = document.getElementById('modal-footer');
             
-            // Attachment logic
             let attachmentHTML = '';
             if (ticket.image_url) {
-                const url = ticket.image_url;
-                const fileName = decodeURIComponent(url.split('/').pop().split('?')[0].split('_').pop());
+                const highResUrl = ticket.image_url;
+                const fileName = decodeURIComponent(highResUrl.split('/').pop().split('?')[0].split('_').pop());
                 const isImage = /\.(jpe?g|png|gif|webp|svg)$/i.test(fileName);
                 
                 if (isImage) {
-                     attachmentHTML = `
-                    <div>
-                        <strong class="text-gray-500 block mb-1">Attachment:</strong>
-                        <a href="${url}" target="_blank" rel="noopener noreferrer">
-                            <img src="${url}" alt="Ticket Attachment" class="max-h-48 rounded border cursor-pointer hover:opacity-80 transition-opacity">
+                     const previewUrl = `${highResUrl}?width=400`; // Supabase storage URL parameter for resizing
+                     attachmentHTML = `<div class="mb-4">
+                        <a href="${highResUrl}" target="_blank" rel="noopener noreferrer" title="Click to view/download full resolution image">
+                            <img src="${previewUrl}" alt="Ticket Attachment Preview" class="w-full max-h-72 object-contain rounded-lg border bg-gray-100 cursor-pointer">
                         </a>
-                    </div>`;
+                     </div>`;
                 } else {
-                     attachmentHTML = `
-                    <div>
-                        <strong class="text-gray-500 block mb-1">Attachment:</strong>
-                        <a href="${url}" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:underline break-all">
-                            ${fileName}
-                        </a>
-                    </div>`;
+                     attachmentHTML = `<div><strong class="text-gray-500 block mb-1">Attachment:</strong><a href="${highResUrl}" target="_blank" rel="noopener noreferrer" class="text-theme-primary hover:underline break-all">${fileName}</a></div>`;
                 }
             }
             
-            // Re-open reason logic
             let reopenReasonHTML = '';
             if (ticket.reopen_reason) {
-                reopenReasonHTML = `
-                <div>
-                    <strong class="text-gray-500 block mb-1">Re-open Reason:</strong>
-                    <p class="bg-yellow-50 text-yellow-800 p-2 rounded-md">${ticket.reopen_reason}</p>
-                </div>`;
+                reopenReasonHTML = `<div><strong class="text-gray-500 block mb-1">Re-open Reason:</strong><p class="bg-yellow-50 text-yellow-800 p-2 rounded-md">${ticket.reopen_reason}</p></div>`;
             }
 
-            let contentHTML = `
+            let contentHTML = `${attachmentHTML}
                 <div class="grid grid-cols-2 gap-4 text-sm">
                     <div><strong class="text-gray-500 block">Store:</strong> ${ticket.store_name}</div>
                     <div><strong class="text-gray-500 block">Authorized:</strong> ${ticket.authorized}</div>
                     <div><strong class="text-gray-500 block">Issue Date:</strong> ${new Date(ticket.issue_date).toLocaleString()}</div>
                     <div><strong class="text-gray-500 block">Issue Type:</strong> ${ticket.issue_type}</div>
                 </div>
-                <div>
-                    <strong class="text-gray-500 block mb-1">Details:</strong>
-                    <p class="bg-gray-50 p-2 rounded-md">${ticket.issue_details}</p>
-                </div>
-                ${reopenReasonHTML}
-                ${attachmentHTML}
-            `;
+                <div><strong class="text-gray-500 block mb-1">Details:</strong><p class="bg-gray-50 p-2 rounded-md">${ticket.issue_details}</p></div>
+                ${reopenReasonHTML}`;
             modalFooter.innerHTML = '';
 
             if (type === 'active') {
-                modalTitleContainer.innerHTML = `<h2 class="text-xl font-bold text-gray-800">Ticket Details</h2>`;
+                modalTitleContainer.innerHTML = `<h2 class="text-xl font-bold">Update Ticket</h2>`;
                 contentHTML += `
-                    <div>
-                        <label for="modal-status" class="block text-sm font-medium text-gray-700">Update Status</label>
-                        <select id="modal-status" class="mt-1 block w-full p-2 border rounded-md">
-                            ${statusOptions.map(s => `<option value="${s}" ${s === ticket.issue_status ? 'selected' : ''}>${s}</option>`).join('')}
-                        </select>
-                    </div>
-                    <div>
-                        <label for="modal-update" class="block text-sm font-medium text-gray-700">Action Update</label>
-                        <textarea id="modal-update" class="mt-1 block w-full p-2 border rounded-md" rows="3">${ticket.action_update || ''}</textarea>
-                    </div>
-                `;
+                    <div><label for="modal-status" class="block text-sm font-medium text-gray-700">Update Status</label><select id="modal-status" class="mt-1 block w-full p-2 border rounded-md">${statusOptions.map(s => `<option value="${s}" ${s === ticket.issue_status ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
+                    <div><label for="modal-update" class="block text-sm font-medium text-gray-700">Action Update</label><textarea id="modal-update" class="mt-1 block w-full p-2 border rounded-md" rows="3">${ticket.action_update || ''}</textarea></div>`;
                 modalBody.innerHTML = contentHTML;
                 modalFooter.innerHTML = `
                     <button id="modal-cancel-btn" class="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600">Cancel</button>
-                    <button id="modal-submit-btn" class="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600">Submit Update</button>
-                `;
+                    <button id="modal-submit-btn" class="bg-theme-gradient text-white py-2 px-4 rounded-md hover:bg-theme-gradient-dark">Submit Update</button>`;
                 document.getElementById('modal-submit-btn').addEventListener('click', () => updateTicketFromModal(ticket.id));
                 document.getElementById('modal-cancel-btn').addEventListener('click', closeModal);
             } else { // Closed ticket
-                modalTitleContainer.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <h2 class="text-xl font-bold text-gray-800">Ticket Details</h2>
-                        <span class="px-2.5 py-0.5 bg-green-100 text-green-800 text-sm font-semibold rounded-full">Completed</span>
-                    </div>
-                `;
+                modalTitleContainer.innerHTML = `<div class="flex items-center gap-3"><h2 class="text-xl font-bold">Ticket Details</h2><span class="px-2.5 py-0.5 bg-green-100 text-green-800 text-sm font-semibold rounded-full">Completed</span></div>`;
                 contentHTML += `
                     <div><strong class="text-gray-500 block">Close Date:</strong> ${new Date(ticket.issue_close_dt).toLocaleString()}</div>
-                    <div>
-                        <strong class="text-gray-500 block mb-1">Final Update:</strong>
-                        <p class="bg-gray-50 p-2 rounded-md">${ticket.action_update || 'N/A'}</p>
-                    </div>
-                `;
+                    <div><strong class="text-gray-500 block mb-1">Final Update:</strong><p class="bg-gray-50 p-2 rounded-md">${ticket.action_update || 'N/A'}</p></div>`;
                 modalBody.innerHTML = contentHTML;
-                
-                modalFooter.innerHTML = `<button id="modal-ok-btn" class="bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700">OK</button>`;
+                modalFooter.innerHTML = `<button id="modal-ok-btn" class="bg-theme-primary text-white py-2 px-4 rounded-md hover:bg-theme-primary-dark">OK</button>`;
                 document.getElementById('modal-ok-btn').addEventListener('click', closeModal);
             }
             modal.style.display = 'flex';
@@ -570,40 +437,20 @@
             const newStatus = document.getElementById('modal-status').value;
             const newUpdate = document.getElementById('modal-update').value;
             let updateData = { issue_status: newStatus, action_update: newUpdate };
-
             if (newStatus === 'COMPLETED') {
                 updateData.issue_close_dt = new Date().toISOString();
             }
-
             const { error } = await dbClient.from('tickets').update(updateData).eq('id', ticketId);
-            if (error) {
-                showCustomAlert('Failed to update ticket.', false);
-                console.error('Update error:', error);
-            } else {
+            if (error) { showCustomAlert('Failed to update ticket.', false); } 
+            else {
                 showCustomAlert('Ticket updated successfully!', true);
                 closeModal();
                 fetchTickets();
             }
         }
 
-        function closeModal() {
-            modal.style.display = 'none';
-        }
-
+        function closeModal() { modal.style.display = 'none'; }
         modalCloseBtn.addEventListener('click', closeModal);
-        document.getElementById('active-tickets-body').addEventListener('click', (e) => {
-            const row = e.target.closest('tr');
-            if (row && row.dataset.ticket) openModal(JSON.parse(row.dataset.ticket), 'active');
-        });
-        // ADDED: Event listener for the new re-opened tickets table
-        document.getElementById('reopened-tickets-body').addEventListener('click', (e) => {
-            const row = e.target.closest('tr');
-            if (row && row.dataset.ticket) openModal(JSON.parse(row.dataset.ticket), 'active');
-        });
-        document.getElementById('closed-tickets-body').addEventListener('click', (e) => {
-            const row = e.target.closest('tr');
-            if (row && row.dataset.ticket) openModal(JSON.parse(row.dataset.ticket), 'closed');
-        });
 
         // --- NOTIFICATIONS SECTION ---
         async function fetchAllNotifications() {
@@ -611,21 +458,49 @@
             if (error) { console.error("Error fetching notifications", error); return; }
             const pending = data.filter(n => n.status === true);
             const responded = data.filter(n => n.status === false);
-            renderNotifications('pending-notifications-container', pending, 'no-pending-notifications');
-            renderNotifications('responded-notifications-container', responded, 'no-responded-notifications');
+            renderNotificationsAsList(pending, responded);
         }
-        function renderNotifications(containerId, notifications, noDataElId) {
-            const container = document.getElementById(containerId);
-            const noDataEl = document.getElementById(noDataElId);
-            container.innerHTML = '';
-            if (notifications.length === 0) { noDataEl.style.display = 'block'; return; }
+
+        function renderNotificationsAsList(pending, responded) {
+            const listContainer = document.getElementById('notifications-list');
+            const noDataEl = document.getElementById('no-notifications');
+            listContainer.innerHTML = '';
+            
+            if (pending.length === 0 && responded.length === 0) {
+                 noDataEl.style.display = 'block'; return;
+            }
             noDataEl.style.display = 'none';
-            notifications.forEach(n => {
-                const card = document.createElement('div');
-                card.className = 'bg-white p-4 rounded-lg shadow';
-                card.innerHTML = `<div class="flex justify-between items-start"><div><h3 class="font-bold text-lg">${n.title}</h3><p class="text-sm text-gray-500">To: ${n.store} | On: ${new Date(n.created_at).toLocaleString()}</p><p class="mt-2">${n.message}</p>${n.response ? `<p class="mt-2 text-sm text-blue-600 bg-blue-50 p-2 rounded-md"><b>Response:</b> ${n.response}</p>` : ''}</div><span class="text-xs font-semibold px-2 py-1 rounded-full ${n.status ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}">${n.status ? 'Pending' : 'Responded'}</span></div>`;
-                container.appendChild(card);
-            });
+
+            let contentHTML = '';
+            if (pending.length > 0) {
+                contentHTML += `<h3 class="p-3 text-sm font-semibold text-theme-primary bg-gray-100">Pending Notifications</h3>`;
+                pending.forEach(n => { contentHTML += createNotificationListItem(n); });
+            }
+            if (responded.length > 0) {
+                contentHTML += `<h3 class="p-3 text-sm font-semibold text-theme-primary bg-gray-100">Responded Notifications</h3>`;
+                responded.forEach(n => { contentHTML += createNotificationListItem(n); });
+            }
+            listContainer.innerHTML = contentHTML;
+        }
+
+        function createNotificationListItem(n) {
+             const initial = n.store ? n.store.charAt(0).toUpperCase() : '?';
+             const statusHTML = `<span class="text-xs font-semibold px-2 py-1 rounded-full ${n.status ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}">${n.status ? 'Pending' : 'Responded'}</span>`;
+             return `
+             <div class="p-3 flex items-start space-x-4 border-b">
+                 <div class="flex-shrink-0 h-12 w-12 rounded-full bg-theme-light flex items-center justify-center text-xl font-bold text-theme-primary">
+                   <span>${initial}</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex justify-between items-start">
+                        <h3 class="font-bold text-md">${n.title}</h3>
+                        ${statusHTML}
+                    </div>
+                    <p class="text-sm text-gray-500">To: ${n.store} | On: ${new Date(n.created_at).toLocaleDateString()}</p>
+                    <p class="mt-1 text-sm">${n.message}</p>
+                    ${n.response ? `<p class="mt-2 text-sm text-blue-600 bg-blue-50 p-2 rounded-md"><b>Response:</b> ${n.response}</p>` : ''}
+                </div>
+            </div>`;
         }
         
         // --- SEND NOTIFICATION SECTION ---
@@ -640,33 +515,23 @@
         }
         document.getElementById('notification-form').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const form = e.target;
             const store = document.getElementById('store-select').value;
             const title = document.getElementById('notification-title').value;
             const message = document.getElementById('notification-message').value;
             const notification = { title, message, status: true };
             if (store === 'All') {
                 const { data: stores, error: storeError } = await dbClient.from('store_users').select('store');
-                if (storeError) { 
-                    showCustomAlert('Could not fetch store list to send to all.', false); 
-                    return; 
-                }
+                if (storeError) { showCustomAlert('Could not fetch store list.', false); return; }
                 const allNotifications = [...new Set(stores.map(item => item.store))].map(s => ({...notification, store: s}));
                 const { error } = await dbClient.from('notifications').insert(allNotifications);
-                if (error) { 
-                    showCustomAlert('Failed to send notification to all stores.', false); 
-                } else { 
-                    showCustomAlert('Notification sent to all stores successfully!', true); 
-                    e.target.reset();
-                }
+                if (error) { showCustomAlert('Failed to send to all stores.', false); } 
+                else { showCustomAlert('Notification sent to all stores!', true); form.reset(); }
             } else {
                 notification.store = store;
                 const { error } = await dbClient.from('notifications').insert([notification]);
-                if (error) { 
-                    showCustomAlert('Failed to send notification.', false); 
-                } else { 
-                    showCustomAlert('Notification sent successfully!', true); 
-                    e.target.reset();
-                }
+                if (error) { showCustomAlert('Failed to send notification.', false); } 
+                else { showCustomAlert('Notification sent successfully!', true); form.reset(); }
             }
         });
 
@@ -676,7 +541,6 @@
         const customAlertTitle = document.getElementById('custom-alert-title');
         const customAlertMessage = document.getElementById('custom-alert-message');
         const customAlertCloseBtn = document.getElementById('custom-alert-close-btn');
-
         const successIconSVG = `<svg class="w-12 h-12 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
         const errorIconSVG = `<svg class="w-12 h-12 text-red-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
 
@@ -684,7 +548,7 @@
             if (isSuccess) {
                 customAlertIcon.innerHTML = successIconSVG;
                 customAlertTitle.textContent = 'Success!';
-                customAlertCloseBtn.className = 'bg-indigo-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-indigo-700 transition';
+                customAlertCloseBtn.className = 'bg-theme-gradient text-white font-semibold py-2 px-6 rounded-lg hover:bg-theme-gradient-dark transition';
             } else {
                 customAlertIcon.innerHTML = errorIconSVG;
                 customAlertTitle.textContent = 'Error!';
@@ -693,18 +557,8 @@
             customAlertMessage.textContent = message;
             customAlertModal.style.display = 'flex';
         }
-
-        function closeCustomAlert() {
-            customAlertModal.style.display = 'none';
-        }
-
-        customAlertCloseBtn.addEventListener('click', closeCustomAlert);
-        customAlertModal.addEventListener('click', (e) => {
-            if (e.target === customAlertModal) {
-                closeCustomAlert();
-            }
-        });
-
+        customAlertCloseBtn.addEventListener('click', () => customAlertModal.style.display = 'none');
+        
         // --- STARTUP ---
         checkSession();
     </script>
