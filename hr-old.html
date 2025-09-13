@@ -71,14 +71,14 @@
         </div>
 
         <div id="main-content" class="hidden flex-1 flex flex-col bg-theme-light">
-            <header class="bg-theme-primary p-3 flex justify-between items-center z-30 flex-shrink-0 sticky top-0 text-white shadow-md">
+            <header class="bg-white p-3 flex justify-between items-center z-30 flex-shrink-0 sticky top-0 text-theme-primary shadow-md">
                 <div class="flex items-center space-x-3">
                     <img src="logo.png" alt="Logo" class="h-10 w-auto">
                     <h2 class="text-xl font-semibold">Admin Panel</h2>
                 </div>
                 <div class="flex items-center">
-                    <span id="welcome-user" class="text-white/90 mr-4 hidden sm:block text-sm"></span>
-                    <button id="logout-btn" class="text-white p-2 rounded-full hover:bg-white/10 transition">
+                    <span id="welcome-user" class="text-gray-600 mr-4 hidden sm:block text-sm"></span>
+                    <button id="logout-btn" class="text-theme-primary p-2 rounded-full hover:bg-gray-100 transition">
                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
                         </svg>
@@ -86,12 +86,12 @@
                 </div>
             </header>
             
-            <nav class="bg-theme-primary z-20 flex-shrink-0 sticky top-[64px] text-white/80 uppercase text-sm font-bold">
+            <nav class="bg-white z-20 flex-shrink-0 sticky top-[64px] uppercase text-sm font-bold border-b">
                 <div class="max-w-7xl mx-auto">
                     <div class="flex justify-around">
-                        <button data-tab="tickets" class="tab-btn text-white flex items-center justify-center gap-2 py-3 w-full border-b-4 border-white">Tickets</button>
-                        <button data-tab="notifications" class="tab-btn flex items-center justify-center gap-2 py-3 w-full border-b-4 border-transparent">Notifications</button>
-                        <button data-tab="send-notification" class="tab-btn flex items-center justify-center gap-2 py-3 w-full border-b-4 border-transparent">Send</button>
+                        <button data-tab="tickets" class="tab-btn text-theme-primary flex items-center justify-center gap-2 py-3 w-full border-b-4 border-theme-primary">Tickets</button>
+                        <button data-tab="notifications" class="tab-btn text-gray-500 flex items-center justify-center gap-2 py-3 w-full border-b-4 border-transparent">Notifications</button>
+                        <button data-tab="send-notification" class="tab-btn text-gray-500 flex items-center justify-center gap-2 py-3 w-full border-b-4 border-transparent">Send</button>
                     </div>
                 </div>
             </nav>
@@ -243,17 +243,17 @@
             document.querySelector('[data-tab="tickets"]').click();
         }
 
-        // --- TAB NAVIGATION ---
+        // --- TAB NAVIGATION: LOGIC UPDATED FOR INVERTED COLORS ---
         tabBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 const targetTab = btn.dataset.tab;
                 
                 tabBtns.forEach(b => {
-                    b.classList.remove('text-white', 'border-white');
-                    b.classList.add('text-white/80', 'border-transparent');
+                    b.classList.remove('text-theme-primary', 'border-theme-primary');
+                    b.classList.add('text-gray-500', 'border-transparent');
                 });
-                btn.classList.add('text-white', 'border-white');
-                btn.classList.remove('text-white/80', 'border-transparent');
+                btn.classList.add('text-theme-primary', 'border-theme-primary');
+                btn.classList.remove('text-gray-500', 'border-transparent');
                 
                 tabContents.forEach(c => c.style.display = 'none');
                 document.getElementById(targetTab).style.display = 'block';
@@ -317,15 +317,15 @@
 
             let contentHTML = '';
             if (reopened.length > 0) {
-                contentHTML += `<h3 class="p-3 text-sm font-semibold text-theme-primary bg-gray-100">Re-opened Tickets</h3>`;
+                contentHTML += `<h3 class="p-3 text-sm font-semibold text-theme-primary bg-pink-50">Re-opened Tickets</h3>`;
                 reopened.forEach(ticket => { contentHTML += createTicketListItem(ticket, 'reopened'); });
             }
             if (active.length > 0) {
-                contentHTML += `<h3 class="p-3 text-sm font-semibold text-theme-primary bg-gray-100">Active Tickets</h3>`;
+                contentHTML += `<h3 class="p-3 text-sm font-semibold text-theme-primary bg-pink-50">Active Tickets</h3>`;
                 active.forEach(ticket => { contentHTML += createTicketListItem(ticket, 'active'); });
             }
             if (closed.length > 0) {
-                contentHTML += `<h3 class="p-3 text-sm font-semibold text-theme-primary bg-gray-100">Closed Tickets</h3>`;
+                contentHTML += `<h3 class="p-3 text-sm font-semibold text-theme-primary bg-pink-50">Closed Tickets</h3>`;
                 closed.forEach(ticket => { contentHTML += createTicketListItem(ticket, 'closed'); });
             }
             listContainer.innerHTML = contentHTML;
@@ -339,7 +339,7 @@
             else statusHTML = `<span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span>`;
 
             return `
-            <div class="ticket-item p-3 flex items-start space-x-4 hover:bg-gray-100 cursor-pointer border-b" data-ticket='${JSON.stringify(ticket)}' data-type="${type === 'closed' ? 'closed' : 'active'}">
+            <div class="ticket-item p-3 flex items-start space-x-4 hover:bg-gray-50 cursor-pointer border-b" data-ticket='${JSON.stringify(ticket)}' data-type="${type === 'closed' ? 'closed' : 'active'}">
                 <div class="flex-shrink-0 h-12 w-12 rounded-full bg-theme-light flex items-center justify-center text-xl font-bold text-theme-primary">
                    <span>${initial}</span>
                 </div>
@@ -466,11 +466,11 @@
 
             let contentHTML = '';
             if (pending.length > 0) {
-                contentHTML += `<h3 class="p-3 text-sm font-semibold text-theme-primary bg-gray-100">Pending Notifications</h3>`;
+                contentHTML += `<h3 class="p-3 text-sm font-semibold text-theme-primary bg-pink-50">Pending Notifications</h3>`;
                 pending.forEach(n => { contentHTML += createNotificationListItem(n); });
             }
             if (responded.length > 0) {
-                contentHTML += `<h3 class="p-3 text-sm font-semibold text-theme-primary bg-gray-100">Responded Notifications</h3>`;
+                contentHTML += `<h3 class="p-3 text-sm font-semibold text-theme-primary bg-pink-50">Responded Notifications</h3>`;
                 responded.forEach(n => { contentHTML += createNotificationListItem(n); });
             }
             listContainer.innerHTML = contentHTML;
