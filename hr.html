@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escalation Matrix - Admin</title>
+    <title>Escalation Matrix</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -11,167 +11,146 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
-        /* Custom scrollbar for a modern look */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+        /* Hide scrollbar for cleaner look */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
         }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f5f9; /* slate-100 */
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #cbd5e1; /* slate-300 */
-            border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8; /* slate-400 */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
         }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
     <div id="app" class="max-w-7xl mx-auto flex-1 flex flex-col w-full">
 
-        <div id="login-screen" class="min-h-screen flex items-center justify-center p-4 bg-slate-50">
-            <div class="w-full max-w-md bg-white p-8 md:p-10 rounded-2xl shadow-xl">
-                <img src="logo.png" alt="Logo" class="mx-auto h-16 w-auto mb-6">
-                <h1 class="text-3xl font-bold text-center text-slate-800 mb-2">Escalation Matrix</h1>
-                <p class="text-center text-sm text-slate-500 mb-8">(Administrative Login)</p>
-                <div id="login-error" class="text-red-600 text-sm mb-4 text-center font-medium"></div>
-                <form id="login-form" class="space-y-6">
-                    <div>
+        <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
+            <div class="w-full max-w-md bg-white p-8 rounded-xl shadow-lg">
+                <img src="logo.png" alt="Logo" class="mx-auto h-16 w-auto mb-4">
+                <h1 class="text-3xl font-bold text-center text-slate-700 mb-2">Escalation Matrix</h1>
+                <p class="text-center text-sm text-slate-500 mb-6">(Administrative Login)</p>
+                <div id="login-error" class="text-red-500 text-sm mb-4 text-center"></div>
+                <form id="login-form">
+                    <div class="mb-4">
                         <label for="user-id" class="block text-sm font-medium text-slate-600 mb-1">User ID</label>
-                        <input type="text" id="user-id" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" required>
+                        <input type="text" id="user-id" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-cyan-500" required>
                     </div>
-                    <div>
+                    <div class="mb-6">
                         <label for="password" class="block text-sm font-medium text-slate-600 mb-1">Password</label>
-                        <input type="password" id="password" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" required>
+                        <input type="password" id="password" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-cyan-500" required>
                     </div>
-                    <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition shadow-sm hover:shadow-md">Login</button>
+                    <button type="submit" class="w-full bg-cyan-600 text-white font-semibold py-2 rounded-lg hover:bg-cyan-700 transition">Login</button>
                 </form>
-                <div class="text-center mt-6">
-                    <a href="index.html" class="w-full inline-block bg-slate-200 text-slate-700 font-semibold py-3 rounded-lg hover:bg-slate-300 transition text-sm">Switch to Store Login</a>
+                <div class="text-center mt-4">
+                    <a href="index.html" class="w-full inline-block bg-slate-200 text-slate-700 font-semibold py-2 rounded-lg hover:bg-slate-300 transition text-sm">Store Login</a>
                 </div>
             </div>
         </div>
 
         <div id="main-content" class="hidden flex-1 flex flex-col">
-            <header class="bg-white/80 backdrop-blur-lg p-4 flex justify-between items-center z-30 flex-shrink-0 sticky top-0 border-b border-slate-200">
-                <div class="flex items-center space-x-4">
+            <header class="bg-white/80 backdrop-blur-md shadow-sm p-4 flex justify-between items-center z-30 flex-shrink-0 sticky top-0 h-[72px]">
+                <div class="flex items-center space-x-3">
                     <img src="logo.png" alt="Logo" class="h-10 w-auto">
-                    <h2 class="text-2xl font-bold text-indigo-600">Admin Dashboard</h2>
+                    <h2 class="text-2xl font-bold text-cyan-600">Escalation Matrix</h2>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <span id="welcome-user" class="text-slate-600 text-sm font-medium mr-4 hidden sm:block"></span>
-                    <button id="logout-btn" class="bg-red-500 text-white text-sm font-medium py-2 px-4 rounded-lg hover:bg-red-600 transition shadow-sm hover:shadow-md">Logout</button>
+                <div class="flex items-center">
+                    <span id="welcome-user" class="text-slate-600 mr-4 hidden sm:block"></span>
+                    <button id="logout-btn" class="bg-rose-500 text-white text-sm font-medium py-2 px-4 rounded-lg hover:bg-rose-600 transition">Logout</button>
                 </div>
             </header>
             
-            <nav class="bg-white border-b border-slate-200 z-20 flex-shrink-0 sticky top-[73px]">
+            <nav class="bg-slate-100/80 backdrop-blur-md z-20 flex-shrink-0 sticky top-[72px] py-3">
                 <div class="max-w-7xl mx-auto px-4">
-                    <div class="flex">
-                        <button data-tab="tickets" class="tab-btn text-indigo-600 flex items-center justify-center gap-2 py-3 px-4 w-full border-b-2 border-indigo-600">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" /></svg>
-                            <span class="text-sm font-semibold">Tickets</span>
+                    <div class="flex justify-center gap-4">
+                        <button data-tab="tickets" class="tab-btn bg-cyan-600 text-white shadow-md flex items-center justify-center gap-2 px-5 py-2 rounded-full font-semibold transition-all duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" />
+                            </svg>
+                            <span class="font-semibold">Tickets</span>
                         </button>
-                        <button data-tab="notifications" class="tab-btn text-slate-500 flex items-center justify-center gap-2 py-3 px-4 w-full border-b-2 border-transparent hover:bg-slate-50">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M3.124 7.5A8.969 8.969 0 0 1 5.292 3m13.416 0a8.969 8.969 0 0 1 2.168 4.5" /></svg>
-                            <span class="text-sm font-semibold">Notifications</span>
+                        <button data-tab="notifications" class="tab-btn bg-white text-slate-600 shadow-sm hover:bg-slate-200 flex items-center justify-center gap-2 px-5 py-2 rounded-full font-semibold transition-all duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M3.124 7.5A8.969 8.969 0 0 1 5.292 3m13.416 0a8.969 8.969 0 0 1 2.168 4.5" />
+                            </svg>
+                            <span class="font-semibold">Notifications</span>
                         </button>
-                        <button data-tab="send-notification" class="tab-btn text-slate-500 flex items-center justify-center gap-2 py-3 px-4 w-full border-b-2 border-transparent hover:bg-slate-50">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" /></svg>
-                            <span class="text-sm font-semibold">Send</span>
+                        <button data-tab="send-notification" class="tab-btn bg-white text-slate-600 shadow-sm hover:bg-slate-200 flex items-center justify-center gap-2 px-5 py-2 rounded-full font-semibold transition-all duration-300">
+                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+                           </svg>
+                           <span class="font-semibold">Send</span>
                         </button>
                     </div>
                 </div>
             </nav>
 
-            <main class="p-4 sm:p-6 space-y-8 flex-grow overflow-y-auto custom-scrollbar pb-16">
+            <main class="p-6 space-y-8 flex-grow overflow-y-auto no-scrollbar pb-16">
                 <div id="tickets" class="tab-content space-y-8">
-                    <div class="bg-white p-6 rounded-xl shadow-md">
-                        <h3 class="font-bold text-lg mb-4 text-slate-700">Filter Tickets by Issue Date</h3>
+                    <div class="bg-white p-4 rounded-lg shadow-md">
+                        <h3 class="font-bold text-lg mb-4">Filter Tickets by Issue Date</h3>
                         <div class="flex flex-wrap items-end gap-4">
                             <div>
                                 <label for="from-date" class="block text-sm font-medium text-slate-700">From</label>
-                                <input type="date" id="from-date" class="mt-1 p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-indigo-500">
+                                <input type="date" id="from-date" class="mt-1 p-2 border rounded-md">
                             </div>
                             <div>
                                 <label for="to-date" class="block text-sm font-medium text-slate-700">To</label>
-                                <input type="date" id="to-date" class="mt-1 p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-indigo-500">
+                                <input type="date" id="to-date" class="mt-1 p-2 border rounded-md">
                             </div>
-                            <button id="filter-btn" class="bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition shadow-sm">Apply Filter</button>
-                            <button id="clear-filter-btn" class="bg-slate-500 text-white py-2 px-4 rounded-md hover:bg-slate-600 transition shadow-sm">Clear</button>
+                            <button id="filter-btn" class="bg-cyan-600 text-white py-2 px-4 rounded-md hover:bg-cyan-700">Apply Filter</button>
+                            <button id="clear-filter-btn" class="bg-slate-500 text-white py-2 px-4 rounded-md hover:bg-slate-600">Clear</button>
                         </div>
                     </div>
-
-                    <div id="reopened-tickets-section">
-                        <h2 class="text-2xl font-bold mb-4 text-slate-800 flex items-center gap-2">
-                            <span class="text-amber-500">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 11.664 0l3.181-3.183m-3.181-4.991v4.99" /></svg>
-                            </span>
-                             Re-opened Tickets
-                        </h2>
-                        <div class="bg-white rounded-xl shadow-md overflow-hidden">
-                           <div class="overflow-x-auto custom-scrollbar">
-                                <table class="w-full min-w-max text-sm text-left text-slate-600">
-                                    <thead class="text-xs text-slate-700 uppercase bg-slate-100">
-                                        <tr>
-                                            <th class="px-6 py-3">Issue Date</th>
-                                            <th class="px-6 py-3">Store</th>
-                                            <th class="px-6 py-3">Issue Type</th>
-                                            <th class="px-6 py-3">Details</th>
-                                            <th class="px-6 py-3">Authorized</th>
-                                            <th class="px-6 py-3 text-center">Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="reopened-tickets-body"></tbody>
-                                </table>
-                           </div>
-                           <p id="no-reopened-tickets" class="text-center py-8 text-slate-500 hidden">No re-opened tickets found.</p>
-                        </div>
-                    </div>
-
                     <div>
-                        <h2 class="text-2xl font-bold mb-4 text-slate-800 flex items-center gap-2">
-                            <span class="text-blue-500">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 11.664 0l3.181-3.183m-3.181-4.991v4.99" /></svg>
-                            </span>
-                            Active Tickets
-                        </h2>
-                        <div class="bg-white rounded-xl shadow-md overflow-hidden">
-                           <div class="overflow-x-auto custom-scrollbar">
-                                <table class="w-full min-w-max text-sm text-left text-slate-600">
-                                    <thead class="text-xs text-slate-700 uppercase bg-slate-100">
+                        <h2 class="text-xl font-bold mb-4 text-slate-700">Active Tickets</h2>
+                        <div class="bg-white p-4 rounded-lg shadow-md overflow-hidden">
+                           <div class="overflow-x-auto no-scrollbar">
+                                <table class="w-full min-w-max text-sm text-left">
+                                    <thead class="text-xs text-slate-600 uppercase bg-slate-100">
                                         <tr>
                                             <th class="px-6 py-3">Issue Date</th>
                                             <th class="px-6 py-3">Store</th>
                                             <th class="px-6 py-3">Issue Type</th>
                                             <th class="px-6 py-3">Details</th>
                                             <th class="px-6 py-3">Authorized</th>
-                                            <th class="px-6 py-3 text-center">Status</th>
+                                            <th class="px-6 py-3">Status</th>
                                         </tr>
                                     </thead>
                                     <tbody id="active-tickets-body"></tbody>
                                 </table>
                            </div>
-                           <p id="no-active-tickets" class="text-center py-8 text-slate-500 hidden">No active tickets found.</p>
+                           <p id="no-active-tickets" class="text-center py-4 hidden">No active tickets found.</p>
                         </div>
                     </div>
-
                     <div>
-                        <h2 class="text-2xl font-bold mb-4 text-slate-800 flex items-center gap-2">
-                            <span class="text-green-500">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-                            </span>
-                            Closed Tickets
-                        </h2>
-                        <div class="bg-white rounded-xl shadow-md overflow-hidden">
-                             <div class="overflow-x-auto custom-scrollbar">
-                                <table class="w-full min-w-max text-sm text-left text-slate-600">
-                                    <thead class="text-xs text-slate-700 uppercase bg-slate-100">
+                        <h2 class="text-xl font-bold mb-4 text-slate-700">Re-opened Tickets</h2>
+                        <div class="bg-white p-4 rounded-lg shadow-md overflow-hidden">
+                           <div class="overflow-x-auto no-scrollbar">
+                                <table class="w-full min-w-max text-sm text-left">
+                                    <thead class="text-xs text-slate-600 uppercase bg-slate-100">
+                                        <tr>
+                                            <th class="px-6 py-3">Issue Date</th>
+                                            <th class="px-6 py-3">Store</th>
+                                            <th class="px-6 py-3">Issue Type</th>
+                                            <th class="px-6 py-3">Details</th>
+                                            <th class="px-6 py-3">Authorized</th>
+                                            <th class="px-6 py-3">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="reopened-tickets-body"></tbody>
+                                </table>
+                           </div>
+                           <p id="no-reopened-tickets" class="text-center py-4 hidden">No re-opened tickets found.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold mb-4 text-slate-700">Closed Tickets</h2>
+                        <div class="bg-white p-4 rounded-lg shadow-md overflow-hidden">
+                             <div class="overflow-x-auto no-scrollbar">
+                                <table class="w-full min-w-max text-sm text-left">
+                                    <thead class="text-xs text-slate-600 uppercase bg-slate-100">
                                         <tr>
                                             <th class="px-6 py-3">Close Date</th>
                                             <th class="px-6 py-3">Issue Date</th>
@@ -185,41 +164,41 @@
                                     <tbody id="closed-tickets-body"></tbody>
                                 </table>
                              </div>
-                             <p id="no-closed-tickets" class="text-center py-8 text-slate-500 hidden">No closed tickets found.</p>
+                             <p id="no-closed-tickets" class="text-center py-4 hidden">No closed tickets found.</p>
                         </div>
                     </div>
                 </div>
 
                 <div id="notifications" class="tab-content hidden space-y-8">
                      <div>
-                        <h2 class="text-2xl font-bold mb-4 text-slate-800">Pending Notifications</h2>
+                        <h2 class="text-xl font-bold mb-4 text-slate-700">Pending Notifications</h2>
                         <div id="pending-notifications-container" class="space-y-4"></div>
-                        <p id="no-pending-notifications" class="text-center py-8 bg-white rounded-xl shadow-md text-slate-500 hidden">No pending notifications.</p>
+                        <p id="no-pending-notifications" class="text-center py-4 bg-white rounded-lg shadow-md hidden">No pending notifications.</p>
                     </div>
                      <div>
-                        <h2 class="text-2xl font-bold mb-4 text-slate-800">Responded Notifications</h2>
+                        <h2 class="text-xl font-bold mb-4 text-slate-700">Responded Notifications</h2>
                         <div id="responded-notifications-container" class="space-y-4"></div>
-                        <p id="no-responded-notifications" class="text-center py-8 bg-white rounded-xl shadow-md text-slate-500 hidden">No responded notifications.</p>
+                        <p id="no-responded-notifications" class="text-center py-4 bg-white rounded-lg shadow-md hidden">No responded notifications.</p>
                     </div>
                 </div>
 
                 <div id="send-notification" class="tab-content hidden">
-                    <div class="bg-white p-6 sm:p-8 rounded-xl shadow-md max-w-2xl mx-auto">
-                        <h2 class="text-2xl font-bold mb-6 text-slate-800">Send a New Notification</h2>
-                        <form id="notification-form" class="space-y-6">
+                    <div class="bg-white p-6 rounded-lg shadow-md max-w-lg mx-auto">
+                        <h2 class="text-xl font-bold mb-4 text-slate-700">Send a New Notification</h2>
+                        <form id="notification-form" class="space-y-4">
                             <div>
                                 <label for="store-select" class="block text-sm font-medium text-slate-700">Select Store</label>
-                                <select id="store-select" class="mt-1 block w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required></select>
+                                <select id="store-select" class="mt-1 block w-full p-2 border rounded-md" required></select>
                             </div>
                             <div>
                                 <label for="notification-title" class="block text-sm font-medium text-slate-700">Title</label>
-                                <input type="text" id="notification-title" class="mt-1 block w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+                                <input type="text" id="notification-title" class="mt-1 block w-full p-2 border rounded-md" required>
                             </div>
                             <div>
                                 <label for="notification-message" class="block text-sm font-medium text-slate-700">Message</label>
-                                <textarea id="notification-message" rows="4" class="mt-1 block w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required></textarea>
+                                <textarea id="notification-message" rows="4" class="mt-1 block w-full p-2 border rounded-md" required></textarea>
                             </div>
-                            <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg hover:bg-indigo-700 transition shadow-sm hover:shadow-md">Send Notification</button>
+                            <button type="submit" class="w-full bg-cyan-600 text-white font-semibold py-2 rounded-lg hover:bg-cyan-700">Send Notification</button>
                         </form>
                     </div>
                 </div>
@@ -227,36 +206,36 @@
         </div>
     </div>
 
-    <div id="ticket-modal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
-            <div class="p-5 border-b border-slate-200 flex justify-between items-center flex-shrink-0">
-                <div id="modal-title-container" class="flex items-center gap-3">
+    <div id="ticket-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col">
+            <div class="p-4 border-b flex justify-between items-center flex-shrink-0">
+                <div id="modal-title-container">
                     <h2 class="text-xl font-bold text-slate-800">Ticket Details</h2>
                 </div>
-                <button id="modal-close-btn" class="text-3xl font-light text-slate-400 hover:text-slate-800">&times;</button>
+                <button id="modal-close-btn" class="text-2xl font-bold text-slate-500 hover:text-slate-800">&times;</button>
             </div>
-            <div id="modal-body" class="p-6 space-y-6 overflow-y-auto custom-scrollbar">
+            <div id="modal-body" class="p-6 space-y-4 overflow-y-auto">
                 </div>
-            <div id="modal-footer" class="p-4 bg-slate-50 border-t border-slate-200 text-right space-x-3 flex-shrink-0">
+            <div id="modal-footer" class="p-4 bg-slate-50 border-t text-right space-x-2 flex-shrink-0">
                 </div>
         </div>
     </div>
 
-    <div id="custom-alert-modal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm">
-            <div class="p-8 text-center">
-                <div id="custom-alert-icon" class="mx-auto mb-5">
+    <div id="custom-alert-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-sm">
+            <div class="p-6 text-center">
+                <div id="custom-alert-icon" class="mx-auto mb-4">
                     </div>
                 <h3 id="custom-alert-title" class="text-lg font-semibold text-slate-800 mb-2"></h3>
                 <p id="custom-alert-message" class="text-sm text-slate-600 mb-6"></p>
-                <button id="custom-alert-close-btn" class="w-full bg-indigo-600 text-white font-semibold py-2.5 px-6 rounded-lg hover:bg-indigo-700 transition">OK</button>
+                <button id="custom-alert-close-btn" class="bg-cyan-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-cyan-700 transition">OK</button>
             </div>
         </div>
     </div>
 
-    <footer class="bg-slate-200 border-t border-slate-300 w-full">
+    <footer class="bg-slate-100 border-t w-full">
         <div class="max-w-7xl mx-auto px-4">
-            <p class="text-center text-xs text-slate-600 py-3">
+            <p class="text-center text-xs text-slate-600 py-2">
                 Designed and developed by Samir Singhasamanta | Contact: 760693670
             </p>
         </div>
@@ -276,14 +255,6 @@
 
         let currentUser = null;
         const statusOptions = ['PENDING', 'ACCEPTED', 'REVIEWED', 'UNDER PROCESS', 'COMPLETED'];
-        const statusColors = {
-            'PENDING': 'bg-yellow-100 text-yellow-800',
-            'ACCEPTED': 'bg-sky-100 text-sky-800',
-            'REVIEWED': 'bg-blue-100 text-blue-800',
-            'UNDER PROCESS': 'bg-indigo-100 text-indigo-800',
-            'COMPLETED': 'bg-green-100 text-green-800'
-        };
-
 
         // DOM Elements
         const loginScreen = document.getElementById('login-screen');
@@ -341,12 +312,13 @@
             btn.addEventListener('click', () => {
                 const targetTab = btn.dataset.tab;
                 
+                // Updated tab button styling logic
                 tabBtns.forEach(b => {
-                    b.classList.remove('text-indigo-600', 'border-indigo-600');
-                    b.classList.add('text-slate-500', 'border-transparent', 'hover:bg-slate-50');
+                    b.classList.remove('bg-cyan-600', 'text-white', 'shadow-md');
+                    b.classList.add('bg-white', 'text-slate-600', 'shadow-sm', 'hover:bg-slate-200');
                 });
-                btn.classList.add('text-indigo-600', 'border-indigo-600');
-                btn.classList.remove('text-slate-500', 'border-transparent', 'hover:bg-slate-50');
+                btn.classList.add('bg-cyan-600', 'text-white', 'shadow-md');
+                btn.classList.remove('bg-white', 'text-slate-600', 'shadow-sm', 'hover:bg-slate-200');
                 
                 tabContents.forEach(c => c.style.display = 'none');
                 document.getElementById(targetTab).style.display = 'block';
@@ -365,6 +337,7 @@
             fetchTickets();
         });
 
+        // CHANGED: Added default 7-day filter and ticket categorization
         async function fetchTickets() {
             let query = dbClient.from('tickets').select('*');
 
@@ -375,6 +348,7 @@
             let fromDateStr = document.getElementById('from-date').value;
             let toDateStr = document.getElementById('to-date').value;
 
+            // Default to last 7 days if no dates are manually entered
             if (!fromDateStr && !toDateStr) {
                 const today = new Date();
                 const sevenDaysAgo = new Date();
@@ -399,18 +373,14 @@
                 return;
             }
             
+            // Categorize tickets into three groups
             const closedTickets = data.filter(t => t.issue_status === 'COMPLETED');
             const reopenedTickets = data.filter(t => t.issue_status !== 'COMPLETED' && t.reopen_reason);
             const activeTickets = data.filter(t => t.issue_status !== 'COMPLETED' && !t.reopen_reason);
             
             renderActiveTickets(activeTickets);
-            renderReopenedTickets(reopenedTickets);
+            renderReopenedTickets(reopenedTickets); // New render function call
             renderClosedTickets(closedTickets);
-        }
-        
-        function getStatusBadge(status) {
-            const colorClass = statusColors[status] || 'bg-slate-100 text-slate-800';
-            return `<span class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full ${colorClass}">${status}</span>`;
         }
 
         function renderActiveTickets(tickets) {
@@ -425,46 +395,47 @@
 
             tickets.forEach(ticket => {
                 const tr = document.createElement('tr');
-                tr.className = 'bg-white border-b border-slate-200 hover:bg-indigo-50 cursor-pointer even:bg-slate-50 even:hover:bg-indigo-50';
+                tr.className = 'bg-white border-b hover:bg-cyan-50 cursor-pointer';
                 tr.dataset.ticket = JSON.stringify(ticket);
                 tr.innerHTML = `
                     <td class="px-6 py-4">${new Date(ticket.issue_date).toLocaleString()}</td>
                     <td class="px-6 py-4">${ticket.store_name}</td>
-                    <td class="px-6 py-4 font-semibold text-slate-900">${ticket.issue_type}</td>
+                    <td class="px-6 py-4 font-semibold">${ticket.issue_type}</td>
                     <td class="px-6 py-4 max-w-xs truncate" title="${ticket.issue_details}">${ticket.issue_details}</td>
                     <td class="px-6 py-4">${ticket.authorized}</td>
-                    <td class="px-6 py-4 text-center">${getStatusBadge(ticket.issue_status)}</td>
+                    <td class="px-6 py-4 font-medium">${ticket.issue_status}</td>
                 `;
                 tbody.appendChild(tr);
             });
         }
         
+        // ADDED: New function to render re-opened tickets
         function renderReopenedTickets(tickets) {
             const tbody = document.getElementById('reopened-tickets-body');
             const noDataEl = document.getElementById('no-reopened-tickets');
-            const section = document.getElementById('reopened-tickets-section');
             tbody.innerHTML = '';
             if (tickets.length === 0) {
-                section.style.display = 'none';
+                noDataEl.style.display = 'block';
                 return;
             }
-            section.style.display = 'block';
+            noDataEl.style.display = 'none';
 
             tickets.forEach(ticket => {
                 const tr = document.createElement('tr');
-                tr.className = 'bg-amber-50 border-b border-amber-200 hover:bg-amber-100 cursor-pointer';
+                tr.className = 'bg-white border-b hover:bg-amber-50 cursor-pointer'; // Different hover color for distinction
                 tr.dataset.ticket = JSON.stringify(ticket);
                 tr.innerHTML = `
                     <td class="px-6 py-4">${new Date(ticket.issue_date).toLocaleString()}</td>
                     <td class="px-6 py-4">${ticket.store_name}</td>
-                    <td class="px-6 py-4 font-semibold text-slate-900">${ticket.issue_type}</td>
+                    <td class="px-6 py-4 font-semibold">${ticket.issue_type}</td>
                     <td class="px-6 py-4 max-w-xs truncate" title="${ticket.issue_details}">${ticket.issue_details}</td>
                     <td class="px-6 py-4">${ticket.authorized}</td>
-                    <td class="px-6 py-4 text-center">${getStatusBadge(ticket.issue_status)}</td>
+                    <td class="px-6 py-4 font-medium">${ticket.issue_status}</td>
                 `;
                 tbody.appendChild(tr);
             });
         }
+
 
         function renderClosedTickets(tickets) {
             const tbody = document.getElementById('closed-tickets-body');
@@ -477,13 +448,13 @@
             noDataEl.style.display = 'none';
             tickets.forEach(ticket => {
                 const tr = document.createElement('tr');
-                tr.className = 'bg-white border-b border-slate-200 hover:bg-green-50 cursor-pointer even:bg-slate-50 even:hover:bg-green-50';
+                tr.className = 'bg-white border-b hover:bg-cyan-50 cursor-pointer';
                 tr.dataset.ticket = JSON.stringify(ticket);
                 tr.innerHTML = `
                     <td class="px-6 py-4">${new Date(ticket.issue_close_dt).toLocaleString()}</td>
                     <td class="px-6 py-4">${new Date(ticket.issue_date).toLocaleString()}</td>
                     <td class="px-6 py-4">${ticket.store_name}</td>
-                    <td class="px-6 py-4 font-semibold text-slate-900">${ticket.issue_type}</td>
+                    <td class="px-6 py-4 font-semibold">${ticket.issue_type}</td>
                     <td class="px-6 py-4 max-w-xs truncate" title="${ticket.issue_details}">${ticket.issue_details}</td>
                     <td class="px-6 py-4">${ticket.authorized}</td>
                     <td class="px-6 py-4 max-w-xs truncate" title="${ticket.action_update}">${ticket.action_update}</td>
@@ -493,10 +464,12 @@
         }
 
         // --- MODAL LOGIC ---
+        // CHANGED: Added logic for attachments and re-open reason
         function openModal(ticket, type) {
             const modalBody = document.getElementById('modal-body');
             const modalFooter = document.getElementById('modal-footer');
             
+            // Attachment logic
             let attachmentHTML = '';
             if (ticket.image_url) {
                 const url = ticket.image_url;
@@ -506,42 +479,42 @@
                 if (isImage) {
                      attachmentHTML = `
                     <div>
-                        <strong class="text-slate-600 font-medium block mb-2">Attachment:</strong>
+                        <strong class="text-slate-500 block mb-1">Attachment:</strong>
                         <a href="${url}" target="_blank" rel="noopener noreferrer">
-                            <img src="${url}" alt="Ticket Attachment" class="max-h-60 w-auto rounded-lg border border-slate-200 cursor-pointer hover:opacity-80 transition-opacity">
+                            <img src="${url}" alt="Ticket Attachment" class="max-h-48 rounded border cursor-pointer hover:opacity-80 transition-opacity">
                         </a>
                     </div>`;
                 } else {
                      attachmentHTML = `
                     <div>
-                        <strong class="text-slate-600 font-medium block mb-2">Attachment:</strong>
-                        <a href="${url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-indigo-600 hover:underline break-all bg-indigo-50 px-3 py-2 rounded-md">
-                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.122 2.122l7.81-7.81" /></svg>
-                           ${fileName}
+                        <strong class="text-slate-500 block mb-1">Attachment:</strong>
+                        <a href="${url}" target="_blank" rel="noopener noreferrer" class="text-cyan-600 hover:underline break-all">
+                            ${fileName}
                         </a>
                     </div>`;
                 }
             }
             
+            // Re-open reason logic
             let reopenReasonHTML = '';
             if (ticket.reopen_reason) {
                 reopenReasonHTML = `
                 <div>
-                    <strong class="text-slate-600 font-medium block mb-2">Re-open Reason:</strong>
-                    <p class="bg-amber-100 text-amber-800 p-3 rounded-lg text-sm">${ticket.reopen_reason}</p>
+                    <strong class="text-slate-500 block mb-1">Re-open Reason:</strong>
+                    <p class="bg-yellow-50 text-yellow-800 p-2 rounded-md">${ticket.reopen_reason}</p>
                 </div>`;
             }
 
             let contentHTML = `
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-sm">
-                    <div><strong class="text-slate-500 font-medium block">Store:</strong> <span class="text-slate-900">${ticket.store_name}</span></div>
-                    <div><strong class="text-slate-500 font-medium block">Authorized:</strong> <span class="text-slate-900">${ticket.authorized}</span></div>
-                    <div><strong class="text-slate-500 font-medium block">Issue Date:</strong> <span class="text-slate-900">${new Date(ticket.issue_date).toLocaleString()}</span></div>
-                    <div><strong class="text-slate-500 font-medium block">Issue Type:</strong> <span class="text-slate-900">${ticket.issue_type}</span></div>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div><strong class="text-slate-500 block">Store:</strong> ${ticket.store_name}</div>
+                    <div><strong class="text-slate-500 block">Authorized:</strong> ${ticket.authorized}</div>
+                    <div><strong class="text-slate-500 block">Issue Date:</strong> ${new Date(ticket.issue_date).toLocaleString()}</div>
+                    <div><strong class="text-slate-500 block">Issue Type:</strong> ${ticket.issue_type}</div>
                 </div>
                 <div>
-                    <strong class="text-slate-600 font-medium block mb-2">Details:</strong>
-                    <p class="bg-slate-50 p-3 rounded-lg text-sm border border-slate-200">${ticket.issue_details}</p>
+                    <strong class="text-slate-500 block mb-1">Details:</strong>
+                    <p class="bg-slate-50 p-2 rounded-md">${ticket.issue_details}</p>
                 </div>
                 ${reopenReasonHTML}
                 ${attachmentHTML}
@@ -551,23 +524,21 @@
             if (type === 'active') {
                 modalTitleContainer.innerHTML = `<h2 class="text-xl font-bold text-slate-800">Ticket Details</h2>`;
                 contentHTML += `
-                    <div class="border-t border-slate-200 pt-6 space-y-4">
-                        <div>
-                            <label for="modal-status" class="block text-sm font-medium text-slate-700">Update Status</label>
-                            <select id="modal-status" class="mt-1 block w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
-                                ${statusOptions.map(s => `<option value="${s}" ${s === ticket.issue_status ? 'selected' : ''}>${s}</option>`).join('')}
-                            </select>
-                        </div>
-                        <div>
-                            <label for="modal-update" class="block text-sm font-medium text-slate-700">Action Update</label>
-                            <textarea id="modal-update" class="mt-1 block w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500" rows="3">${ticket.action_update || ''}</textarea>
-                        </div>
+                    <div>
+                        <label for="modal-status" class="block text-sm font-medium text-slate-700">Update Status</label>
+                        <select id="modal-status" class="mt-1 block w-full p-2 border rounded-md">
+                            ${statusOptions.map(s => `<option value="${s}" ${s === ticket.issue_status ? 'selected' : ''}>${s}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="modal-update" class="block text-sm font-medium text-slate-700">Action Update</label>
+                        <textarea id="modal-update" class="mt-1 block w-full p-2 border rounded-md" rows="3">${ticket.action_update || ''}</textarea>
                     </div>
                 `;
                 modalBody.innerHTML = contentHTML;
                 modalFooter.innerHTML = `
-                    <button id="modal-cancel-btn" class="bg-white text-slate-700 border border-slate-300 py-2 px-4 rounded-md hover:bg-slate-50 transition">Cancel</button>
-                    <button id="modal-submit-btn" class="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition shadow-sm">Submit Update</button>
+                    <button id="modal-cancel-btn" class="bg-slate-500 text-white py-2 px-4 rounded-md hover:bg-slate-600">Cancel</button>
+                    <button id="modal-submit-btn" class="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600">Submit Update</button>
                 `;
                 document.getElementById('modal-submit-btn').addEventListener('click', () => updateTicketFromModal(ticket.id));
                 document.getElementById('modal-cancel-btn').addEventListener('click', closeModal);
@@ -579,17 +550,15 @@
                     </div>
                 `;
                 contentHTML += `
-                    <div class="border-t border-slate-200 pt-4 space-y-4">
-                        <div><strong class="text-slate-500 font-medium block">Close Date:</strong> <span class="text-slate-900">${new Date(ticket.issue_close_dt).toLocaleString()}</span></div>
-                        <div>
-                            <strong class="text-slate-600 font-medium block mb-2">Final Update:</strong>
-                            <p class="bg-slate-50 p-3 rounded-lg text-sm border border-slate-200">${ticket.action_update || 'N/A'}</p>
-                        </div>
+                    <div><strong class="text-slate-500 block">Close Date:</strong> ${new Date(ticket.issue_close_dt).toLocaleString()}</div>
+                    <div>
+                        <strong class="text-slate-500 block mb-1">Final Update:</strong>
+                        <p class="bg-slate-50 p-2 rounded-md">${ticket.action_update || 'N/A'}</p>
                     </div>
                 `;
                 modalBody.innerHTML = contentHTML;
                 
-                modalFooter.innerHTML = `<button id="modal-ok-btn" class="bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition shadow-sm">OK</button>`;
+                modalFooter.innerHTML = `<button id="modal-ok-btn" class="bg-cyan-600 text-white py-2 px-4 rounded-md hover:bg-cyan-700">OK</button>`;
                 document.getElementById('modal-ok-btn').addEventListener('click', closeModal);
             }
             modal.style.display = 'flex';
@@ -624,6 +593,7 @@
             const row = e.target.closest('tr');
             if (row && row.dataset.ticket) openModal(JSON.parse(row.dataset.ticket), 'active');
         });
+        // ADDED: Event listener for the new re-opened tickets table
         document.getElementById('reopened-tickets-body').addEventListener('click', (e) => {
             const row = e.target.closest('tr');
             if (row && row.dataset.ticket) openModal(JSON.parse(row.dataset.ticket), 'active');
@@ -650,8 +620,8 @@
             noDataEl.style.display = 'none';
             notifications.forEach(n => {
                 const card = document.createElement('div');
-                card.className = 'bg-white p-5 rounded-xl shadow-md';
-                card.innerHTML = `<div class="flex justify-between items-start gap-4"><div><h3 class="font-bold text-lg text-slate-800">${n.title}</h3><p class="text-sm text-slate-500 mb-3">To: ${n.store} | Sent: ${new Date(n.created_at).toLocaleString()}</p><p class="text-slate-700">${n.message}</p>${n.response ? `<div class="mt-3 text-sm text-blue-800 bg-blue-50 p-3 rounded-lg border border-blue-200"><b class="font-semibold">Response:</b> ${n.response}</div>` : ''}</div><span class="text-xs font-semibold px-2.5 py-1 rounded-full whitespace-nowrap ${n.status ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}">${n.status ? 'Pending' : 'Responded'}</span></div>`;
+                card.className = 'bg-white p-4 rounded-lg shadow';
+                card.innerHTML = `<div class="flex justify-between items-start"><div><h3 class="font-bold text-lg">${n.title}</h3><p class="text-sm text-slate-500">To: ${n.store} | On: ${new Date(n.created_at).toLocaleString()}</p><p class="mt-2">${n.message}</p>${n.response ? `<p class="mt-2 text-sm text-blue-600 bg-blue-50 p-2 rounded-md"><b>Response:</b> ${n.response}</p>` : ''}</div><span class="text-xs font-semibold px-2 py-1 rounded-full ${n.status ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}">${n.status ? 'Pending' : 'Responded'}</span></div>`;
                 container.appendChild(card);
             });
         }
@@ -662,7 +632,7 @@
             if(error) { console.error("Error fetching stores", error); return; }
             const storeSelect = document.getElementById('store-select');
             storeSelect.innerHTML = '<option value="All">All Stores</option>';
-            [...new Set(data.map(item => item.store))].sort().forEach(store => {
+            [...new Set(data.map(item => item.store))].forEach(store => {
                 storeSelect.innerHTML += `<option value="${store}">${store}</option>`;
             });
         }
@@ -705,18 +675,18 @@
         const customAlertMessage = document.getElementById('custom-alert-message');
         const customAlertCloseBtn = document.getElementById('custom-alert-close-btn');
 
-        const successIconSVG = `<svg class="w-16 h-16 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
-        const errorIconSVG = `<svg class="w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+        const successIconSVG = `<svg class="w-12 h-12 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+        const errorIconSVG = `<svg class="w-12 h-12 text-red-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
 
         function showCustomAlert(message, isSuccess = true) {
             if (isSuccess) {
                 customAlertIcon.innerHTML = successIconSVG;
                 customAlertTitle.textContent = 'Success!';
-                customAlertCloseBtn.className = 'w-full bg-indigo-600 text-white font-semibold py-2.5 px-6 rounded-lg hover:bg-indigo-700 transition';
+                customAlertCloseBtn.className = 'bg-cyan-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-cyan-700 transition';
             } else {
                 customAlertIcon.innerHTML = errorIconSVG;
                 customAlertTitle.textContent = 'Error!';
-                customAlertCloseBtn.className = 'w-full bg-red-600 text-white font-semibold py-2.5 px-6 rounded-lg hover:bg-red-700 transition';
+                customAlertCloseBtn.className = 'bg-red-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-red-700 transition';
             }
             customAlertMessage.textContent = message;
             customAlertModal.style.display = 'flex';
