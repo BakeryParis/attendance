@@ -3,546 +3,901 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Escalation Matrix</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" href="favicon.png">
+    <title>ProTask</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="new-logo.png">
+
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
+        :root {
+            --primary-color: #e62263;
+            --primary-hover: #c41a52;
+            --gradient-start: #e62263;
+            --gradient-end: #9a1c6b;
+            --background-color: #F8F9FA;
+            --card-color: #FFFFFF;
+            --text-color: #212529;
+            --subtle-text-color: #6C757D;
+            --border-color: #E9ECEF;
+            --danger-color: #DC3545;
+            --success-color: #28A745;
+            --warning-color: #FFC107;
+            --info-color: #17A2B8;
+            --shadow-light: rgba(230, 34, 99, 0.1);
+            --shadow-medium: rgba(0, 0, 0, 0.1);
         }
-        /* Custom colors for Paris Bakery theme */
-        .bg-theme-primary { background-color: #E5007E; }
-        .hover\:bg-theme-primary-dark:hover { background-color: #C20069; }
-        .text-theme-primary { color: #E5007E; }
-        .border-theme-primary { border-color: #E5007E; }
-        .ring-theme-primary:focus { --tw-ring-color: #E5007E; }
-        .bg-theme-light { background-color: #FDE7F2; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Manrope', -apple-system, sans-serif; }
+        body { background-color: var(--background-color); color: var(--text-color); display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { width: 100%; max-width: 480px; height: 100vh; background-color: var(--card-color); display: flex; flex-direction: column; box-shadow: 0 15px 50px var(--shadow-medium); }
+        
+        /* --- Logo --- */
+        .logo-img { object-fit: contain; }
+        
+        /* --- Login Screen --- */
+        #login-container { padding: 40px 30px; justify-content: center; background: var(--card-color); }
+        .login-header { text-align: center; margin-bottom: 40px; }
+        .login-header .logo-img { width: 60px; height: 60px; margin-bottom: 15px; }
+        .login-header h1 { font-size: 1.8rem; font-weight: 700; color: var(--text-color); }
+        .login-header p { font-size: 1rem; color: var(--subtle-text-color); }
+        #login-form { display: flex; flex-direction: column; gap: 18px; }
+        input[type="password"], input[type="text"], input[type="date"], textarea, select { width: 100%; padding: 15px; border: 1px solid var(--border-color); border-radius: 10px; font-size: 1rem; transition: border-color 0.2s, box-shadow 0.2s; background-color: #F8F9FA; }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary-color); box-shadow: 0 0 0 4px var(--shadow-light); outline: none; background-color: white; }
+        button { padding: 15px; border-radius: 10px; border: none; background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)); color: white; font-size: 1rem; font-weight: 600; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--shadow-light); }
+        .error-message { color: var(--danger-color); background-color: rgba(220, 53, 69, 0.1); padding: 12px; border-radius: 8px; text-align: center; margin-top: 10px; font-weight: 500; }
+        
+        /* --- App Container --- */
+        #app-container { display: flex; flex-direction: column; }
+        header { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            padding: 10px 15px; 
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            color: white;
+        }
+        header .logo-img { width: 32px; height: 32px; }
+        .header-title-container { margin-right: auto; }
+        .header-main-title { font-size: 1.2rem; font-weight: 700; color: white; }
+        .header-subtitle { font-size: 0.65rem; font-weight: 500; color: rgba(255, 255, 255, 0.85); }
+        #user-info { text-align: right; }
+        #user-info .greeting { font-size: 0.9rem; font-weight: 600; color: white; }
+        #logout-button { background: none; color: rgba(255, 255, 255, 0.85); font-weight: 500; font-size: 0.8rem; padding: 5px; cursor: pointer; border: none; }
+        #logout-button:hover { color: white; }
+        #filter-btn { background: none; border: none; color: white; padding: 5px; cursor: pointer; opacity: 0.85; }
+        #filter-btn:hover { opacity: 1; }
+        #filter-btn svg { display: block; }
+        
+        main { flex-grow: 1; overflow-y: auto; padding: 20px; background-color: var(--background-color); }
+        .task-item { background-color: var(--card-color); padding: 18px; border-radius: 12px; margin-bottom: 12px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid var(--border-color); }
+        .task-item:hover { transform: translateY(-3px); box-shadow: 0 8px 25px var(--shadow-light); }
+        .task-item h4 { font-weight: 600; margin-bottom: 5px; font-size: 1rem; }
+        .task-item p { font-size: 0.9rem; color: var(--subtle-text-color); pointer-events: none; line-height: 1.5; }
+        .task-meta { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--subtle-text-color); margin-top: 15px; pointer-events: none; gap: 10px; }
+        .assignment-info { display: flex; gap: 10px; flex-wrap: wrap; }
+        .task-details { display: flex; gap: 10px; align-items: center; }
+        .task-owner { font-weight: 500; background-color: #eee; padding: 3px 8px; border-radius: 6px; color: var(--text-color); }
+        .task-status { padding: 4px 10px; border-radius: 12px; color: white; font-weight: 500; }
+        .status-pending { background-color: var(--warning-color); color: #333; }
+        .status-in_progress { background-color: var(--info-color); }
+        .status-completed { background-color: var(--success-color); }
+        
+        footer { border-top: 1px solid var(--border-color); box-shadow: 0 -5px 20px rgba(0,0,0,0.05); }
+        #main-nav { display: flex; justify-content: space-around; padding: 10px 0; }
+        .nav-btn { background: none; color: var(--subtle-text-color); border: none; flex-grow: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.75rem; font-weight: 500; }
+        .nav-btn svg { width: 24px; height: 24px; stroke-width: 2; }
+        .nav-btn.active { color: var(--primary-color); }
+        #add-task-btn { position: absolute; bottom: 85px; right: 20px; width: 60px; height: 60px; border-radius: 50%; font-size: 2.2rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 20px var(--shadow-light); }
+        
+        .modal { position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; }
+        .modal-content { background-color: white; padding: 25px; border-radius: 16px; width: 90%; max-width: 400px; position: relative; }
+        .modal-content h3, #assign-task-form h3 { text-align: center; margin-bottom: 20px; font-weight: 600; font-size: 1.25rem; }
+        .close-button { position: absolute; top: 15px; right: 20px; font-size: 2rem; cursor: pointer; color: var(--subtle-text-color); }
+        #add-task-form, #assign-task-form { display: flex; flex-direction: column; gap: 15px; }
+        #assign-task-form { padding: 20px; background: var(--card-color); border-radius: 12px; border: 1px solid var(--border-color); }
+        #assign-success-msg { text-align: center; font-weight: 500; margin-top: 10px; }
 
-        /* Marquee Animation */
-        @keyframes marquee {
-            0%   { transform: translateX(100%); }
-            100% { transform: translateX(-120%); }
+        /* --- Status Modal --- */
+        #status-modal { 
+            position: fixed; 
+            z-index: 200; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0,0,0,0.5);
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            opacity: 0; 
+            visibility: hidden; 
+            transition: opacity 0.3s, visibility 0.3s; 
         }
-        .marquee-container {
-            overflow: hidden;
-            width: 100%;
-            white-space: nowrap;
+        #status-modal.visible { 
+            opacity: 1; 
+            visibility: visible; 
         }
-        .marquee-text {
-            display: inline-block;
-            white-space: nowrap;
-            padding-left: 100%;
-            animation: marquee 12s linear infinite;
+        .status-modal-content { 
+            background-color: var(--card-color); 
+            width: 90%; 
+            max-width: 400px; 
+            padding: 25px; 
+            border-radius: 16px;
+            transform: scale(0.95);
+            opacity: 0;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
         }
+        #status-modal.visible .status-modal-content { 
+            transform: scale(1); 
+            opacity: 1;
+        }
+        .status-modal-content h3 { text-align: center; margin-bottom: 10px; color: var(--text-color); font-weight: 600; font-size: 1.25rem; }
+        .status-option { padding: 15px; border-radius: 10px; border: none; font-weight: 600; font-size: 1rem; cursor: pointer; transition: opacity 0.2s; }
+        .status-option:hover { opacity: 0.9; }
+        .status-option-pending { background-color: var(--warning-color); color: #333; }
+        .status-option-in_progress { background-color: var(--info-color); color: white; }
+        .status-option-completed { background-color: var(--success-color); color: white; }
+        
+        /* --- Filter Modal --- */
+        #filter-form { display: flex; flex-direction: column; gap: 15px; }
+        #filter-form label { font-weight: 500; color: var(--subtle-text-color); font-size: 0.9rem; margin-bottom: -5px; }
+        .filter-buttons { display: flex; gap: 10px; margin-top: 10px; }
+        .filter-buttons button { flex: 1; }
+        #clear-filters-btn { background: var(--subtle-text-color); }
+        #clear-filters-btn:hover { background: #5a6268; }
 
-        /* Hide scrollbar for cleaner look */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .hidden { display: none !important; }
+
+        /* Calendar Styles */
+        .calendar-container { padding: 20px; background-color: var(--card-color); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .calendar-nav-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-color); }
+        .calendar-nav-btn:hover { color: var(--primary-color); }
+        .calendar-month-year { font-weight: 600; font-size: 1.2rem; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.9rem; }
+        .calendar-day-header { font-weight: 500; color: var(--subtle-text-color); padding: 5px 0; }
+        .calendar-day { position: relative; padding: 10px 0; border: 1px solid var(--border-color); border-top: none; }
+        .calendar-day.inactive { color: var(--subtle-text-color); opacity: 0.5; }
+        .calendar-dot { position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); width: 6px; height: 6px; background-color: var(--primary-color); border-radius: 50%; }
+        .day-label.today { font-weight: 700; color: var(--primary-color); }
+        .day-label { display: block; margin-bottom: 5px; }
+        
+        /* Freeze header on scroll */
+        .sticky-header { position: sticky; top: 0; background-color: var(--card-color); z-index: 10; border-bottom: 1px solid var(--border-color); }
+        .freeze-header { position: sticky; top: 0; z-index: 1; }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col">
-
-    <div id="app" class="max-w-7xl mx-auto flex-1 flex flex-col w-full shadow-lg">
-
-        <div id="login-screen" class="min-h-screen flex flex-col items-center justify-center bg-theme-light p-4">
-            <div class="w-full max-w-md bg-white p-8 rounded-xl shadow-2xl">
-                <img src="logo.png" alt="Logo" class="mx-auto h-20 w-auto mb-4">
-                <h1 class="text-3xl font-bold text-center text-gray-700 mb-2">Escalation Matrix</h1>
-                <p class="text-center text-sm text-gray-500 mb-6">(Administrative Login)</p>
-                <div id="login-error" class="text-red-500 text-sm mb-4 text-center"></div>
-                <form id="login-form">
-                    <div class="mb-4">
-                        <label for="user-id" class="block text-sm font-medium text-gray-600 mb-1">User ID</label>
-                        <input type="text" id="user-id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 ring-theme-primary" required>
-                    </div>
-                    <div class="mb-6">
-                        <label for="password" class="block text-sm font-medium text-gray-600 mb-1">Password</label>
-                        <input type="password" id="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 ring-theme-primary" required>
-                    </div>
-                    <button type="submit" class="w-full bg-theme-primary text-white font-semibold py-2 rounded-lg hover:bg-theme-primary-dark transition">Login</button>
-                </form>
-                 <div class="text-center mt-4">
-                    <a href="index.html" class="w-full inline-block bg-gray-200 text-gray-700 font-semibold py-2 rounded-lg hover:bg-gray-300 transition text-sm">Store Login</a>
-                </div>
-            </div>
+<body>
+    <div id="login-container" class="container">
+        <div class="login-header">
+            <img src="new-logo.png" alt="ProTask Logo" class="logo-img">
+            <h1>Welcome to ProTask</h1>
+            <p>ParisBaker's task manager system.</p>
         </div>
+        <form id="login-form">
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+            <p id="auth-error"></p>
+        </form>
+    </div>
 
-        <div id="main-content" class="hidden flex-1 flex flex-col bg-gray-100">
-            <header class="bg-theme-primary p-3 flex justify-between items-center z-30 flex-shrink-0 sticky top-0 text-white shadow-md">
-                <div class="flex items-center space-x-3">
-                    <img src="logo.png" alt="Logo" class="h-10 w-auto">
-                    <h2 class="text-xl font-semibold">Admin Panel</h2>
-                </div>
-                <div class="flex items-center">
-                    <span id="welcome-user" class="text-white/90 mr-4 hidden sm:block text-sm"></span>
-                    <button id="logout-btn" class="text-white p-2 rounded-full hover:bg-white/10 transition">
-                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
-                        </svg>
-                    </button>
-                </div>
-            </header>
-            
-            <nav class="bg-theme-primary z-20 flex-shrink-0 sticky top-[64px] text-white/80 uppercase text-sm font-bold">
-                <div class="max-w-7xl mx-auto">
-                    <div class="flex justify-around">
-                        <button data-tab="tickets" class="tab-btn text-white flex items-center justify-center gap-2 py-3 w-full border-b-4 border-white">Tickets</button>
-                        <button data-tab="notifications" class="tab-btn flex items-center justify-center gap-2 py-3 w-full border-b-4 border-transparent">Notifications</button>
-                        <button data-tab="send-notification" class="tab-btn flex items-center justify-center gap-2 py-3 w-full border-b-4 border-transparent">Send</button>
-                    </div>
-                </div>
+    <div id="app-container" class="container hidden">
+        <header>
+            <img src="new-logo.png" alt="ProTask Logo" class="logo-img">
+            <div class="header-title-container">
+                <h1 class="header-main-title">ProTask</h1>
+                <p class="header-subtitle">PB's Task Manager System</p>
+            </div>
+            <button id="filter-btn" title="Filter Tasks">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+            </button>
+            <div id="user-info"></div>
+            <button id="logout-button">Logout</button>
+        </header>
+
+        <main id="content-area"></main>
+
+        <footer>
+            <nav id="main-nav">
+                <button class="nav-btn active" data-section="summary">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3v18h18M18 6l-6 6-6-6M12 18V6"></path></svg>
+                    <span>Summary</span>
+                </button>
+                <button class="nav-btn" data-section="my-day">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+                    <span>My Day</span>
+                </button>
+                <button class="nav-btn" data-section="planned">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    <span>Planned</span>
+                </button>
+                <button class="nav-btn" data-section="assigned">
+                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                     <span>Assigned</span>
+                </button>
+                <button class="nav-btn hidden" data-section="assign-task">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
+                    <span>Assign Task</span>
+                </button>
             </nav>
+            <button id="add-task-btn">+</button>
+        </footer>
+    </div>
 
-            <main class="flex-grow overflow-y-auto no-scrollbar">
-                <div id="tickets" class="tab-content">
-                    <div class="bg-white p-3 border-b">
-                        <h3 class="font-bold text-md mb-3 text-gray-700">Filter Tickets</h3>
-                        <div class="flex flex-wrap items-end gap-3">
-                            <div>
-                                <label for="from-date" class="block text-xs font-medium text-gray-600">From</label>
-                                <input type="date" id="from-date" class="mt-1 p-2 text-sm border rounded-md focus:ring-1 ring-theme-primary">
-                            </div>
-                            <div>
-                                <label for="to-date" class="block text-xs font-medium text-gray-600">To</label>
-                                <input type="date" id="to-date" class="mt-1 p-2 text-sm border rounded-md focus:ring-1 ring-theme-primary">
-                            </div>
-                            <button id="filter-btn" class="bg-theme-primary text-white py-2 px-4 rounded-md hover:bg-theme-primary-dark text-sm">Filter</button>
-                            <button id="clear-filter-btn" class="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 text-sm">Clear</button>
-                        </div>
-                    </div>
-                    <div id="tickets-list" class="bg-white"></div>
-                    <p id="no-tickets" class="text-center py-8 bg-white hidden">No tickets found for the selected period.</p>
+    <div id="task-modal" class="modal hidden">
+        <div class="modal-content">
+            <span id="close-modal" class="close-button">&times;</span>
+            <h3>New Task</h3>
+            <form id="add-task-form">
+                <input type="date" id="task-date" required>
+                <input type="text" id="task-heading" placeholder="Task Heading" required>
+                <textarea id="task-subject" placeholder="Task Subject..."></textarea>
+                <button type="submit">Add Task</button>
+            </form>
+        </div>
+    </div>
+    
+    <div id="status-modal">
+        <div class="status-modal-content">
+            <h3>Change Task Status</h3>
+            <button class="status-option status-option-pending" data-status="pending">Pending</button>
+            <button class="status-option status-option-in_progress" data-status="in_progress">In Progress</button>
+            <button class="status-option status-option-completed" data-status="completed">Completed</button>
+        </div>
+    </div>
+    
+    <div id="filter-modal" class="modal hidden">
+        <div class="modal-content">
+            <span id="close-filter-modal" class="close-button">&times;</span>
+            <h3>Filter Tasks</h3>
+            <form id="filter-form">
+                <div id="user-filter-container" class="hidden">
+                    <label for="filter-user-select">User</label>
+                    <select id="filter-user-select">
+                        <option value="all">All Users</option>
+                    </select>
                 </div>
-
-                <div id="notifications" class="tab-content hidden">
-                    <div id="notifications-list" class="bg-white"></div>
-                     <p id="no-notifications" class="text-center py-8 bg-white hidden">No notifications found.</p>
+                <div>
+                    <label for="filter-start-date">From Date</label>
+                    <input type="date" id="filter-start-date">
                 </div>
-
-                <div id="send-notification" class="tab-content hidden p-4">
-                    <div class="bg-white p-6 rounded-lg shadow-md max-w-lg mx-auto">
-                        <h2 class="text-2xl font-bold mb-4 text-gray-700">Send a New Notification</h2>
-                        <form id="notification-form" class="space-y-4">
-                            <div>
-                                <label for="store-select" class="block text-sm font-medium text-gray-700">Select Store</label>
-                                <select id="store-select" class="mt-1 block w-full p-2 border rounded-md focus:ring-1 ring-theme-primary" required></select>
-                            </div>
-                            <div>
-                                <label for="notification-title" class="block text-sm font-medium text-gray-700">Title</label>
-                                <input type="text" id="notification-title" class="mt-1 block w-full p-2 border rounded-md focus:ring-1 ring-theme-primary" required>
-                            </div>
-                            <div>
-                                <label for="notification-message" class="block text-sm font-medium text-gray-700">Message</label>
-                                <textarea id="notification-message" rows="4" class="mt-1 block w-full p-2 border rounded-md focus:ring-1 ring-theme-primary" required></textarea>
-                            </div>
-                            <button type="submit" class="w-full bg-theme-primary text-white font-semibold py-2 rounded-lg hover:bg-theme-primary-dark transition">Send Notification</button>
-                        </form>
-                    </div>
+                <div>
+                    <label for="filter-end-date">To Date</label>
+                    <input type="date" id="filter-end-date">
                 </div>
-            </main>
+                <div class="filter-buttons">
+                   <button type="button" id="clear-filters-btn">Clear</button>
+                   <button type="submit">Apply</button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <div id="ticket-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col">
-            <div class="p-4 bg-theme-primary text-white flex justify-between items-center flex-shrink-0">
-                <div id="modal-title-container">
-                    <h2 class="text-xl font-bold">Ticket Details</h2>
-                </div>
-                <button id="modal-close-btn" class="text-2xl font-bold text-white/80 hover:text-white">&times;</button>
-            </div>
-            <div id="modal-body" class="p-6 space-y-4 overflow-y-auto no-scrollbar"></div>
-            <div id="modal-footer" class="p-4 bg-gray-50 border-t text-right space-x-2 flex-shrink-0"></div>
-        </div>
-    </div>
-
-    <div id="custom-alert-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-sm">
-            <div class="p-6 text-center">
-                <div id="custom-alert-icon" class="mx-auto mb-4"></div>
-                <h3 id="custom-alert-title" class="text-lg font-semibold text-gray-800 mb-2"></h3>
-                <p id="custom-alert-message" class="text-sm text-gray-600 mb-6"></p>
-                <button id="custom-alert-close-btn" class="text-white font-semibold py-2 px-6 rounded-lg transition">OK</button>
-            </div>
-        </div>
-    </div>
-
-     <footer class="bg-gray-200 border-t w-full">
-        <div class="max-w-7xl mx-auto px-4">
-            <p class="text-center text-xs text-gray-600 py-2">
-                Designed and developed by Samir Singhasamanta | Contact: 760693670
-            </p>
-        </div>
-    </footer>
-
-    <script type="module">
-        const SUPABASE_URL = 'https://dfepjaivpgomxsjbxnhz.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmZXBqYWl2cGdvbXhzamJ4bmh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk4MjY0NTMsImV4cCI6MjA2NTQwMjQ1M30.5ASDRBIH0CQ-4d2_1g8hfsZlotOp1EbU9v9nZXZdRIM';
+    <script>
+        const SUPABASE_URL = 'https://txnajyowujjttfirdonu.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4bmFqeW93dWpqdHRmaXJkb251Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwMjU2OTAsImV4cCI6MjA3MzYwMTY5MH0.BV74b0UjdZbjhEOKo1ZTfK3IKuN_-vvs0sHt4GvB28w';
         
-        if (SUPABASE_URL === 'YOUR_SUPABASE_URL' || SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY') {
-            document.getElementById('app').innerHTML = `<div class="p-4 text-center text-red-700 bg-red-100">Please configure Supabase credentials in the script.</div>`;
-            throw new Error("Supabase credentials not set.");
-        }
-        
-        const { createClient } = supabase;
-        const dbClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        let currentUser = null;
-        const statusOptions = ['PENDING', 'ACCEPTED', 'REVIEWED', 'UNDER PROCESS', 'COMPLETED'];
-
-        // DOM Elements
-        const loginScreen = document.getElementById('login-screen');
-        const mainContent = document.getElementById('main-content');
+        // --- DOM Element Selection ---
+        const loginContainer = document.getElementById('login-container');
+        const appContainer = document.getElementById('app-container');
         const loginForm = document.getElementById('login-form');
-        const loginError = document.getElementById('login-error');
-        const logoutBtn = document.getElementById('logout-btn');
-        const welcomeUserEl = document.getElementById('welcome-user');
-        const tabBtns = document.querySelectorAll('.tab-btn');
-        const tabContents = document.querySelectorAll('.tab-content');
-        const modal = document.getElementById('ticket-modal');
-        const modalCloseBtn = document.getElementById('modal-close-btn');
-        const modalTitleContainer = document.getElementById('modal-title-container');
+        const authError = document.getElementById('auth-error');
+        const userInfoSpan = document.getElementById('user-info');
+        const logoutButton = document.getElementById('logout-button');
+        const mainNav = document.getElementById('main-nav');
+        const contentArea = document.getElementById('content-area');
+        const addTaskBtn = document.getElementById('add-task-btn');
+        const taskModal = document.getElementById('task-modal');
+        const closeModalBtn = document.getElementById('close-modal');
+        const addTaskForm = document.getElementById('add-task-form');
+        const taskDateInput = document.getElementById('task-date');
+        const statusModal = document.getElementById('status-modal');
+        const statusModalContent = document.querySelector('.status-modal-content');
+        const filterBtn = document.getElementById('filter-btn');
+        const filterModal = document.getElementById('filter-modal');
+        const closeFilterModalBtn = document.getElementById('close-filter-modal');
+        const filterForm = document.getElementById('filter-form');
+        const userFilterContainer = document.getElementById('user-filter-container');
+        const filterUserSelect = document.getElementById('filter-user-select');
+        const filterStartDate = document.getElementById('filter-start-date');
+        const filterEndDate = document.getElementById('filter-end-date');
+        const clearFiltersBtn = document.getElementById('clear-filters-btn');
 
-        // --- AUTH & INITIALIZATION ---
+        // --- Helper Functions ---
+        function getPastDate(days) {
+            const date = new Date();
+            date.setDate(date.getDate() - days);
+            return date.toISOString().slice(0, 10);
+        }
+
+        // --- State Variables ---
+        let currentUser = null;
+        let currentView = 'summary';
+        let selectedTaskId = null;
+        let currentFilters = { 
+            userId: 'all', 
+            startDate: getPastDate(15), // Default to last 15 days
+            endDate: '' 
+        };
+        let plannedTasks = [];
+        let plannedTasksDates = [];
+
+        // --- Authentication ---
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const userId = document.getElementById('user-id').value.trim();
-            const password = document.getElementById('password').value.trim();
-            loginError.textContent = '';
-
-            const { data, error } = await dbClient.from('office_users').select('*').eq('user_id', userId).eq('password', password).single();
-
+            authError.textContent = '';
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const { data, error } = await supabaseClient.from('users').select('*').eq('username', username).eq('password', password).single();
             if (error || !data) {
-                loginError.textContent = 'Invalid User ID or password.'; return;
+                authError.textContent = 'Invalid username or password.';
+                authError.className = 'error-message';
+            } else {
+                currentUser = data;
+                sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                await initializeApp();
             }
-            currentUser = data;
-            sessionStorage.setItem('officeCurrentUser', JSON.stringify(currentUser));
-            initializeApp();
         });
 
-        logoutBtn.addEventListener('click', () => {
-            sessionStorage.removeItem('officeCurrentUser');
-            location.reload();
+        logoutButton.addEventListener('click', () => {
+            sessionStorage.removeItem('currentUser');
+            currentUser = null;
+            loginContainer.classList.remove('hidden');
+            appContainer.classList.add('hidden');
         });
 
-        function checkSession() {
-            const user = sessionStorage.getItem('officeCurrentUser');
-            if (user) {
-                currentUser = JSON.parse(user);
+        function checkUserSession() {
+            const userJson = sessionStorage.getItem('currentUser');
+            if (userJson) {
+                currentUser = JSON.parse(userJson);
                 initializeApp();
+            } else {
+                loginContainer.classList.remove('hidden');
+                appContainer.classList.add('hidden');
             }
         }
 
-        async function initializeApp() {
-            loginScreen.style.display = 'none';
-            mainContent.style.display = 'flex';
-            welcomeUserEl.textContent = `Welcome, ${currentUser.user_id}`;
-            document.querySelector('[data-tab="tickets"]').click();
+        // --- App Initialization ---
+        function initializeApp() {
+            loginContainer.classList.add('hidden');
+            appContainer.classList.remove('hidden');
+            
+            userInfoSpan.innerHTML = `<div class="greeting">Hello, ${currentUser.name}</div>`;
+
+            const assignTaskNavBtn = document.querySelector('[data-section="assign-task"]');
+            if (currentUser.is_admin) {
+                assignTaskNavBtn.classList.remove('hidden');
+                addTaskBtn.classList.add('hidden');
+            } else {
+                assignTaskNavBtn.classList.add('hidden');
+                addTaskBtn.classList.remove('hidden');
+            }
+
+            taskDateInput.valueAsDate = new Date();
+            navigateTo(currentView);
         }
 
-        // --- TAB NAVIGATION ---
-        tabBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const targetTab = btn.dataset.tab;
-                
-                tabBtns.forEach(b => {
-                    b.classList.remove('text-white', 'border-white');
-                    b.classList.add('text-white/80', 'border-transparent');
-                });
-                btn.classList.add('text-white', 'border-white');
-                btn.classList.remove('text-white/80', 'border-transparent');
-                
-                tabContents.forEach(c => c.style.display = 'none');
-                document.getElementById(targetTab).style.display = 'block';
-
-                if (targetTab === 'tickets') fetchTickets();
-                if (targetTab === 'notifications') fetchAllNotifications();
-                if (targetTab === 'send-notification') populateStoreDropdown();
-            });
+        // --- Navigation ---
+        mainNav.addEventListener('click', (e) => {
+            const navBtn = e.target.closest('.nav-btn');
+            if (navBtn) { navigateTo(navBtn.dataset.section); }
         });
+
+        async function navigateTo(section) {
+            currentView = section;
+            const filterableViews = ['planned', 'assigned', 'summary'];
+            filterBtn.style.display = filterableViews.includes(section) ? 'block' : 'none';
+
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.section === section));
+            switch (section) {
+                case 'summary': await renderSummaryView(); break;
+                case 'my-day': await fetchMyDayTasks(); break;
+                case 'planned': await fetchPlannedTasks(); break;
+                case 'assigned': await fetchAssignedTasks(); break;
+                case 'assign-task': await renderAssignTaskView(); break;
+            }
+        }
         
-        // --- TICKETS SECTION (RE-DESIGNED) ---
-        document.getElementById('filter-btn').addEventListener('click', fetchTickets);
-        document.getElementById('clear-filter-btn').addEventListener('click', () => {
-            document.getElementById('from-date').value = '';
-            document.getElementById('to-date').value = '';
-            fetchTickets();
-        });
+        // --- Task Rendering ---
+        function createTaskElement(task) {
+            const div = document.createElement('div');
+            div.className = 'task-item';
+            div.dataset.taskId = task.id;
 
-        async function fetchTickets() {
-            let query = dbClient.from('tickets').select('*');
-
-            if (!currentUser.is_admin) {
-                query = query.eq('authorized', currentUser.user_id);
+            let assignmentInfo = '';
+            // Case 1: Task is assigned to someone else
+            if (task.assignee) {
+                const creatorName = task.creator ? task.creator.name : 'Unknown';
+                const assigneeName = task.assignee.name;
+                assignmentInfo = `<div class="assignment-info">
+                    <span class="task-owner">By: ${creatorName}</span>
+                    <span class="task-owner">To: ${assigneeName}</span>
+                </div>`;
+            } 
+            // Case 2: Task is a self-task (not assigned)
+            else if (task.creator) {
+                assignmentInfo = `<div class="assignment-info">
+                    <span class="task-owner">To: ${task.creator.name}</span>
+                </div>`;
             }
             
-            let fromDateStr = document.getElementById('from-date').value;
-            let toDateStr = document.getElementById('to-date').value;
-
-            if (!fromDateStr && !toDateStr) {
-                const today = new Date();
-                const sevenDaysAgo = new Date();
-                sevenDaysAgo.setDate(today.getDate() - 7);
-                fromDateStr = sevenDaysAgo.toISOString().split('T')[0];
-                document.getElementById('from-date').value = fromDateStr;
-            }
-
-            if (fromDateStr) query = query.gte('issue_date', new Date(fromDateStr + 'T00:00:00').toISOString());
-            if (toDateStr) query = query.lte('issue_date', new Date(toDateStr + 'T23:59:59').toISOString());
-            
-            const { data, error } = await query.order('issue_date', { ascending: false });
-
-            if (error) { console.error('Error fetching tickets:', error); return; }
-            
-            const closedTickets = data.filter(t => t.issue_status === 'COMPLETED');
-            const reopenedTickets = data.filter(t => t.issue_status !== 'COMPLETED' && t.reopen_reason);
-            const activeTickets = data.filter(t => t.issue_status !== 'COMPLETED' && !t.reopen_reason);
-            
-            renderTicketsAsList(activeTickets, reopenedTickets, closedTickets);
+            div.innerHTML = `<h4>${task.heading}</h4><p>${task.subject || ''}</p>
+                <div class="task-meta">
+                    ${assignmentInfo}
+                    <div class="task-details">
+                        <span>Date: ${new Date(task.due_date).toLocaleDateString()}</span>
+                        <span class="task-status status-${task.status.replace(/ /g, '_')}">${task.status}</span>
+                    </div>
+                </div>`;
+            return div;
         }
 
-        function renderTicketsAsList(active, reopened, closed) {
-            const listContainer = document.getElementById('tickets-list');
-            const noTicketsEl = document.getElementById('no-tickets');
-            listContainer.innerHTML = '';
-            
-            if (active.length === 0 && reopened.length === 0 && closed.length === 0) {
-                noTicketsEl.style.display = 'block';
+        function renderTasks(tasks, container) {
+            container.innerHTML = '';
+            if (!tasks || tasks.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--subtle-text-color);">No tasks found.</p>';
                 return;
             }
-            noTicketsEl.style.display = 'none';
-
-            let contentHTML = '';
-            if (reopened.length > 0) {
-                contentHTML += `<h3 class="p-3 text-sm font-semibold text-theme-primary bg-gray-100">Re-opened Tickets</h3>`;
-                reopened.forEach(ticket => { contentHTML += createTicketListItem(ticket, 'reopened'); });
-            }
-            if (active.length > 0) {
-                contentHTML += `<h3 class="p-3 text-sm font-semibold text-theme-primary bg-gray-100">Active Tickets</h3>`;
-                active.forEach(ticket => { contentHTML += createTicketListItem(ticket, 'active'); });
-            }
-            if (closed.length > 0) {
-                contentHTML += `<h3 class="p-3 text-sm font-semibold text-theme-primary bg-gray-100">Closed Tickets</h3>`;
-                closed.forEach(ticket => { contentHTML += createTicketListItem(ticket, 'closed'); });
-            }
-            listContainer.innerHTML = contentHTML;
+            tasks.forEach(task => container.appendChild(createTaskElement(task)));
         }
 
-        function createTicketListItem(ticket, type) {
-            let statusHTML = '';
-            if (type === 'reopened') statusHTML = `<span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-red-100 text-red-800">Re-opened</span>`;
-            else if (type === 'active') statusHTML = `<span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">${ticket.issue_status}</span>`;
-            else statusHTML = `<span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span>`;
+        // --- Data Fetching & Sorting ---
+        const taskQuery = '*, creator:users!user_id(name), assignee:users!assigned_to(name)';
+        const statusOrder = { 'pending': 1, 'in progress': 2, 'completed': 3 };
 
-            return `
-            <div class="ticket-item p-3 flex items-start space-x-4 hover:bg-gray-100 cursor-pointer border-b" data-ticket='${JSON.stringify(ticket)}' data-type="${type === 'closed' ? 'closed' : 'active'}">
-                <div class="flex-shrink-0 h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h2.64m-13.5 0L12 14.25" /></svg>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-md font-semibold text-gray-900 truncate">${ticket.store_name}</p>
-                    <p class="text-sm font-semibold text-gray-600 truncate">${ticket.issue_type} | ${ticket.authorized}</p>
-                    <div class="marquee-container text-sm text-gray-500">
-                        <p class="marquee-text">${ticket.issue_details}</p>
-                    </div>
-                </div>
-                <div class="inline-flex flex-col items-end text-xs space-y-1 flex-shrink-0">
-                    <p class="text-gray-600">${new Date(ticket.issue_date).toLocaleDateString()}</p>
-                    ${statusHTML}
-                </div>
-            </div>`;
-        }
-        
-        document.getElementById('tickets-list').addEventListener('click', (e) => {
-            const item = e.target.closest('.ticket-item');
-            if (item && item.dataset.ticket) {
-                openModal(JSON.parse(item.dataset.ticket), item.dataset.type);
-            }
-        });
-
-        // --- MODAL LOGIC ---
-        function openModal(ticket, type) {
-            const modalBody = document.getElementById('modal-body');
-            const modalFooter = document.getElementById('modal-footer');
-            
-            let attachmentHTML = '';
-            if (ticket.image_url) {
-                const url = ticket.image_url;
-                const fileName = decodeURIComponent(url.split('/').pop().split('?')[0].split('_').pop());
-                const isImage = /\.(jpe?g|png|gif|webp|svg)$/i.test(fileName);
-                if (isImage) {
-                     attachmentHTML = `<div class="mb-4"><a href="${url}" target="_blank" rel="noopener noreferrer"><img src="${url}" alt="Ticket Attachment" class="w-full max-h-72 object-contain rounded-lg border bg-gray-100"></a></div>`;
-                } else {
-                     attachmentHTML = `<div><strong class="text-gray-500 block mb-1">Attachment:</strong><a href="${url}" target="_blank" rel="noopener noreferrer" class="text-theme-primary hover:underline break-all">${fileName}</a></div>`;
+        function sortTasks(tasks) {
+            if (!tasks) return [];
+            tasks.sort((a, b) => {
+                const statusA = statusOrder[a.status.toLowerCase()] || 99;
+                const statusB = statusOrder[b.status.toLowerCase()] || 99;
+                if (statusA !== statusB) {
+                    return statusA - statusB; // Sort by status first
                 }
-            }
-            
-            let reopenReasonHTML = '';
-            if (ticket.reopen_reason) {
-                reopenReasonHTML = `<div><strong class="text-gray-500 block mb-1">Re-open Reason:</strong><p class="bg-yellow-50 text-yellow-800 p-2 rounded-md">${ticket.reopen_reason}</p></div>`;
-            }
-
-            let contentHTML = `
-                ${attachmentHTML}
-                <div class="grid grid-cols-2 gap-4 text-sm">
-                    <div><strong class="text-gray-500 block">Store:</strong> ${ticket.store_name}</div>
-                    <div><strong class="text-gray-500 block">Authorized:</strong> ${ticket.authorized}</div>
-                    <div><strong class="text-gray-500 block">Issue Date:</strong> ${new Date(ticket.issue_date).toLocaleString()}</div>
-                    <div><strong class="text-gray-500 block">Issue Type:</strong> ${ticket.issue_type}</div>
-                </div>
-                <div><strong class="text-gray-500 block mb-1">Details:</strong><p class="bg-gray-50 p-2 rounded-md">${ticket.issue_details}</p></div>
-                ${reopenReasonHTML}`;
-            modalFooter.innerHTML = '';
-
-            if (type === 'active') {
-                modalTitleContainer.innerHTML = `<h2 class="text-xl font-bold">Update Ticket</h2>`;
-                contentHTML += `
-                    <div><label for="modal-status" class="block text-sm font-medium text-gray-700">Update Status</label><select id="modal-status" class="mt-1 block w-full p-2 border rounded-md">${statusOptions.map(s => `<option value="${s}" ${s === ticket.issue_status ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
-                    <div><label for="modal-update" class="block text-sm font-medium text-gray-700">Action Update</label><textarea id="modal-update" class="mt-1 block w-full p-2 border rounded-md" rows="3">${ticket.action_update || ''}</textarea></div>`;
-                modalBody.innerHTML = contentHTML;
-                modalFooter.innerHTML = `
-                    <button id="modal-cancel-btn" class="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600">Cancel</button>
-                    <button id="modal-submit-btn" class="bg-theme-primary text-white py-2 px-4 rounded-md hover:bg-theme-primary-dark">Submit Update</button>`;
-                document.getElementById('modal-submit-btn').addEventListener('click', () => updateTicketFromModal(ticket.id));
-                document.getElementById('modal-cancel-btn').addEventListener('click', closeModal);
-            } else { // Closed ticket
-                modalTitleContainer.innerHTML = `<div class="flex items-center gap-3"><h2 class="text-xl font-bold">Ticket Details</h2><span class="px-2.5 py-0.5 bg-green-100 text-green-800 text-sm font-semibold rounded-full">Completed</span></div>`;
-                contentHTML += `
-                    <div><strong class="text-gray-500 block">Close Date:</strong> ${new Date(ticket.issue_close_dt).toLocaleString()}</div>
-                    <div><strong class="text-gray-500 block mb-1">Final Update:</strong><p class="bg-gray-50 p-2 rounded-md">${ticket.action_update || 'N/A'}</p></div>`;
-                modalBody.innerHTML = contentHTML;
-                modalFooter.innerHTML = `<button id="modal-ok-btn" class="bg-theme-primary text-white py-2 px-4 rounded-md hover:bg-theme-primary-dark">OK</button>`;
-                document.getElementById('modal-ok-btn').addEventListener('click', closeModal);
-            }
-            modal.style.display = 'flex';
+                return new Date(a.due_date) - new Date(b.due_date); // Then by due date
+            });
+            return tasks;
         }
 
-        async function updateTicketFromModal(ticketId) {
-            const newStatus = document.getElementById('modal-status').value;
-            const newUpdate = document.getElementById('modal-update').value;
-            let updateData = { issue_status: newStatus, action_update: newUpdate };
-            if (newStatus === 'COMPLETED') {
-                updateData.issue_close_dt = new Date().toISOString();
+        // --- This function is NOT affected by filters ---
+        async function fetchMyDayTasks() {
+            const today = new Date().toISOString().slice(0, 10);
+            let query = supabaseClient.from('tasks').select(taskQuery);
+            if (!currentUser.is_admin) {
+                query = query.or(`user_id.eq.${currentUser.id},assigned_to.eq.${currentUser.id}`);
             }
-            const { error } = await dbClient.from('tickets').update(updateData).eq('id', ticketId);
-            if (error) { showCustomAlert('Failed to update ticket.', false); } 
-            else {
-                showCustomAlert('Ticket updated successfully!', true);
-                closeModal();
-                fetchTickets();
-            }
-        }
-
-        function closeModal() { modal.style.display = 'none'; }
-        modalCloseBtn.addEventListener('click', closeModal);
-
-        // --- NOTIFICATIONS SECTION ---
-        async function fetchAllNotifications() {
-            const { data, error } = await dbClient.from('notifications').select('*').order('created_at', { ascending: false });
-            if (error) { console.error("Error fetching notifications", error); return; }
-            const pending = data.filter(n => n.status === true);
-            const responded = data.filter(n => n.status === false);
-            renderNotificationsAsList(pending, responded);
-        }
-
-        function renderNotificationsAsList(pending, responded) {
-            const listContainer = document.getElementById('notifications-list');
-            const noDataEl = document.getElementById('no-notifications');
-            listContainer.innerHTML = '';
-            
-            if (pending.length === 0 && responded.length === 0) {
-                 noDataEl.style.display = 'block'; return;
-            }
-            noDataEl.style.display = 'none';
-
-            let contentHTML = '';
-            if (pending.length > 0) {
-                contentHTML += `<h3 class="p-3 text-sm font-semibold text-theme-primary bg-gray-100">Pending Notifications</h3>`;
-                pending.forEach(n => { contentHTML += createNotificationListItem(n); });
-            }
-            if (responded.length > 0) {
-                contentHTML += `<h3 class="p-3 text-sm font-semibold text-theme-primary bg-gray-100">Responded Notifications</h3>`;
-                responded.forEach(n => { contentHTML += createNotificationListItem(n); });
-            }
-            listContainer.innerHTML = contentHTML;
-        }
-
-        function createNotificationListItem(n) {
-             const statusHTML = `<span class="text-xs font-semibold px-2 py-1 rounded-full ${n.status ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}">${n.status ? 'Pending' : 'Responded'}</span>`;
-             return `
-             <div class="p-4 border-b space-y-2">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h3 class="font-bold text-md">${n.title}</h3>
-                        <p class="text-sm text-gray-500">To: ${n.store} | On: ${new Date(n.created_at).toLocaleString()}</p>
-                    </div>
-                    ${statusHTML}
-                </div>
-                <p>${n.message}</p>
-                ${n.response ? `<p class="mt-2 text-sm text-blue-600 bg-blue-50 p-2 rounded-md"><b>Response:</b> ${n.response}</p>` : ''}
-            </div>`;
+            query = query.or(`due_date.eq.${today},is_important.eq.true`);
+            let { data, error } = await query;
+            if (error) console.error('Error fetching tasks:', error); else renderTasks(sortTasks(data), contentArea);
         }
         
-        // --- SEND NOTIFICATION SECTION ---
-        async function populateStoreDropdown() {
-            const { data, error } = await dbClient.from('store_users').select('store');
-            if(error) { console.error("Error fetching stores", error); return; }
-            const storeSelect = document.getElementById('store-select');
-            storeSelect.innerHTML = '<option value="All">All Stores</option>';
-            [...new Set(data.map(item => item.store))].forEach(store => {
-                storeSelect.innerHTML += `<option value="${store}">${store}</option>`;
+        // --- These functions ARE affected by filters ---
+        function applyFiltersToQuery(query) {
+            if (currentFilters.startDate) query = query.gte('due_date', currentFilters.startDate);
+            if (currentFilters.endDate) query = query.lte('due_date', currentFilters.endDate);
+            return query;
+        }
+        
+        async function fetchPlannedTasks() {
+            let query = supabaseClient.from('tasks').select(taskQuery);
+            let userBaseFilter = '';
+            if (currentUser.is_admin && currentFilters.userId && currentFilters.userId !== 'all') {
+                userBaseFilter = `user_id.eq.${currentFilters.userId},assigned_to.eq.${currentFilters.userId}`;
+            } else if (!currentUser.is_admin) {
+                userBaseFilter = `user_id.eq.${currentUser.id},assigned_to.eq.${currentUser.id}`;
+            }
+            if (userBaseFilter) query = query.or(userBaseFilter);
+            query = applyFiltersToQuery(query);
+            let { data, error } = await query;
+            if (error) {
+                console.error('Error fetching planned tasks:', error);
+            } else {
+                plannedTasks = data || [];
+                plannedTasksDates = plannedTasks.map(task => task.due_date);
+                renderPlannedView(plannedTasks);
+            }
+        }
+        
+        async function renderPlannedView(tasks) {
+            contentArea.innerHTML = `
+                <h2 style="margin-bottom: 20px; font-size: 1.5rem; font-weight: 600;">Planned Tasks</h2>
+                <div class="calendar-container freeze-header">
+                    <div class="calendar-header">
+                        <button id="prev-month" class="calendar-nav-btn">&lt;</button>
+                        <span id="calendar-month-year" class="calendar-month-year"></span>
+                        <button id="next-month" class="calendar-nav-btn">&gt;</button>
+                    </div>
+                    <div class="calendar-grid">
+                        <span class="calendar-day-header">Sun</span>
+                        <span class="calendar-day-header">Mon</span>
+                        <span class="calendar-day-header">Tue</span>
+                        <span class="calendar-day-header">Wed</span>
+                        <span class="calendar-day-header">Thu</span>
+                        <span class="calendar-day-header">Fri</span>
+                        <span class="calendar-day-header">Sat</span>
+                    </div>
+                </div>
+                <div id="planned-tasks-list"></div>
+            `;
+            const plannedTasksList = document.getElementById('planned-tasks-list');
+            renderTasks(sortTasks(tasks), plannedTasksList);
+            setupCalendar();
+        }
+
+        async function fetchAssignedTasks() {
+            let query = supabaseClient.from('tasks').select(taskQuery);
+            if (currentUser.is_admin) {
+                query = query.not('assigned_to', 'is', null);
+                if (currentFilters.userId && currentFilters.userId !== 'all') {
+                    query = query.eq('assigned_to', currentFilters.userId);
+                }
+            } else {
+                query = query.eq('assigned_to', currentUser.id);
+            }
+            query = applyFiltersToQuery(query);
+            let { data, error } = await query;
+            if (error) console.error('Error fetching tasks:', error); else renderTasks(sortTasks(data), contentArea);
+        }
+        
+        // --- Summary View ---
+        async function renderSummaryView() {
+            contentArea.innerHTML = `
+                <div id="summary-content">
+                    <h2 style="margin-bottom: 20px; font-size: 1.5rem; font-weight: 600;">Summary</h2>
+                    
+                    <div class="summary-cards" style="display: flex; gap: 15px; margin-bottom: 25px;">
+                        <div class="card" style="flex: 1; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                            <h4 style="font-size: 1rem; color: var(--subtle-text-color);">Pending Tasks</h4>
+                            <p id="pending-count" style="font-size: 2.5rem; font-weight: 700; color: var(--warning-color);">0</p>
+                        </div>
+                        <div class="card" style="flex: 1; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                            <h4 style="font-size: 1rem; color: var(--subtle-text-color);">Completed Tasks</h4>
+                            <p id="completed-count" style="font-size: 2.5rem; font-weight: 700; color: var(--success-color);">0</p>
+                        </div>
+                    </div>
+
+                    <div class="chart-section" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px;">
+                        <h4 style="margin-bottom: 15px; font-weight: 600;">Completed Tasks (Last 7 Days)</h4>
+                        <canvas id="completed-tasks-chart"></canvas>
+                    </div>
+
+                    <div class="user-breakdown-section" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                        <h4 style="margin-bottom: 15px; font-weight: 600;">Task Breakdown by User</h4>
+                        <div id="user-task-list"></div>
+                    </div>
+                </div>
+            `;
+            await fetchSummaryData();
+        }
+
+        async function fetchSummaryData() {
+            let query = supabaseClient.from('tasks').select('status, user_id, assigned_to, due_date, creator:users!user_id(name), assignee:users!assigned_to(name)');
+            if (currentUser.is_admin && currentFilters.userId && currentFilters.userId !== 'all') {
+                query = query.or(`user_id.eq.${currentFilters.userId},assigned_to.eq.${currentFilters.userId}`);
+            } else if (!currentUser.is_admin) {
+                query = query.or(`user_id.eq.${currentUser.id},assigned_to.eq.${currentUser.id}`);
+            }
+            query = applyFiltersToQuery(query);
+            const { data: allTasks, error } = await query;
+
+            if (error) {
+                console.error('Error fetching summary data:', error);
+                return;
+            }
+
+            // Task Overview Counts
+            const pendingCount = allTasks.filter(task => task.status.toLowerCase() !== 'completed').length;
+            const completedCount = allTasks.filter(task => task.status.toLowerCase() === 'completed').length;
+            document.getElementById('pending-count').textContent = pendingCount;
+            document.getElementById('completed-count').textContent = completedCount;
+
+            // Last Week's Completed Tasks
+            const lastWeek = new Date();
+            lastWeek.setDate(lastWeek.getDate() - 7);
+            const completedLastWeek = allTasks.filter(task => new Date(task.due_date) >= lastWeek && task.status.toLowerCase() === 'completed');
+            const dates = {};
+            const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const dateLabels = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const dayName = daysOfWeek[d.getDay()];
+                const dateString = d.toLocaleDateString();
+                dateLabels.push(dayName);
+                dates[dateString] = 0;
+            }
+            completedLastWeek.forEach(task => {
+                const date = new Date(task.due_date).toLocaleDateString();
+                if (dates[date] !== undefined) {
+                    dates[date]++;
+                }
+            });
+
+            const ctx = document.getElementById('completed-tasks-chart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: dateLabels,
+                    datasets: [{
+                        label: 'Completed Tasks',
+                        data: dateLabels.map(label => dates[Object.keys(dates).find(d => new Date(d).getDay() === daysOfWeek.indexOf(label))]),
+                        backgroundColor: 'rgba(40, 167, 69, 0.7)',
+                        borderColor: 'rgba(40, 167, 69, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+            });
+
+            // User-wise breakdown
+            const userBreakdown = {};
+            let usersToDisplay = [];
+            if (currentUser.is_admin) {
+                const usersResponse = await supabaseClient.from('users').select('id, name');
+                usersToDisplay = usersResponse.data;
+            } else {
+                usersToDisplay.push(currentUser);
+            }
+            
+            usersToDisplay.forEach(user => {
+                userBreakdown[user.id] = { name: user.name, pending: 0, completed: 0 };
+            });
+            
+            allTasks.forEach(task => {
+                const userId = task.assigned_to || task.user_id;
+                if (userBreakdown[userId]) {
+                    if (task.status.toLowerCase() !== 'completed') {
+                        userBreakdown[userId].pending++;
+                    } else if (task.status.toLowerCase() === 'completed') {
+                        userBreakdown[userId].completed++;
+                    }
+                }
+            });
+
+            const userTaskList = document.getElementById('user-task-list');
+            userTaskList.innerHTML = '';
+            for (const userId in userBreakdown) {
+                const user = userBreakdown[userId];
+                const userDiv = document.createElement('div');
+                userDiv.style = "display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee;";
+                userDiv.innerHTML = `
+                    <span><strong>${user.name}</strong></span>
+                    <span style="font-size: 0.9rem; color: var(--subtle-text-color);">
+                        Pending: <strong style="color: var(--warning-color);">${user.pending}</strong>, 
+                        Completed: <strong style="color: var(--success-color);">${user.completed}</strong>
+                    </span>
+                `;
+                userTaskList.appendChild(userDiv);
+            }
+        }
+
+        // --- Admin: Task Assignment View ---
+        async function renderAssignTaskView() {
+            contentArea.innerHTML = `
+                <form id="assign-task-form">
+                    <h3>Assign a New Task</h3>
+                    <select id="assign-user-select" required><option value="">Select User...</option></select>
+                    <input type="date" id="assign-task-date" required>
+                    <input type="text" id="assign-task-heading" placeholder="Task Heading" required>
+                    <textarea id="assign-task-subject" placeholder="Task Subject..."></textarea>
+                    <button type="submit">Assign Task</button>
+                    <p id="assign-success-msg"></p>
+                </form>
+            `;
+            
+            document.getElementById('assign-task-date').valueAsDate = new Date();
+
+            const userSelect = document.getElementById('assign-user-select');
+            const { data: users, error } = await supabaseClient.from('users').select('id, name').eq('is_admin', false);
+            if (error) {
+                console.error('Error fetching users:', error);
+            } else {
+                users.forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user.id;
+                    option.textContent = user.name;
+                    userSelect.appendChild(option);
+                });
+            }
+
+            document.getElementById('assign-task-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const successMsg = document.getElementById('assign-success-msg');
+                successMsg.textContent = '';
+
+                const { error: insertError } = await supabaseClient.from('tasks').insert({
+                    user_id: currentUser.id,
+                    assigned_to: document.getElementById('assign-user-select').value,
+                    heading: document.getElementById('assign-task-heading').value,
+                    subject: document.getElementById('assign-task-subject').value,
+                    due_date: document.getElementById('assign-task-date').value,
+                    status: 'pending'
+                });
+
+                if (insertError) {
+                    successMsg.textContent = 'Error assigning task.';
+                    successMsg.style.color = 'var(--danger-color)';
+                } else {
+                    successMsg.textContent = 'Task assigned successfully!';
+                    successMsg.style.color = 'var(--success-color)';
+                    e.target.reset();
+                    document.getElementById('assign-task-date').valueAsDate = new Date();
+                }
             });
         }
-        document.getElementById('notification-form').addEventListener('submit', async (e) => {
+
+        // --- Event Listeners for Modals & Task Actions ---
+        addTaskBtn.addEventListener('click', () => taskModal.classList.remove('hidden'));
+        closeModalBtn.addEventListener('click', () => taskModal.classList.add('hidden'));
+        addTaskForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const form = e.target;
-            const store = document.getElementById('store-select').value;
-            const title = document.getElementById('notification-title').value;
-            const message = document.getElementById('notification-message').value;
-            const notification = { title, message, status: true };
-            if (store === 'All') {
-                const { data: stores, error: storeError } = await dbClient.from('store_users').select('store');
-                if (storeError) { showCustomAlert('Could not fetch store list.', false); return; }
-                const allNotifications = [...new Set(stores.map(item => item.store))].map(s => ({...notification, store: s}));
-                const { error } = await dbClient.from('notifications').insert(allNotifications);
-                if (error) { showCustomAlert('Failed to send to all stores.', false); } 
-                else { showCustomAlert('Notification sent to all stores!', true); form.reset(); }
-            } else {
-                notification.store = store;
-                const { error } = await dbClient.from('notifications').insert([notification]);
-                if (error) { showCustomAlert('Failed to send notification.', false); } 
-                else { showCustomAlert('Notification sent successfully!', true); form.reset(); }
+            const { error } = await supabaseClient.from('tasks').insert({ user_id: currentUser.id, heading: document.getElementById('task-heading').value, subject: document.getElementById('task-subject').value, due_date: document.getElementById('task-date').value });
+            if (error) { alert('Could not add task.'); }
+            else { addTaskForm.reset(); taskModal.classList.add('hidden'); await navigateTo(currentView); }
+        });
+        
+        contentArea.addEventListener('click', (e) => {
+            const taskItem = e.target.closest('.task-item');
+            if (taskItem) {
+                selectedTaskId = taskItem.dataset.taskId;
+                statusModal.classList.add('visible');
             }
         });
 
-        // --- CUSTOM ALERT MODAL ---
-        const customAlertModal = document.getElementById('custom-alert-modal');
-        const customAlertIcon = document.getElementById('custom-alert-icon');
-        const customAlertTitle = document.getElementById('custom-alert-title');
-        const customAlertMessage = document.getElementById('custom-alert-message');
-        const customAlertCloseBtn = document.getElementById('custom-alert-close-btn');
-        const successIconSVG = `<svg class="w-12 h-12 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
-        const errorIconSVG = `<svg class="w-12 h-12 text-red-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
-
-        function showCustomAlert(message, isSuccess = true) {
-            if (isSuccess) {
-                customAlertIcon.innerHTML = successIconSVG;
-                customAlertTitle.textContent = 'Success!';
-                customAlertCloseBtn.className = 'bg-theme-primary text-white font-semibold py-2 px-6 rounded-lg hover:bg-theme-primary-dark transition';
-            } else {
-                customAlertIcon.innerHTML = errorIconSVG;
-                customAlertTitle.textContent = 'Error!';
-                customAlertCloseBtn.className = 'bg-red-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-red-700 transition';
-            }
-            customAlertMessage.textContent = message;
-            customAlertModal.style.display = 'flex';
-        }
-        customAlertCloseBtn.addEventListener('click', () => customAlertModal.style.display = 'none');
+        statusModal.addEventListener('click', (e) => {
+            if (e.target === statusModal) { statusModal.classList.remove('visible'); }
+        });
         
-        // --- STARTUP ---
-        checkSession();
+        statusModalContent.addEventListener('click', async (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                const newStatus = e.target.dataset.status;
+                if (selectedTaskId && newStatus) { await updateTaskStatus(selectedTaskId, newStatus); }
+            }
+        });
+
+        async function updateTaskStatus(taskId, newStatus) {
+            const { error } = await supabaseClient.from('tasks').update({ status: newStatus.replace(/_/g, ' ') }).eq('id', taskId);
+            statusModal.classList.remove('visible');
+            if (error) { alert('Failed to update task status.'); }
+            else { await navigateTo(currentView); }
+        }
+        
+        // --- Filter Modal Logic ---
+        filterBtn.addEventListener('click', async () => {
+            if (currentUser.is_admin) {
+                userFilterContainer.classList.remove('hidden');
+                // Populate users if not already populated
+                if(filterUserSelect.options.length <= 1) {
+                    const { data: users, error } = await supabaseClient.from('users').select('id, name');
+                    if(users) {
+                        users.forEach(user => {
+                            const option = document.createElement('option');
+                            option.value = user.id;
+                            option.textContent = user.name;
+                            filterUserSelect.appendChild(option);
+                        });
+                    }
+                }
+            } else {
+                userFilterContainer.classList.add('hidden');
+            }
+            filterModal.classList.remove('hidden');
+        });
+        
+        closeFilterModalBtn.addEventListener('click', () => filterModal.classList.add('hidden'));
+
+        filterForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            currentFilters.userId = filterUserSelect.value;
+            currentFilters.startDate = filterStartDate.value;
+            currentFilters.endDate = filterEndDate.value;
+            filterModal.classList.add('hidden');
+            navigateTo(currentView);
+        });
+        
+        clearFiltersBtn.addEventListener('click', () => {
+            // Reset the filter state object to the default (last 15 days)
+            currentFilters = { 
+                userId: 'all', 
+                startDate: getPastDate(15), 
+                endDate: '' 
+            };
+            // Reset the visual form fields
+            filterForm.reset();
+            filterModal.classList.add('hidden');
+            // Reload the view with the default filters
+            navigateTo(currentView);
+        });
+
+        // --- Calendar Logic for Planned View ---
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+
+        function setupCalendar() {
+            renderCalendar(currentMonth, currentYear);
+            document.getElementById('prev-month').addEventListener('click', () => {
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                renderCalendar(currentMonth, currentYear);
+            });
+
+            document.getElementById('next-month').addEventListener('click', () => {
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
+                renderCalendar(currentMonth, currentYear);
+            });
+        }
+        
+        function renderCalendar(month, year) {
+            const calendarGrid = document.querySelector('.calendar-grid');
+            const monthYearSpan = document.getElementById('calendar-month-year');
+            const today = new Date();
+            const todayStr = today.toISOString().slice(0, 10);
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            
+            monthYearSpan.textContent = `${monthNames[month]} ${year}`;
+            
+            // Clear previous days, but keep day headers
+            while (calendarGrid.children.length > 7) {
+                calendarGrid.removeChild(calendarGrid.lastChild);
+            }
+
+            // Add blank days for padding
+            for (let i = 0; i < firstDay.getDay(); i++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'calendar-day inactive';
+                calendarGrid.appendChild(dayDiv);
+            }
+
+            // Add actual days
+            for (let i = 1; i <= lastDay.getDate(); i++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'calendar-day';
+                const dateStr = new Date(year, month, i).toISOString().slice(0, 10);
+                const dayLabel = document.createElement('span');
+                dayLabel.className = 'day-label';
+                dayLabel.textContent = i;
+                dayDiv.appendChild(dayLabel);
+
+                if (dateStr === todayStr) {
+                    dayLabel.classList.add('today');
+                }
+                
+                if (plannedTasksDates.includes(dateStr)) {
+                    const dot = document.createElement('div');
+                    dot.className = 'calendar-dot';
+                    dayDiv.appendChild(dot);
+                }
+                
+                dayDiv.addEventListener('click', () => {
+                    const tasksForDay = plannedTasks.filter(task => task.due_date === dateStr);
+                    const plannedTasksList = document.getElementById('planned-tasks-list');
+                    renderTasks(sortTasks(tasksForDay), plannedTasksList);
+                });
+                
+                calendarGrid.appendChild(dayDiv);
+            }
+        }
+        
+        // --- Initial Load ---
+        document.addEventListener('DOMContentLoaded', checkUserSession);
     </script>
 </body>
 </html>
