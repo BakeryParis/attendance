@@ -184,10 +184,48 @@
             grid-template-columns: repeat(7, 1fr);
             text-align: center;
         }
+
+        /* New Task Notification Banner */
+        #task-notification-banner {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--success-color);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 500;
+            display: none; /* Hidden by default */
+            align-items: center;
+            gap: 15px;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+        #task-notification-banner button {
+            background-color: white;
+            color: var(--success-color);
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.2s;
+        }
+        #task-notification-banner button:hover {
+            background-color: #f0f0f0;
+        }
     </style>
 </head>
 <body>
     <audio id="notification-sound" src="noti.mp3" preload="auto"></audio>
+
+    <div id="task-notification-banner">
+        <span>You have a new task assigned!</span>
+        <button id="play-sound-btn">Play Sound</button>
+    </div>
 
     <div id="login-container" class="container">
         <div class="login-header">
@@ -336,6 +374,8 @@
         const filterStartDate = document.getElementById('filter-start-date');
         const filterEndDate = document.getElementById('filter-end-date');
         const clearFiltersBtn = document.getElementById('clear-filters-btn');
+        const notificationBanner = document.getElementById('task-notification-banner');
+        const playSoundBtn = document.getElementById('play-sound-btn');
 
         // --- Helper Functions ---
         // 🟢 NEW HELPER: Gets the date string in YYYY-MM-DD format based on the local timezone
@@ -414,16 +454,20 @@
             }
         }
 
-        // --- Audio Notification ---
-        function playNotificationSound() {
+        // --- Audio Notification Handling ---
+        playSoundBtn.addEventListener('click', () => {
             const sound = document.getElementById('notification-sound');
             if (sound) {
                 sound.play().catch(e => console.error("Audio playback failed:", e));
             }
-        }
+            notificationBanner.style.display = 'none';
+        });
 
         // --- Realtime Listener ---
         async function setupTaskListener() {
+            // Unsubscribe from any existing channels to prevent duplicates
+            supabaseClient.getChannels().forEach(channel => channel.unsubscribe());
+
             const channel = supabaseClient.channel('tasks-channel');
             channel.on('postgres_changes', { 
                 event: 'INSERT', 
@@ -432,7 +476,7 @@
                 filter: `assigned_to=eq.${currentUser.id}`
             }, (payload) => {
                 console.log('New task received!', payload.new);
-                playNotificationSound();
+                notificationBanner.style.display = 'flex'; // Show the notification banner
             })
             .subscribe();
         }
