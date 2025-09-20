@@ -522,7 +522,18 @@
         let currentMonth = new Date().getMonth();
         let currentYear = new Date().getFullYear();
 
-        // 🟢 NEW SCRIPT BLOCK: Web Push Notification Logic
+        // 🟢 NEW: Firebase Configuration from User
+        const firebaseConfig = {
+          apiKey: "AIzaSyD-qRREoEA3abOdxhHNZ03Gbjqe9dGxBx0",
+          authDomain: "pb-notification.firebaseapp.com",
+          projectId: "pb-notification",
+          storageBucket: "pb-notification.firebasestorage.app",
+          messagingSenderId: "279028546753",
+          appId: "1:279028546753:web:699f5a0c54be8175dc2840",
+          measurementId: "G-YJ5VQ5KBLE"
+        };
+
+        // 🟢 NEW: Web Push Logic
         const VAPID_PUBLIC_KEY = 'BGi_92JYirDg4kk-XupSghiwd5QoKel2extirMxTxFYxvdUnlMoo2rC5Esgkojv6Y1yk32hM2CexuqkbZlgenX4';
 
         async function registerServiceWorker() {
@@ -556,7 +567,6 @@
             }
         }
         
-        // Helper function to convert the VAPID key
         function urlBase64ToUint8Array(base64String) {
             const padding = '='.repeat((4 - base64String.length % 4) % 4);
             const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
@@ -581,7 +591,6 @@
             }
         }
 
-        // 🟢 NEW: Trigger push subscription logic on login
         async function handlePushSubscription() {
             const registration = await registerServiceWorker();
             if (registration) {
@@ -652,7 +661,7 @@
             // Reset to default view and update active button
             currentView = 'summary';
             await navigateTo(currentView);
-            // 🟢 NEW: Request push permission and subscribe the user
+            // Request push permission and subscribe the user
             await handlePushSubscription();
         }
 
@@ -1136,18 +1145,28 @@
                     // 🟢 NEW: Trigger push notification
                     const { data: userData } = await supabaseClient.from('users').select('push_subscription').eq('id', assigned_to_user_id).single();
                     if (userData && userData.push_subscription) {
-                        await fetch('/send-push-notification', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                subscription: userData.push_subscription,
-                                payload: {
-                                    title: 'New Task Assigned!',
-                                    body: heading,
-                                    data: { taskId: data[0].id }
-                                }
-                            })
-                        });
+                        try {
+                            const response = await fetch('http://localhost:3000/send-push', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    subscription: userData.push_subscription,
+                                    payload: {
+                                        title: 'New Task Assigned!',
+                                        body: heading,
+                                        data: { taskId: data[0].id }
+                                    }
+                                })
+                            });
+
+                            if (!response.ok) {
+                                console.error('Failed to send push notification.', await response.text());
+                            } else {
+                                console.log('Push notification sent successfully!');
+                            }
+                        } catch (e) {
+                            console.error('Network error when sending push notification:', e);
+                        }
                     }
                 }
             });
