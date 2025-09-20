@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,7 +38,7 @@
         .logo-img { object-fit: contain; }
         
         /* --- Login Screen --- */
-        #login-container { padding: 40px 30px; justify-content: center; background: var(--card-color); }
+        #login-container { padding: 40px 30px; justify-content: center; background: var(--card-color); position: relative; }
         .login-header { text-align: center; margin-bottom: 40px; }
         .login-header .logo-img { width: 60px; height: 60px; margin-bottom: 15px; }
         .login-header h1 { font-size: 1.8rem; font-weight: 700; color: var(--text-color); }
@@ -60,6 +59,7 @@
             padding: 10px 15px; 
             background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
             color: white;
+            position: relative;
         }
         header .logo-img { width: 32px; height: 32px; }
         .header-title-container { margin-right: auto; }
@@ -67,12 +67,40 @@
         .header-subtitle { font-size: 0.65rem; font-weight: 500; color: rgba(255, 255, 255, 0.85); }
         #user-info { text-align: right; }
         #user-info .greeting { font-size: 0.9rem; font-weight: 600; color: white; }
-        #logout-button { background: none; color: rgba(255, 255, 255, 0.85); font-weight: 500; font-size: 0.8rem; padding: 5px; cursor: pointer; border: none; }
-        #logout-button:hover { color: white; }
-        #logout-button svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap="round" stroke-linejoin="round"; }
-        #filter-btn { background: none; border: none; color: white; padding: 5px; cursor: pointer; opacity: 0.85; }
-        #filter-btn:hover { opacity: 1; }
+        #logout-button, #filter-btn, #app-context-menu-btn { background: none; border: none; color: white; padding: 5px; cursor: pointer; opacity: 0.85; }
+        #logout-button:hover, #filter-btn:hover, #app-context-menu-btn:hover { opacity: 1; }
+        #logout-button svg, #filter-btn svg, #app-context-menu-btn svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap="round" stroke-linejoin="round"; }
         #filter-btn svg { display: block; }
+        
+        /* Context menu in app header */
+        #app-context-menu-btn { order: -1; } /* Pushes the button to the beginning */
+        #app-context-menu {
+            position: absolute;
+            z-index: 101;
+            background-color: var(--card-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            padding: 10px;
+            top: 55px; 
+            left: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        #app-context-menu button {
+            background: none;
+            color: var(--text-color);
+            padding: 10px 15px;
+            font-weight: 500;
+            text-align: left;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+        #app-context-menu button:hover {
+            background-color: var(--background-color);
+            transform: none;
+            box-shadow: none;
+        }
         
         main { flex-grow: 1; overflow-y: auto; padding: 20px; background-color: var(--background-color); }
         .task-item { 
@@ -125,15 +153,26 @@
         .nav-btn { background: none; color: var(--subtle-text-color); border: none; flex-grow: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.75rem; font-weight: 500; }
         .nav-btn svg { width: 24px; height: 24px; stroke-width: 2; }
         .nav-btn.active { color: var(--primary-color); }
+        
+        #assign-task-nav-link {
+            padding: 0;
+            background: none;
+            color: var(--subtle-text-color);
+            border: none;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        #assign-task-nav-link.active { color: var(--primary-color); }
+        
         #add-task-btn { position: absolute; bottom: 85px; right: 20px; width: 60px; height: 60px; border-radius: 50%; font-size: 2.2rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 20px var(--shadow-light); }
         
         .modal { position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; }
         .modal-content { background-color: white; padding: 25px; border-radius: 16px; width: 90%; max-width: 400px; position: relative; }
         .modal-content h3, #assign-task-form h3 { text-align: center; margin-bottom: 20px; font-weight: 600; font-size: 1.25rem; }
         .close-button { position: absolute; top: 15px; right: 20px; font-size: 2rem; cursor: pointer; color: var(--subtle-text-color); }
-        #add-task-form, #assign-task-form { display: flex; flex-direction: column; gap: 15px; }
+        #add-task-form, #assign-task-form, #add-user-form, #change-password-form { display: flex; flex-direction: column; gap: 15px; }
         #assign-task-form { padding: 20px; background: var(--card-color); border-radius: 12px; border: 1px solid var(--border-color); }
-        #assign-success-msg { text-align: center; font-weight: 500; margin-top: 10px; }
+        #assign-success-msg, #add-user-success-msg, #change-password-msg { text-align: center; font-weight: 500; margin-top: 10px; }
 
         .checkbox-container {
             display: flex;
@@ -146,6 +185,20 @@
             width: 20px;
             height: 20px;
             accent-color: var(--primary-color);
+        }
+        .multi-select-dropdown {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 1rem;
+            background-color: #F8F9FA;
+        }
+        .multi-select-dropdown:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px var(--shadow-light);
+            outline: none;
+            background-color: white;
         }
 
         /* --- Status Modal --- */
@@ -189,8 +242,8 @@
         .status-option { padding: 15px; border-radius: 10px; border: none; font-weight: 600; font-size: 1rem; cursor: pointer; transition: opacity 0.2s; }
         .status-option:hover { opacity: 0.9; }
         .status-option-pending { background-color: var(--warning-color); color: #333; }
-        .status-option-in_progress { background-color: var(--info-color); color: white; }
-        .status-option-completed { background-color: var(--success-color); color: white; }
+        .status-option-in_progress { background-color: var(--info-color); }
+        .status-option-completed { background-color: var(--success-color); }
         
         /* --- Filter Modal --- */
         #filter-modal {
@@ -337,6 +390,9 @@
 
     <div id="app-container" class="container hidden">
         <header>
+            <button id="app-context-menu-btn" title="Options">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-more-vertical"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+            </button>
             <img src="logo.png" alt="ProTask Logo" class="logo-img">
             <div class="header-title-container">
                 <h1 class="header-main-title">ProTask</h1>
@@ -359,7 +415,6 @@
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
   <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
 </svg>
-
                     <span>Summary</span>
                 </button>
                 <button class="nav-btn" data-section="my-day">
@@ -376,16 +431,15 @@
                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                      <span>Assigned</span>
                 </button>
-                <button class="nav-btn hidden" data-section="assign-task">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0 1 18 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3 1.5 1.5 3-3.75" />
-</svg>
-
-                    <span>Assign Task</span>
-                </button>
             </nav>
             <button id="add-task-btn">+</button>
         </footer>
+    </div>
+
+    <div id="app-context-menu" class="hidden">
+        <button id="assign-task-nav-link" data-section="assign-task">Assign Task</button>
+        <button id="add-user-btn" class="hidden">Add User</button>
+        <button id="change-password-btn">Change Password</button>
     </div>
 
     <div id="task-modal" class="modal hidden">
@@ -441,15 +495,34 @@
         </div>
     </div>
 
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-    <script>
-      window.OneSignalDeferred = window.OneSignalDeferred || [];
-      OneSignalDeferred.push(async function(OneSignal) {
-        await OneSignal.init({
-          appId: "307fae32-3acc-4f17-a614-627f459229f3",
-        });
-      });
-    </script>
+    <div id="add-user-modal" class="modal hidden">
+        <div class="modal-content">
+            <span id="close-add-user-modal" class="close-button">&times;</span>
+            <h3>Add New User</h3>
+            <form id="add-user-form">
+                <input type="text" id="new-user-name" placeholder="Name" required>
+                <input type="text" id="new-user-username" placeholder="Username" required>
+                <select id="new-user-members" class="multi-select-dropdown" multiple size="5"></select>
+                <button type="submit">Create User</button>
+                <p id="add-user-success-msg"></p>
+            </form>
+        </div>
+    </div>
+
+    <div id="change-password-modal" class="modal hidden">
+        <div class="modal-content">
+            <span id="close-change-password-modal" class="close-button">&times;</span>
+            <h3>Change Password</h3>
+            <form id="change-password-form">
+                <input type="password" id="current-password" placeholder="Current Password" required>
+                <input type="password" id="new-password" placeholder="New Password" required>
+                <input type="password" id="confirm-password" placeholder="Confirm New Password" required>
+                <button type="submit">Change Password</button>
+                <p id="change-password-msg"></p>
+            </form>
+        </div>
+    </div>
+
     <script>
         const SUPABASE_URL = 'https://txnajyowujjttfirdonu.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4bmFqeW93dWpqdHRmaXJkb251Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwMjU2OTAsImV4cCI6MjA3MzYwMTY5MH0.BV74b0UjdZbjhEOKo1ZTfK3IKuN_-vvs0sHt4GvB28w';
@@ -481,9 +554,21 @@
         const filterStartDate = document.getElementById('filter-start-date');
         const filterEndDate = document.getElementById('filter-end-date');
         const clearFiltersBtn = document.getElementById('clear-filters-btn');
+        
+        // NEW DOM elements
+        const appContextMenuBtn = document.getElementById('app-context-menu-btn');
+        const appContextMenu = document.getElementById('app-context-menu');
+        const addUserBtn = document.getElementById('add-user-btn');
+        const changePasswordBtn = document.getElementById('change-password-btn');
+        const assignTaskBtn = document.getElementById('assign-task-nav-link');
+        const addUserModal = document.getElementById('add-user-modal');
+        const closeAddUserModalBtn = document.getElementById('close-add-user-modal');
+        const addUserForm = document.getElementById('add-user-form');
+        const changePasswordModal = document.getElementById('change-password-modal');
+        const closeChangePasswordModalBtn = document.getElementById('close-change-password-modal');
+        const changePasswordForm = document.getElementById('change-password-form');
 
         // --- Helper Functions ---
-        // 🟢 NEW HELPER: Gets the date string in YYYY-MM-DD format based on the local timezone
         function getLocalDateString(date) {
             const year = date.getFullYear();
             const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -497,14 +582,12 @@
             return getLocalDateString(date);
         }
         
-        // 🟢 NEW HELPER: Gets the date string for a specific day of the week
         function getDayOfWeek(date, dayOffset) {
             const d = new Date(date);
             d.setDate(d.getDate() - d.getDay() + dayOffset);
             return getLocalDateString(d);
         }
 
-        // 🟢 FIXED HELPER FUNCTION: Convert UTC date string from DB to local IST date string
         function convertUTCDateToIST(dateStr) {
             if (!dateStr) return '';
             const utcDate = new Date(dateStr + 'T00:00:00Z');
@@ -552,10 +635,6 @@
         logoutButton.addEventListener('click', () => {
             localStorage.removeItem('currentUser');
             currentUser = null;
-            // Un-associate the user ID from OneSignal on logout
-            OneSignalDeferred.push(async function(OneSignal) {
-                await OneSignal.logout();
-            });
             loginContainer.classList.remove('hidden');
             appContainer.classList.add('hidden');
         });
@@ -578,22 +657,18 @@
             
             userInfoSpan.innerHTML = `<div class="greeting">Hello, ${currentUser.name}</div>`;
             
-            // Associate the user's ID with OneSignal for targeted notifications
-            OneSignalDeferred.push(async function(OneSignal) {
-                await OneSignal.login(String(currentUser.id));
-            });
-
-            const assignTaskNavBtn = document.querySelector('[data-section="assign-task"]');
             if (currentUser.is_admin) {
-                assignTaskNavBtn.classList.remove('hidden');
+                assignTaskBtn.classList.remove('hidden');
+                addUserBtn.classList.remove('hidden');
                 addTaskBtn.classList.add('hidden');
             } else {
-                assignTaskNavBtn.classList.add('hidden');
+                assignTaskBtn.classList.remove('hidden');
+                addUserBtn.classList.add('hidden');
                 addTaskBtn.classList.remove('hidden');
             }
-
+            
+            appContextMenuBtn.classList.remove('hidden');
             taskDateInput.value = getLocalDateString(new Date());
-            // Reset to default view and update active button
             currentView = 'summary';
             await navigateTo(currentView);
         }
@@ -602,6 +677,11 @@
         mainNav.addEventListener('click', (e) => {
             const navBtn = e.target.closest('.nav-btn');
             if (navBtn) { navigateTo(navBtn.dataset.section); }
+        });
+        
+        assignTaskBtn.addEventListener('click', () => {
+             navigateTo('assign-task');
+             appContextMenu.classList.add('hidden');
         });
 
         async function navigateTo(section) {
@@ -656,7 +736,6 @@
                 alert('Failed to update task importance.');
                 console.error('Error toggling importance:', error);
             } else {
-                // Refresh the current view to show the change
                 await navigateTo(currentView);
             }
         }
@@ -668,7 +747,6 @@
             div.dataset.taskId = task.id;
 
             let assignmentInfo = '';
-            // Case 1: Task is assigned to someone else
             if (task.assignee) {
                 const creatorName = task.creator ? task.creator.name : 'Unknown';
                 const assigneeName = task.assignee.name;
@@ -676,18 +754,14 @@
                     <span class="task-owner">By: ${creatorName}</span>
                     <span class="task-owner">To: ${assigneeName}</span>
                 </div>`;
-            } 
-            // Case 2: Task is a self-task (not assigned)
-            else if (task.creator) {
+            } else if (task.creator) {
                 assignmentInfo = `<div class="assignment-info">
                     <span class="task-owner">To: ${task.creator.name}</span>
                 </div>`;
             }
             
-            // 🟢 FIXED: Use the corrected helper function to convert the date for display.
             const istDate = convertUTCDateToIST(task.due_date);
 
-            // Add the star button
             const starClass = task.is_important ? 'is-important' : '';
             const starSvg = `
                 <button class="important-btn ${starClass}" data-task-id="${task.id}" data-is-important="${task.is_important}">
@@ -721,7 +795,6 @@
             tasks.forEach(task => container.appendChild(createTaskElement(task)));
         }
         
-        // 🟢 NEW FUNCTION: Render tasks grouped by day
         function renderGroupedTasks(tasks, container) {
             container.innerHTML = '';
             if (!tasks || tasks.length === 0) {
@@ -757,8 +830,7 @@
         }
 
         // --- Data Fetching & Sorting ---
-        // 🟢 UPDATED: Added 'is_important' to the query
-        const taskQuery = '*, creator:users!user_id(name), assignee:users!assigned_to(name), is_important';
+        const taskQuery = '*, creator:users!user_id(name, members, username), assignee:users!assigned_to(name, members, username)';
         const statusOrder = { 'pending': 1, 'in progress': 2, 'completed': 3 };
 
         function sortTasks(tasks) {
@@ -773,29 +845,40 @@
             });
             return tasks;
         }
-
-        // --- This function is NOT affected by filters ---
-        async function fetchMyDayTasks() {
-            const tasksContainer = document.getElementById('my-day-tasks-container');
+        
+        function getBaseTaskQuery() {
             let query = supabaseClient.from('tasks').select(taskQuery);
             if (!currentUser.is_admin) {
                 query = query.or(`user_id.eq.${currentUser.id},assigned_to.eq.${currentUser.id}`);
+            } else if (currentUser.is_admin && currentUser.members) {
+                 const membersArray = currentUser.members.split(',').map(m => m.trim());
+                 if (membersArray.length > 0) {
+                     const membersClause = membersArray.map(m => `or(creator.username.eq.${m},assignee.username.eq.${m})`).join(',');
+                     query = query.or(`user_id.eq.${currentUser.id},assigned_to.eq.${currentUser.id}`);
+                 }
             }
-
+            return query;
+        }
+        
+        async function fetchMyDayTasks() {
+            const tasksContainer = document.getElementById('my-day-tasks-container');
+            const today = getLocalDateString(new Date());
+            
+            let query = getBaseTaskQuery();
+            
             if (myDayView === 'day') {
-                const today = getLocalDateString(new Date());
                 query = query.or(`due_date.eq.${today},is_important.eq.true`);
                 let { data, error } = await query;
                 if (error) console.error('Error fetching tasks:', error); else renderTasks(sortTasks(data), tasksContainer);
 
             } else {
-                const today = new Date();
-                const startOfWeek = getDayOfWeek(today, 0); // Sunday
-                const endOfWeek = getDayOfWeek(today, 6); // Saturday
+                const todayDate = new Date();
+                const startOfWeek = getDayOfWeek(todayDate, 0); // Sunday
+                const endOfWeek = getDayOfWeek(todayDate, 6); // Saturday
                 
-                // Fetch all tasks for the week and all important tasks
                 query = query.or(`due_date.gte.${startOfWeek},is_important.eq.true`);
                 query = query.or(`due_date.lte.${endOfWeek},is_important.eq.true`);
+                
                 let { data, error } = await query;
                 if (error) {
                     console.error('Error fetching tasks:', error); 
@@ -805,7 +888,6 @@
             }
         }
         
-        // --- These functions ARE affected by filters ---
         function applyFiltersToQuery(query) {
             if (currentFilters.startDate) query = query.gte('due_date', currentFilters.startDate);
             if (currentFilters.endDate) query = query.lte('due_date', currentFilters.endDate);
@@ -813,21 +895,21 @@
         }
         
         async function fetchPlannedTasks() {
-            let query = supabaseClient.from('tasks').select(taskQuery);
+            let query = getBaseTaskQuery();
             let userBaseFilter = '';
             if (currentUser.is_admin && currentFilters.userId && currentFilters.userId !== 'all') {
                 userBaseFilter = `user_id.eq.${currentFilters.userId},assigned_to.eq.${currentFilters.userId}`;
+                query = query.or(userBaseFilter);
             } else if (!currentUser.is_admin) {
                 userBaseFilter = `user_id.eq.${currentUser.id},assigned_to.eq.${currentUser.id}`;
+                query = query.or(userBaseFilter);
             }
-            if (userBaseFilter) query = query.or(userBaseFilter);
             query = applyFiltersToQuery(query);
             let { data, error } = await query;
             if (error) {
-                console.serror('Error fetching planned tasks:', error);
+                console.error('Error fetching planned tasks:', error);
             } else {
                 plannedTasks = data || [];
-                // 🟢 FIXED: The dates should be stored in their original UTC string format for calendar dot logic.
                 plannedTasksDates = plannedTasks.map(task => task.due_date);
                 renderPlannedView(plannedTasks);
             }
@@ -862,9 +944,9 @@
         async function fetchAssignedTasks() {
             contentArea.innerHTML = `<h2 style="margin-bottom: 20px; font-size: 1.5rem; font-weight: 600;">Assigned Tasks</h2><div id="assigned-tasks-list"></div>`;
             const assignedTasksList = document.getElementById('assigned-tasks-list');
-            let query = supabaseClient.from('tasks').select(taskQuery);
+            let query = supabaseClient.from('tasks').select(taskQuery).not('assigned_to', 'is', null);
+
             if (currentUser.is_admin) {
-                query = query.not('assigned_to', 'is', null);
                 if (currentFilters.userId && currentFilters.userId !== 'all') {
                     query = query.eq('assigned_to', currentFilters.userId);
                 }
@@ -893,6 +975,11 @@
                         </div>
                     </div>
 
+                    <div id="dangerous-zone" class="user-breakdown-section" style="background: var(--danger-color); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; color: white;">
+                        <h4 style="margin-bottom: 15px; font-weight: 600; text-align: center;">Dangerous Zone: Overdue Tasks</h4>
+                        <div id="overdue-task-list"></div>
+                    </div>
+
                     <div class="chart-section" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px;">
                         <h4 style="margin-bottom: 15px; font-weight: 600;">Completed Tasks</h4>
                         <canvas id="completed-tasks-chart"></canvas>
@@ -908,16 +995,10 @@
         }
 
         async function fetchSummaryData() {
-            // 🟢 FIXED: Use the local date string for the comparison
             const today = getLocalDateString(new Date());
             const sevenDaysAgo = getPastDate(7);
 
-            let query = supabaseClient.from('tasks').select('status, user_id, assigned_to, due_date, creator:users!user_id(name), assignee:users!assigned_to(name)');
-            if (currentUser.is_admin && currentFilters.userId && currentFilters.userId !== 'all') {
-                query = query.or(`user_id.eq.${currentFilters.userId},assigned_to.eq.${currentFilters.userId}`);
-            } else if (!currentUser.is_admin) {
-                query = query.or(`user_id.eq.${currentUser.id},assigned_to.eq.${currentUser.id}`);
-            }
+            let query = getBaseTaskQuery().select('status, user_id, assigned_to, due_date, creator:users!user_id(name), assignee:users!assigned_to(name)');
             query = applyFiltersToQuery(query);
             const { data: allTasks, error } = await query;
 
@@ -926,21 +1007,47 @@
                 return;
             }
 
-            // --- Card & Breakdown Logic: Current Day's Data ---
             const todayTasks = allTasks.filter(task => task.due_date === today);
             const pendingCount = todayTasks.filter(task => task.status.toLowerCase() !== 'completed').length;
             const completedCount = todayTasks.filter(task => task.status.toLowerCase() === 'completed').length;
             document.getElementById('pending-count').textContent = pendingCount;
             document.getElementById('completed-count').textContent = completedCount;
 
+            const overdueTasks = allTasks.filter(task => {
+                const taskDate = new Date(task.due_date);
+                const todayDate = new Date();
+                todayDate.setHours(0, 0, 0, 0);
+                const sevenDaysAgoDate = new Date(todayDate);
+                sevenDaysAgoDate.setDate(todayDate.getDate() - 7);
+                return (task.status.toLowerCase() !== 'completed' && taskDate < todayDate);
+            });
+
+            const overdueTaskList = document.getElementById('overdue-task-list');
+            if (overdueTasks.length > 0) {
+                 const overdueFragment = document.createDocumentFragment();
+                 overdueTasks.forEach(task => {
+                    const taskDiv = document.createElement('div');
+                    taskDiv.style = "padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.3);";
+                    taskDiv.innerHTML = `
+                        <p style="font-weight: 600;">${task.heading}</p>
+                        <p style="font-size: 0.8rem;">Due: ${convertUTCDateToIST(task.due_date)}</p>
+                    `;
+                    overdueFragment.appendChild(taskDiv);
+                 });
+                 overdueTaskList.innerHTML = '';
+                 overdueTaskList.appendChild(overdueFragment);
+            } else {
+                 overdueTaskList.innerHTML = '<p style="text-align: center; font-size: 0.9rem;">No overdue tasks in the previous week.</p>';
+            }
+
             const userBreakdown = {};
             let usersToDisplay = [];
-            if (currentUser.is_admin) {
-                const usersResponse = await supabaseClient.from('users').select('id, name');
-                usersToDisplay = usersResponse.data;
-            } else {
-                usersToDisplay.push(currentUser);
+            const { data: usersResponse, error: usersError } = await supabaseClient.from('users').select('id, name');
+            if (usersError) {
+                 console.error('Error fetching users for summary:', usersError);
+                 return;
             }
+            usersToDisplay = usersResponse;
             
             usersToDisplay.forEach(user => {
                 userBreakdown[user.id] = { name: user.name, pending: 0, completed: 0 };
@@ -973,7 +1080,6 @@
                 userTaskList.appendChild(userDiv);
             }
 
-            // --- Chart Logic: Last 7 Days ---
             const completedLastWeek = allTasks.filter(task => new Date(task.due_date) >= new Date(sevenDaysAgo) && task.status.toLowerCase() === 'completed');
             const dates = {};
             const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -1011,7 +1117,7 @@
             });
         }
 
-        // --- Admin: Task Assignment View ---
+        // --- Assign Task View ---
         async function renderAssignTaskView() {
             contentArea.innerHTML = `
                 <form id="assign-task-form">
@@ -1032,17 +1138,24 @@
             document.getElementById('assign-task-date').value = getLocalDateString(new Date());
 
             const userSelect = document.getElementById('assign-user-select');
-            const { data: users, error } = await supabaseClient.from('users').select('id, name').eq('is_admin', false);
-            if (error) {
-                console.error('Error fetching users:', error);
+            
+            let usersToAssign = [];
+            if (currentUser.is_admin) {
+                const { data: users, error } = await supabaseClient.from('users').select('id, name').eq('is_admin', false);
+                if (users) usersToAssign = users;
             } else {
-                users.forEach(user => {
-                    const option = document.createElement('option');
-                    option.value = user.id;
-                    option.textContent = user.name;
-                    userSelect.appendChild(option);
-                });
+                const membersUsernames = currentUser.members.split(',').map(m => m.trim()).filter(m => m);
+                const { data: users, error } = await supabaseClient.from('users').select('id, name').in('username', membersUsernames);
+                if (users) usersToAssign = users;
             }
+
+            usersToAssign.forEach(user => {
+                const option = document.createElement('option');
+                option.value = user.id;
+                option.textContent = user.name;
+                userSelect.appendChild(option);
+            });
+
 
             document.getElementById('assign-task-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
@@ -1051,13 +1164,12 @@
                 
                 const due_date = document.getElementById('assign-task-date').value;
                 const is_important = document.getElementById('assign-important').checked;
-                const assigned_to_id = document.getElementById('assign-user-select').value;
-                const task_heading = document.getElementById('assign-task-heading').value;
+
 
                 const { error: insertError } = await supabaseClient.from('tasks').insert({
                     user_id: currentUser.id,
-                    assigned_to: assigned_to_id,
-                    heading: task_heading,
+                    assigned_to: document.getElementById('assign-user-select').value,
+                    heading: document.getElementById('assign-task-heading').value,
                     subject: document.getElementById('assign-task-subject').value,
                     due_date: due_date,
                     is_important: is_important,
@@ -1068,16 +1180,6 @@
                     successMsg.textContent = 'Error assigning task.';
                     successMsg.style.color = 'var(--danger-color)';
                 } else {
-                    // Correct OneSignal notification call
-                    OneSignalDeferred.push(async function(OneSignal) {
-                        await OneSignal.sendNotification({
-                            headings: { en: "New Task Assigned" },
-                            contents: { en: `You have been assigned a new task: ${task_heading}` },
-                            include_external_user_ids: [String(assigned_to_id)],
-                            web_url: window.location.origin + window.location.pathname + '#assigned'
-                        });
-                    });
-
                     successMsg.textContent = 'Task assigned successfully!';
                     successMsg.style.color = 'var(--success-color)';
                     e.target.reset();
@@ -1284,6 +1386,119 @@
             }
         }
         
+        // --- NEW CONTEXT MENU & MODAL LOGIC ---
+        appContextMenuBtn.addEventListener('click', () => {
+            appContextMenu.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!appContextMenuBtn.contains(e.target) && !appContextMenu.contains(e.target)) {
+                appContextMenu.classList.add('hidden');
+            }
+        });
+
+        addUserBtn.addEventListener('click', async () => {
+            appContextMenu.classList.add('hidden');
+            addUserModal.classList.remove('hidden');
+
+            const { data: users, error } = await supabaseClient.from('users').select('name, username').eq('is_admin', false);
+            if (error) {
+                console.error('Error fetching users for members dropdown:', error);
+                return;
+            }
+            const membersSelect = document.getElementById('new-user-members');
+            membersSelect.innerHTML = '';
+            users.forEach(user => {
+                const option = document.createElement('option');
+                option.value = user.username;
+                option.textContent = user.name;
+                membersSelect.appendChild(option);
+            });
+        });
+        
+        closeAddUserModalBtn.addEventListener('click', () => {
+            addUserModal.classList.add('hidden');
+        });
+        
+        addUserForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const successMsg = document.getElementById('add-user-success-msg');
+            successMsg.textContent = '';
+            
+            const name = document.getElementById('new-user-name').value;
+            const username = document.getElementById('new-user-username').value;
+            const membersSelect = document.getElementById('new-user-members');
+            const members = Array.from(membersSelect.selectedOptions).map(option => option.value).join(',');
+            const password = '1234';
+            const is_admin = false;
+            
+            const { data, error } = await supabaseClient
+                .from('users')
+                .insert([{ name, username, password, is_admin, members }]);
+                
+            if (error) {
+                successMsg.textContent = 'Error adding user. Username may already exist.';
+                successMsg.style.color = 'var(--danger-color)';
+                console.error(error);
+            } else {
+                successMsg.textContent = 'User added successfully! Password is "1234".';
+                successMsg.style.color = 'var(--success-color)';
+                addUserForm.reset();
+            }
+        });
+
+        changePasswordBtn.addEventListener('click', () => {
+            appContextMenu.classList.add('hidden');
+            changePasswordModal.classList.remove('hidden');
+            document.getElementById('current-password').value = '';
+            document.getElementById('new-password').value = '';
+            document.getElementById('confirm-password').value = '';
+        });
+        
+        closeChangePasswordModalBtn.addEventListener('click', () => {
+            changePasswordModal.classList.add('hidden');
+        });
+
+        changePasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const msg = document.getElementById('change-password-msg');
+            msg.textContent = '';
+            
+            const username = currentUser.username;
+            const currentPassword = document.getElementById('current-password').value;
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            
+            if (newPassword !== confirmPassword) {
+                msg.textContent = 'New passwords do not match.';
+                msg.style.color = 'var(--danger-color)';
+                return;
+            }
+            
+            const { data, error: authError } = await supabaseClient.from('users').select('id, password').eq('username', username).single();
+            if (authError || !data || data.password !== currentPassword) {
+                msg.textContent = 'Invalid current password.';
+                msg.style.color = 'var(--danger-color)';
+                return;
+            }
+            
+            const { error: updateError } = await supabaseClient.from('users').update({ password: newPassword }).eq('id', data.id);
+            
+            if (updateError) {
+                msg.textContent = 'Error changing password.';
+                msg.style.color = 'var(--danger-color)';
+                console.error(updateError);
+            } else {
+                msg.textContent = 'Password changed successfully! You will be logged out in a moment.';
+                msg.style.color = 'var(--success-color)';
+                changePasswordForm.reset();
+                setTimeout(() => {
+                    changePasswordModal.classList.add('hidden');
+                    logoutButton.click();
+                }, 3000);
+            }
+        });
+
         // --- Initial Load ---
         document.addEventListener('DOMContentLoaded', checkUserSession);
     </script>
