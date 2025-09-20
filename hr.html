@@ -442,18 +442,16 @@
 
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script>
-        window.OneSignalDeferred = window.OneSignalDeferred || [];
-        OneSignalDeferred.push(async function(OneSignal) {
-            await OneSignal.init({
-                appId: "307fae32-3acc-4f17-a614-627f459229f3",
-            });
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+          appId: "307fae32-3acc-4f17-a614-627f459229f3",
         });
+      });
     </script>
-    
     <script>
         const SUPABASE_URL = 'https://txnajyowujjttfirdonu.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4bmFqeW93dWpqdHRmaXJkb251Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwMjU2OTAsImV4cCI6MjA3MzYwMTY5MH0.BV74b0UjdZbjhEOKo1ZTfK3IKuN_-vvs0sHt4GvB28w';
-        const ONESIGNAL_REST_API_KEY = 'YOUR_ONESIGNAL_REST_API_KEY'; // Replace with your actual OneSignal REST API Key
         
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -484,6 +482,7 @@
         const clearFiltersBtn = document.getElementById('clear-filters-btn');
 
         // --- Helper Functions ---
+        // 🟢 NEW HELPER: Gets the date string in YYYY-MM-DD format based on the local timezone
         function getLocalDateString(date) {
             const year = date.getFullYear();
             const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -497,12 +496,14 @@
             return getLocalDateString(date);
         }
         
+        // 🟢 NEW HELPER: Gets the date string for a specific day of the week
         function getDayOfWeek(date, dayOffset) {
             const d = new Date(date);
             d.setDate(d.getDate() - d.getDay() + dayOffset);
             return getLocalDateString(d);
         }
 
+        // 🟢 FIXED HELPER FUNCTION: Convert UTC date string from DB to local IST date string
         function convertUTCDateToIST(dateStr) {
             if (!dateStr) return '';
             const utcDate = new Date(dateStr + 'T00:00:00Z');
@@ -518,7 +519,7 @@
         // --- State Variables ---
         let currentUser = null;
         let currentView = 'summary';
-        let myDayView = 'day';
+        let myDayView = 'day'; // 'day' or 'week'
         let selectedTaskId = null;
         let currentFilters = { 
             userId: 'all', 
@@ -550,6 +551,7 @@
         logoutButton.addEventListener('click', () => {
             localStorage.removeItem('currentUser');
             currentUser = null;
+            OneSignal.logout();
             loginContainer.classList.remove('hidden');
             appContainer.classList.add('hidden');
         });
@@ -571,31 +573,8 @@
             appContainer.classList.remove('hidden');
             
             userInfoSpan.innerHTML = `<div class="greeting">Hello, ${currentUser.name}</div>`;
+            OneSignal.login(String(currentUser.id));
 
-            // ONE SIGNAL INTEGRATION: Request permission and save Player ID
-            try {
-                await OneSignalDeferred.push(async function(OneSignal) {
-                    const permission = await OneSignal.User.PushSubscription.requestPermission();
-                    if (permission) {
-                        const pushSubscription = await OneSignal.User.PushSubscription.getEphemeralPushSubscription();
-                        if (pushSubscription && currentUser.onesignal_player_id !== pushSubscription.id) {
-                            const { error } = await supabaseClient
-                                .from('users')
-                                .update({ onesignal_player_id: pushSubscription.id })
-                                .eq('id', currentUser.id);
-                            if (error) {
-                                console.error("Failed to update OneSignal Player ID:", error);
-                            } else {
-                                currentUser.onesignal_player_id = pushSubscription.id;
-                                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                                console.log("OneSignal Player ID updated successfully.");
-                            }
-                        }
-                    }
-                });
-            } catch (e) {
-                console.error("OneSignal initialization or permission request failed:", e);
-            }
 
             const assignTaskNavBtn = document.querySelector('[data-section="assign-task"]');
             if (currentUser.is_admin) {
@@ -607,6 +586,7 @@
             }
 
             taskDateInput.value = getLocalDateString(new Date());
+            // Reset to default view and update active button
             currentView = 'summary';
             await navigateTo(currentView);
         }
@@ -669,6 +649,7 @@
                 alert('Failed to update task importance.');
                 console.error('Error toggling importance:', error);
             } else {
+                // Refresh the current view to show the change
                 await navigateTo(currentView);
             }
         }
@@ -680,6 +661,7 @@
             div.dataset.taskId = task.id;
 
             let assignmentInfo = '';
+            // Case 1: Task is assigned to someone else
             if (task.assignee) {
                 const creatorName = task.creator ? task.creator.name : 'Unknown';
                 const assigneeName = task.assignee.name;
@@ -688,14 +670,17 @@
                     <span class="task-owner">To: ${assigneeName}</span>
                 </div>`;
             } 
+            // Case 2: Task is a self-task (not assigned)
             else if (task.creator) {
                 assignmentInfo = `<div class="assignment-info">
                     <span class="task-owner">To: ${task.creator.name}</span>
                 </div>`;
             }
             
+            // 🟢 FIXED: Use the corrected helper function to convert the date for display.
             const istDate = convertUTCDateToIST(task.due_date);
 
+            // Add the star button
             const starClass = task.is_important ? 'is-important' : '';
             const starSvg = `
                 <button class="important-btn ${starClass}" data-task-id="${task.id}" data-is-important="${task.is_important}">
@@ -729,6 +714,7 @@
             tasks.forEach(task => container.appendChild(createTaskElement(task)));
         }
         
+        // 🟢 NEW FUNCTION: Render tasks grouped by day
         function renderGroupedTasks(tasks, container) {
             container.innerHTML = '';
             if (!tasks || tasks.length === 0) {
@@ -752,7 +738,6 @@
             days.forEach(day => {
                 if (groupedTasks[day] && groupedTasks[day].length > 0) {
                     const groupHeader = document.createElement('h3');
-    
                     groupHeader.className = 'day-group-header';
                     groupHeader.textContent = day;
                     container.appendChild(groupHeader);
@@ -765,7 +750,8 @@
         }
 
         // --- Data Fetching & Sorting ---
-        const taskQuery = '*, creator:users!user_id(name), assignee:users!assigned_to(name), is_important, assigned_to_user:users!assigned_to(onesignal_player_id)';
+        // 🟢 UPDATED: Added 'is_important' to the query
+        const taskQuery = '*, creator:users!user_id(name), assignee:users!assigned_to(name), is_important';
         const statusOrder = { 'pending': 1, 'in progress': 2, 'completed': 3 };
 
         function sortTasks(tasks) {
@@ -781,6 +767,7 @@
             return tasks;
         }
 
+        // --- This function is NOT affected by filters ---
         async function fetchMyDayTasks() {
             const tasksContainer = document.getElementById('my-day-tasks-container');
             let query = supabaseClient.from('tasks').select(taskQuery);
@@ -796,9 +783,10 @@
 
             } else {
                 const today = new Date();
-                const startOfWeek = getDayOfWeek(today, 0);
-                const endOfWeek = getDayOfWeek(today, 6);
+                const startOfWeek = getDayOfWeek(today, 0); // Sunday
+                const endOfWeek = getDayOfWeek(today, 6); // Saturday
                 
+                // Fetch all tasks for the week and all important tasks
                 query = query.or(`due_date.gte.${startOfWeek},is_important.eq.true`);
                 query = query.or(`due_date.lte.${endOfWeek},is_important.eq.true`);
                 let { data, error } = await query;
@@ -810,6 +798,7 @@
             }
         }
         
+        // --- These functions ARE affected by filters ---
         function applyFiltersToQuery(query) {
             if (currentFilters.startDate) query = query.gte('due_date', currentFilters.startDate);
             if (currentFilters.endDate) query = query.lte('due_date', currentFilters.endDate);
@@ -831,6 +820,7 @@
                 console.error('Error fetching planned tasks:', error);
             } else {
                 plannedTasks = data || [];
+                // 🟢 FIXED: The dates should be stored in their original UTC string format for calendar dot logic.
                 plannedTasksDates = plannedTasks.map(task => task.due_date);
                 renderPlannedView(plannedTasks);
             }
@@ -911,6 +901,7 @@
         }
 
         async function fetchSummaryData() {
+            // 🟢 FIXED: Use the local date string for the comparison
             const today = getLocalDateString(new Date());
             const sevenDaysAgo = getPastDate(7);
 
@@ -928,6 +919,7 @@
                 return;
             }
 
+            // --- Card & Breakdown Logic: Current Day's Data ---
             const todayTasks = allTasks.filter(task => task.due_date === today);
             const pendingCount = todayTasks.filter(task => task.status.toLowerCase() !== 'completed').length;
             const completedCount = todayTasks.filter(task => task.status.toLowerCase() === 'completed').length;
@@ -974,6 +966,7 @@
                 userTaskList.appendChild(userDiv);
             }
 
+            // --- Chart Logic: Last 7 Days ---
             const completedLastWeek = allTasks.filter(task => new Date(task.due_date) >= new Date(sevenDaysAgo) && task.status.toLowerCase() === 'completed');
             const dates = {};
             const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -1049,17 +1042,18 @@
                 const successMsg = document.getElementById('assign-success-msg');
                 successMsg.textContent = '';
                 
+                // 🟢 FIXED: Get the value from the date input directly as the YYYY-MM-DD string
                 const due_date = document.getElementById('assign-task-date').value;
                 const is_important = document.getElementById('assign-important').checked;
-                const assignedToUserId = document.getElementById('assign-user-select').value;
-                const heading = document.getElementById('assign-task-heading').value;
+                const assigned_to_id = document.getElementById('assign-user-select').value;
+                const task_heading = document.getElementById('assign-task-heading').value;
 
                 const { error: insertError } = await supabaseClient.from('tasks').insert({
                     user_id: currentUser.id,
-                    assigned_to: assignedToUserId,
-                    heading: heading,
+                    assigned_to: assigned_to_id,
+                    heading: task_heading,
                     subject: document.getElementById('assign-task-subject').value,
-                    due_date: due_date,
+                    due_date: due_date, // Use the YYYY-MM-DD string here
                     is_important: is_important,
                     status: 'pending'
                 });
@@ -1068,50 +1062,24 @@
                     successMsg.textContent = 'Error assigning task.';
                     successMsg.style.color = 'var(--danger-color)';
                 } else {
+                    // Send OneSignal notification
+                    OneSignal.push(() => {
+                        OneSignal.sendNotification({
+                            headings: { en: "New Task Assigned" },
+                            contents: { en: `You have been assigned a new task: ${task_heading}` },
+                            include_external_user_ids: [String(assigned_to_id)],
+                            web_url: window.location.origin + window.location.pathname + '#assigned'
+                        }).then(() => {
+                            console.log('Notification sent successfully!');
+                        }).catch(e => {
+                            console.error('Failed to send notification:', e);
+                        });
+                    });
+
                     successMsg.textContent = 'Task assigned successfully!';
                     successMsg.style.color = 'var(--success-color)';
                     e.target.reset();
                     document.getElementById('assign-task-date').value = getLocalDateString(new Date());
-
-                    // ONE SIGNAL INTEGRATION: Send notification to the assigned user
-                    const { data: assignee, error: userError } = await supabaseClient
-                        .from('users')
-                        .select('onesignal_player_id')
-                        .eq('id', assignedToUserId)
-                        .single();
-
-                    if (userError || !assignee || !assignee.onesignal_player_id) {
-                        console.error("Could not find assignee or their OneSignal Player ID. Notification not sent.");
-                    } else {
-                        const notificationData = {
-                            app_id: "307fae32-3acc-4f17-a614-627f459229f3",
-                            include_player_ids: [assignee.onesignal_player_id],
-                            contents: {
-                                en: `New task: ${heading}`
-                            },
-                            headings: {
-                                en: "You have a new task assigned!"
-                            },
-                            subtitle: {
-                                en: `Due Date: ${due_date}`
-                            },
-                        };
-
-                        const response = await fetch("https://onesignal.com/api/v1/notifications", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json; charset=utf-8",
-                                "Authorization": `Basic ${ONESIGNAL_REST_API_KEY}`
-                            },
-                            body: JSON.stringify(notificationData)
-                        });
-
-                        if (!response.ok) {
-                            console.error("Failed to send OneSignal notification:", await response.text());
-                        } else {
-                            console.log("OneSignal notification sent successfully!");
-                        }
-                    }
                 }
             });
         }
@@ -1121,20 +1089,23 @@
         closeModalBtn.addEventListener('click', () => taskModal.classList.add('hidden'));
         addTaskForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            // 🟢 FIXED: Get the value from the date input directly as the YYYY-MM-DD string
             const due_date = document.getElementById('task-date').value;
             const is_important = document.getElementById('task-important').checked;
+
             const { error } = await supabaseClient.from('tasks').insert({ user_id: currentUser.id, heading: document.getElementById('task-heading').value, subject: document.getElementById('task-subject').value, due_date: due_date, is_important: is_important });
             if (error) { alert('Could not add task.'); }
             else { addTaskForm.reset(); taskModal.classList.add('hidden'); await navigateTo(currentView); }
         });
         
         contentArea.addEventListener('click', (e) => {
+            // Check if the clicked element is the star button
             const importantBtn = e.target.closest('.important-btn');
             if (importantBtn) {
                 const taskId = importantBtn.dataset.taskId;
                 const isImportant = importantBtn.dataset.isImportant === 'true';
                 toggleImportantStatus(taskId, isImportant);
-                return;
+                return; // Exit to prevent the task modal from opening
             }
 
             const taskItem = e.target.closest('.task-item');
@@ -1166,6 +1137,7 @@
         filterBtn.addEventListener('click', async () => {
             if (currentUser.is_admin) {
                 userFilterContainer.classList.remove('hidden');
+                // Populate users if not already populated
                 if(filterUserSelect.options.length <= 1) {
                     const { data: users, error } = await supabaseClient.from('users').select('id, name');
                     if(users) {
@@ -1180,6 +1152,7 @@
             } else {
                 userFilterContainer.classList.add('hidden');
             }
+            // Set filter inputs to current filter values
             filterStartDate.value = currentFilters.startDate;
             filterEndDate.value = currentFilters.endDate;
             filterUserSelect.value = currentFilters.userId;
@@ -1283,6 +1256,7 @@
                     dayDiv.classList.add('selected');
                     dayLabel.classList.add('today');
                 }
+                // 🟢 FIXED: Compare the date string from the loop directly with the array of UTC date strings.
                 if (plannedTasksDates.includes(dateStr)) {
                     const dot = document.createElement('div');
                     dot.className = 'calendar-dot';
@@ -1291,6 +1265,7 @@
                 dayDiv.addEventListener('click', () => {
                     document.querySelectorAll('.calendar-day').forEach(el => el.classList.remove('selected'));
                     dayDiv.classList.add('selected');
+                    // 🟢 FIXED: Filter tasks by the date string from the calendar, which is already in the database format.
                     const tasksForDay = plannedTasks.filter(task => task.due_date === dateStr);
                     const plannedTasksList = document.getElementById('planned-tasks-list');
                     renderTasks(sortTasks(tasksForDay), plannedTasksList);
