@@ -1,7 +1,6 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+// Import the Firebase scripts for the v8 SDK
+importScripts("https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js");
+importScripts("https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js");
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -14,12 +13,23 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+firebase.initializeApp(firebaseConfig);
 
+// Retrieve an instance of Firebase Messaging so that it can handle background messages.
+const messaging = firebase.messaging();
 
+// Optional: You can add this to handle messages when the app is in the background.
+messaging.onBackgroundMessage((payload) => {
+  console.log(
+    "[firebase-messaging-sw.js] Received background message ",
+    payload
+  );
 
+  const notificationTitle = payload.notification.title;
+  const notificationOptions = {
+    body: payload.notification.body,
+    // icon: '/your-icon.png' // Optional: Add an icon
+  };
 
-
-BMeR_RNuIsEMJ5Gdr3bpXVDdogfp4SRc7cPr70W1jlYVBzQXbrFd1H-J9_ptHA4PzJ7yWBKxbkOSjS81bHZ5DEs	
-
-snUdM6tMLu-o7pUk7p0DI2HffQtaDQsngTulmtOLW7E
+  self.registration.showNotification(notificationTitle, notificationOptions);
+});
