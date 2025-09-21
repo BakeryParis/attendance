@@ -1,36 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>OneSignal Push Test</title>
-  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-  <script>
-    window.OneSignalDeferred = window.OneSignalDeferred || [];
-    OneSignalDeferred.push(async function(OneSignal) {
-      await OneSignal.init({
-        appId: "307fae32-3acc-4f17-a614-627f459229f3",  // Your OneSignal App ID
-        safari_web_id: "web.onesignal.auto.4ddec2dc-5c48-40c7-bde8-da7159bee241",
-        notifyButton: {
-          enable: true, // Floating bell icon
-        },
-      });
-    });
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Push Notifications</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f0f2f5; }
+        .container { text-align: center; background-color: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h1 { color: #333; }
+        p { color: #666; }
+        button { background-color: #007bff; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 5px; cursor: pointer; transition: background-color 0.3s; }
+        button:hover { background-color: #0056b3; }
+    </style>
 </head>
 <body>
-  <h1>Push Notification Test</h1>
-  <button id="sendNotif">Send Test Notification</button>
 
-  <script>
-    document.getElementById("sendNotif").addEventListener("click", async () => {
-      // This sends a local notification (works only after user subscribes)
-      window.OneSignalDeferred.push(async function(OneSignal) {
-        OneSignal.Notifications.showNotification("Hello from OneSignal!", {
-          body: "This is a test notification from your website.",
-          icon: "https://cdn.onesignal.com/sdks/onesignal_logo_icon.png"
+    <div class="container">
+        <h1>Subscribe to Notifications</h1>
+        <p>Click the button below to receive updates from our site!</p>
+        <button id="subscribeBtn">Subscribe Now</button>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
+
+    <script>
+        // 1. --- PASTE YOUR FIREBASE CONFIG OBJECT HERE ---
+        const firebaseConfig = {
+        apiKey: "AIzaSyDrSuvTsTd_o9quBiyq-GHkXKU3nYJPp7c",
+  authDomain: "parisbakerynotify.firebaseapp.com",
+  projectId: "parisbakerynotify",
+  storageBucket: "parisbakerynotify.firebasestorage.app",
+  messagingSenderId: "356112603370",
+  appId: "1:356112603370:web:36648e91bbe5b20f8b9f93"
+        };
+
+
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const messaging = firebase.messaging();
+
+        const subscribeButton = document.getElementById('subscribeBtn');
+
+        subscribeButton.addEventListener('click', () => {
+            requestNotificationPermission();
         });
-      });
-    });
-  </script>
+
+        function requestNotificationPermission() {
+            console.log('Requesting permission...');
+            Notification.requestPermission().then((permission) => {
+                if (permission === 'granted') {
+                    console.log('Notification permission granted.');
+                    
+                    // 2. --- PASTE YOUR VAPID KEY FROM FIREBASE SETTINGS HERE ---
+                    messaging.getToken({ vapidKey: 'BMeR_RNuIsEMJ5Gdr3bpXVDdogfp4SRc7cPr70W1jlYVBzQXbrFd1H-J9_ptHA4PzJ7yWBKxbkOSjS81bHZ5DEs' })
+                    .then((currentToken) => {
+                        if (currentToken) {
+                            console.log('FCM Token:', currentToken);
+                            // In a real app, send this token to your server to store it.
+                            alert('Subscription successful! Check the console for your token.');
+                            subscribeButton.textContent = 'Subscribed!';
+                            subscribeButton.disabled = true;
+                        } else {
+                            alert('Could not get the notification token. Is your firebase-messaging-sw.js file in the root directory?');
+                        }
+                    }).catch((err) => {
+                        console.error('An error occurred while retrieving token.', err);
+                        alert('Error getting token. See console for details.');
+                    });
+                } else {
+                    console.log('User did not grant permission.');
+                    alert('You need to allow notifications to subscribe.');
+                }
+            });
+        }
+    </script>
+
 </body>
 </html>
